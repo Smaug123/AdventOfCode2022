@@ -11,9 +11,7 @@ module Day1 =
             if String.IsNullOrWhiteSpace line then
                 0, (acc :: counts)
             else
-                match Int32.TryParse line with
-                | false, _ -> failwithf "not an int: %s" line
-                | true, v -> acc + v, counts
+                acc + int line, counts
         )
         |> snd
 
