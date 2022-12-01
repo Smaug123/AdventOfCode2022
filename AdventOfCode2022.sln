@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode2022", "AdventOfCode2022\AdventOfCode2022.fsproj", "{6C4FDE18-389F-4AE6-AE9A-B4BD5BA19773}"
+EndProject
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "AdventOfCode2022.Test", "AdventOfCode2022.Test\AdventOfCode2022.Test.fsproj", "{F22BC060-E7D0-44EE-95F1-0CEFFD8D46E1}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{6C4FDE18-389F-4AE6-AE9A-B4BD5BA19773}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{6C4FDE18-389F-4AE6-AE9A-B4BD5BA19773}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{6C4FDE18-389F-4AE6-AE9A-B4BD5BA19773}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{6C4FDE18-389F-4AE6-AE9A-B4BD5BA19773}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F22BC060-E7D0-44EE-95F1-0CEFFD8D46E1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F22BC060-E7D0-44EE-95F1-0CEFFD8D46E1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F22BC060-E7D0-44EE-95F1-0CEFFD8D46E1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F22BC060-E7D0-44EE-95F1-0CEFFD8D46E1}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+EndGlobal
