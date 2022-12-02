@@ -8,7 +8,9 @@
     <ItemGroup>
         <Compile Include="Assembly.fs" />
         <Compile Include="Day1.fs" />
+        <Compile Include="Day2.fs" />
         <EmbeddedResource Include="Inputs/Day1.txt" />
+        <EmbeddedResource Include="Inputs/Day2.txt" />
     </ItemGroup>
 
     <ItemGroup>
