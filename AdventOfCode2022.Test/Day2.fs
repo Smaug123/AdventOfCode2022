@@ -35,4 +35,4 @@ C Z"""
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day2.txt"
-        input.Split '\n' |> Day2.part2 |> shouldEqual 9651
+        input.Split '\n' |> Day2.part2 |> shouldEqual 10560
