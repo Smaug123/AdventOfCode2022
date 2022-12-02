@@ -21,9 +21,13 @@ module RockPaperScissors =
         | _ -> failwithf $"Could not parse char: %c{c}"
 
     let outcome (self : RPSMove) (opponent : RPSMove) : int =
-        if self = opponent then 3 else
+        if self = opponent then
+            3
+        else
+
         let self = int self
         let opponent = int opponent
+
         if self = (opponent + 2) % 3 then 0
         elif self = (opponent + 1) % 3 then 6
         else failwith $"oh no: {self}, {opponent}"
@@ -32,13 +36,9 @@ module RockPaperScissors =
         let score = int shape
         if score = 0 then 3 else score
 
-    let wouldBeat (shape : RPSMove) : RPSMove =
-        (int shape + 1) % 3
-        |> enum
+    let wouldBeat (shape : RPSMove) : RPSMove = (int shape + 1) % 3 |> enum
 
-    let wouldBeBeaten (shape : RPSMove) : RPSMove =
-        (int shape + 2) % 3
-        |> enum
+    let wouldBeBeaten (shape : RPSMove) : RPSMove = (int shape + 2) % 3 |> enum
 
 [<RequireQualifiedAccess>]
 module Day2 =
