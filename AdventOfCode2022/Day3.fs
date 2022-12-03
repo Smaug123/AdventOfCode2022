@@ -1,16 +1,18 @@
 namespace AdventOfCode2022
 
-open System
+[<Measure>]
+type Priority
 
 [<RequireQualifiedAccess>]
 module Day3 =
 
-    let private toPriority (c : char) : int =
+    let toPriority (c : char) : int<Priority> =
         if 'a' <= c && c <= 'z' then int c - int 'a' + 1
         elif 'A' <= c && c <= 'Z' then int c - int 'A' + 27
         else failwithf "oh no: %c" c
+        |> LanguagePrimitives.Int32WithMeasure
 
-    let part1 (lines : string seq) : int =
+    let part1 (lines : string seq) : int<Priority> =
         lines
         |> Seq.map (fun s ->
             let s = s.Trim ()
@@ -20,7 +22,7 @@ module Day3 =
         )
         |> Seq.sum
 
-    let part2 (lines : string seq) : int =
+    let part2 (lines : string seq) : int<Priority> =
         lines
         |> Seq.chunkBySize 3
         |> Seq.map (fun strArr ->

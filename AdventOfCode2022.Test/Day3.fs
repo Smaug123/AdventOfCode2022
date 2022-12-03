@@ -5,11 +5,18 @@ open NUnit.Framework
 open FsUnitTyped
 open AdventOfCode2022
 
-[<TestFixture>]
-module TestDay3 =
+[<TestFixture false>]
+[<TestFixture true>]
+type TestDay3 (efficient : bool) =
+
+    let part1 (s : string seq) =
+        if efficient then Day3Efficient.part1 s else Day3.part1 s
+
+    let part2 (s : string seq) =
+        if efficient then Day3Efficient.part2 s else Day3.part2 s
 
     [<Test>]
-    let ``Part 1, given`` () =
+    member _.``Part 1, given`` () =
         """vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
@@ -17,21 +24,21 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw"""
         |> fun s -> s.Split System.Environment.NewLine
-        |> Day3.part1
-        |> shouldEqual 157
+        |> part1
+        |> shouldEqual 157<Priority>
 
     [<Test>]
-    let ``Part 1`` () =
+    member _.``Part 1`` () =
         let input = Assembly.readResource "Day3.txt"
 
         input.Split '\n'
         |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Day3.part1
-        |> shouldEqual 9651
+        |> part1
+        |> shouldEqual 8018<Priority>
 
 
     [<Test>]
-    let ``Part 2, given`` () =
+    member _.``Part 2, given`` () =
         """vJrwpWtwJgWrhcsFMMfFFhFp
 jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
 PmmdzqPrVvPwwTWBwg
@@ -39,14 +46,14 @@ wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw"""
         |> fun s -> s.Split System.Environment.NewLine
-        |> Day3.part2
-        |> shouldEqual 8018
+        |> part2
+        |> shouldEqual 70<Priority>
 
     [<Test>]
-    let ``Part 2`` () =
+    member _.``Part 2`` () =
         let input = Assembly.readResource "Day3.txt"
 
         input.Split '\n'
         |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Day3.part2
-        |> shouldEqual 2518
+        |> part2
+        |> shouldEqual 2518<Priority>
