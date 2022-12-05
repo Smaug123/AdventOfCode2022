@@ -8,15 +8,18 @@ open AdventOfCode2022
 [<TestFixture>]
 module TestDay4 =
 
-    [<Test>]
-    let ``Part 1, given`` () =
+    let testInput =
         """2-4,6-8
 2-3,4-5
 5-7,7-9
 2-8,3-7
 6-6,4-6
 2-6,4-8"""
-        |> fun s -> s.Split System.Environment.NewLine
+
+    [<Test>]
+    let ``Part 1, given`` () =
+        testInput
+        |> fun s -> s.Split Environment.NewLine
         |> Day4.part1
         |> shouldEqual 2
 
@@ -29,16 +32,10 @@ module TestDay4 =
         |> Day4.part1
         |> shouldEqual 433
 
-
     [<Test>]
     let ``Part 2, given`` () =
-        """2-4,6-8
-2-3,4-5
-5-7,7-9
-2-8,3-7
-6-6,4-6
-2-6,4-8"""
-        |> fun s -> s.Split System.Environment.NewLine
+        testInput
+        |> fun s -> s.Split Environment.NewLine
         |> Day4.part2
         |> shouldEqual 4
 

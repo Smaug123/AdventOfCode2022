@@ -1,16 +1,19 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
     <PropertyGroup>
-        <TargetFramework>net6.0</TargetFramework>
-        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <TargetFramework>net6.0</TargetFramework>
+      <GenerateDocumentationFile>true</GenerateDocumentationFile>
+      <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
     </PropertyGroup>
 
     <ItemGroup>
-        <Compile Include="Day1.fs" />
-        <Compile Include="Day2.fs" />
-        <Compile Include="Day3.fs" />
-        <Compile Include="Day4.fs" />
-        <Compile Include="Day3Efficient.fs" />
+      <Compile Include="EfficientString.fs" />
+      <Compile Include="Day1.fs" />
+      <Compile Include="Day2.fs" />
+      <Compile Include="Day3.fs" />
+      <Compile Include="Day3Efficient.fs" />
+      <Compile Include="Day4.fs" />
+      <Compile Include="Day5.fs" />
     </ItemGroup>
 
 </Project>
