@@ -15,9 +15,7 @@ C Z"""
 
     [<Test>]
     let ``Part 1, given`` () =
-        testInput.Split Environment.NewLine
-        |> Day2.part1
-        |> shouldEqual 15
+        testInput.Split Environment.NewLine |> Day2.part1 |> shouldEqual 15
 
     [<Test>]
     let ``Part 1`` () =
@@ -27,9 +25,7 @@ C Z"""
 
     [<Test>]
     let ``Part 2, given`` () =
-        testInput.Split Environment.NewLine
-        |> Day2.part2
-        |> shouldEqual 12
+        testInput.Split Environment.NewLine |> Day2.part2 |> shouldEqual 12
 
     [<Test>]
     let ``Part 2`` () =

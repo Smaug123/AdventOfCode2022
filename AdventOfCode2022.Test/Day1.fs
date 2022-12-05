@@ -37,13 +37,9 @@ module TestDay1 =
 
     [<Test>]
     let ``Part 1, given example`` () =
-        testInput.Split Environment.NewLine
-        |> Day1.part1
-        |> shouldEqual 24000
+        testInput.Split Environment.NewLine |> Day1.part1 |> shouldEqual 24000
 
 
     [<Test>]
     let ``Part 2, given example`` () =
-        testInput.Split Environment.NewLine
-        |> Day1.part2
-        |> shouldEqual 45000
+        testInput.Split Environment.NewLine |> Day1.part2 |> shouldEqual 45000
