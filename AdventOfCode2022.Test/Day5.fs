@@ -22,21 +22,25 @@ move 1 from 1 to 2
 
     [<Test>]
     let ``Part 1, given`` () =
-        testInput.Split Environment.NewLine |> Day5.part1 |> shouldEqual "CMZ"
+        let lines = StringSplitEnumerator.make '\n' testInput
+        Day5.part1 lines |> shouldEqual "CMZ"
 
     [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day5.txt"
 
-        input.Split '\n' |> Day5.part1 |> shouldEqual "BSDMQFLSP"
+        let lines = StringSplitEnumerator.make '\n' input
+        Day5.part1 lines |> shouldEqual "BSDMQFLSP"
 
 
     [<Test>]
     let ``Part 2, given`` () =
-        testInput.Split Environment.NewLine |> Day5.part2 |> shouldEqual "MCD"
+        let lines = StringSplitEnumerator.make '\n' testInput
+        Day5.part2 lines |> shouldEqual "MCD"
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day5.txt"
 
-        input.Split '\n' |> Day5.part2 |> shouldEqual "PGSQBFLDP"
+        let lines = StringSplitEnumerator.make '\n' input
+        Day5.part2 lines |> shouldEqual "PGSQBFLDP"
