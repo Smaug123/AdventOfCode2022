@@ -13,11 +13,13 @@
         <Compile Include="Day3.fs" />
         <Compile Include="Day4.fs" />
         <Compile Include="Day5.fs" />
+        <Compile Include="Day6.fs" />
         <EmbeddedResource Include="Inputs\Day1.txt" />
         <EmbeddedResource Include="Inputs\Day2.txt" />
         <EmbeddedResource Include="Inputs\Day3.txt" />
         <EmbeddedResource Include="Inputs\Day4.txt" />
         <EmbeddedResource Include="Inputs\Day5.txt" />
+        <EmbeddedResource Include="Inputs\Day6.txt" />
     </ItemGroup>
 
     <ItemGroup>
