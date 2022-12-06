@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+    <PropertyGroup>
+        <OutputType>Exe</OutputType>
+        <TargetFramework>net7.0</TargetFramework>
+    </PropertyGroup>
+
+    <ItemGroup>
+      <Compile Include="Program.fs" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day1.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day2.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day3.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day4.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day5.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day6.txt" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <ProjectReference Include="..\AdventOfCode2022\AdventOfCode2022.fsproj" />
+    </ItemGroup>
+
+</Project>

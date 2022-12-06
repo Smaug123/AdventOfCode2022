@@ -1,6 +1,5 @@
 namespace AdventOfCode2022.Test
 
-open System
 open NUnit.Framework
 open FsUnitTyped
 open AdventOfCode2022
@@ -18,32 +17,20 @@ module TestDay4 =
 
     [<Test>]
     let ``Part 1, given`` () =
-        testInput
-        |> fun s -> s.Split Environment.NewLine
-        |> Day4.part1
-        |> shouldEqual 2
+        Day4.part1 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 2
 
     [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day4.txt"
 
-        input.Split '\n'
-        |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Day4.part1
-        |> shouldEqual 433
+        Day4.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 433
 
     [<Test>]
     let ``Part 2, given`` () =
-        testInput
-        |> fun s -> s.Split Environment.NewLine
-        |> Day4.part2
-        |> shouldEqual 4
+        Day4.part2 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 4
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day4.txt"
 
-        input.Split '\n'
-        |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Day4.part2
-        |> shouldEqual 852
+        Day4.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 852

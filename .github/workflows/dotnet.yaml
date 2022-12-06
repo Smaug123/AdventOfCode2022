@@ -27,6 +27,8 @@ jobs:
       run: dotnet build --no-restore
     - name: Test
       run: dotnet test --no-build --verbosity normal
+    - name: Run app
+      run: dotnet run --project AdventOfCode2022.App/AdventOfCode2022.App.fsproj --no-build
 
   check-format:
     runs-on: ubuntu-latest

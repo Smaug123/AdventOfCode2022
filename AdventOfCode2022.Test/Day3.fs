@@ -9,8 +9,11 @@ open AdventOfCode2022
 [<TestFixture true>]
 type TestDay3 (efficient : bool) =
 
-    let part1 (s : string seq) =
-        if efficient then Day3Efficient.part1 s else Day3.part1 s
+    let part1 (s : string) =
+        if efficient then
+            Day3Efficient.part1 (StringSplitEnumerator.make '\n' s)
+        else
+            s.Split '\n' |> Seq.filter (not << String.IsNullOrEmpty) |> Day3.part1
 
     let part2 (s : string seq) =
         if efficient then Day3Efficient.part2 s else Day3.part2 s
@@ -23,7 +26,6 @@ PmmdzqPrVvPwwTWBwg
 wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn
 ttgJtRGJQctTZtZT
 CrZsJsPPZsGzwwsLwLmpwMDw"""
-        |> fun s -> s.Split System.Environment.NewLine
         |> part1
         |> shouldEqual 157<Priority>
 
@@ -31,10 +33,7 @@ CrZsJsPPZsGzwwsLwLmpwMDw"""
     member _.``Part 1`` () =
         let input = Assembly.readResource "Day3.txt"
 
-        input.Split '\n'
-        |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> part1
-        |> shouldEqual 8018<Priority>
+        input |> part1 |> shouldEqual 8018<Priority>
 
 
     [<Test>]
