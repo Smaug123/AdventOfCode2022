@@ -43,46 +43,54 @@ module RockPaperScissors =
 [<RequireQualifiedAccess>]
 module Day2 =
 
-    let part1 (lines : string seq) : int =
-        lines
-        |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Seq.map (fun s ->
-            let s = s.Trim ()
+    let part1 (lines : StringSplitEnumerator) : int =
+        let mutable sum = 0
 
-            if s.Length <> 3 || s.[1] <> ' ' then
-                failwithf $"Bad format of string: %s{s}"
+        for line in lines do
+            if not (line.IsWhiteSpace ()) then
+                let line = line.Trim ()
 
-            RockPaperScissors.parse s.[0], RockPaperScissors.parse s.[2]
-        )
-        |> Seq.map (fun (opponent, self) -> RockPaperScissors.outcome self opponent + RockPaperScissors.shapeScore self)
-        |> Seq.sum
+                if line.Length <> 3 || line.[1] <> ' ' then
+                    failwithf $"Bad format of string: %s{line.ToString ()}"
 
+                let opponent = RockPaperScissors.parse line.[0]
+                let self = RockPaperScissors.parse line.[2]
 
-    let part2 (lines : string seq) : int =
-        lines
-        |> Seq.filter (not << String.IsNullOrWhiteSpace)
-        |> Seq.map (fun s ->
-            let s = s.Trim ()
+                sum <-
+                    sum
+                    + RockPaperScissors.outcome self opponent
+                    + RockPaperScissors.shapeScore self
 
-            if s.Length <> 3 || s.[1] <> ' ' then
-                failwithf $"Bad format of string: %s{s}"
+        sum
 
-            let move = RockPaperScissors.parse s.[0]
+    let part2 (lines : StringSplitEnumerator) : int =
+        let mutable sum = 0
 
-            let myMove =
-                match Char.ToLower s.[2] with
-                | 'x' ->
-                    // Need to lose
-                    RockPaperScissors.wouldBeBeaten move
-                | 'y' ->
-                    // Need to draw
-                    move
-                | 'z' ->
-                    // Need to win
-                    RockPaperScissors.wouldBeat move
-                | c -> failwithf $"Unexpected strategy: %c{c}"
+        for line in lines do
+            if not (line.IsWhiteSpace ()) then
+                let line = line.Trim ()
 
-            move, myMove
-        )
-        |> Seq.map (fun (opponent, self) -> RockPaperScissors.outcome self opponent + RockPaperScissors.shapeScore self)
-        |> Seq.sum
+                if line.Length <> 3 || line.[1] <> ' ' then
+                    failwithf $"Bad format of string: %s{line.ToString ()}"
+
+                let opponent = RockPaperScissors.parse line.[0]
+
+                let self =
+                    match Char.ToLower line.[2] with
+                    | 'x' ->
+                        // Need to lose
+                        RockPaperScissors.wouldBeBeaten opponent
+                    | 'y' ->
+                        // Need to draw
+                        opponent
+                    | 'z' ->
+                        // Need to win
+                        RockPaperScissors.wouldBeat opponent
+                    | c -> failwithf $"Unexpected strategy: %c{c}"
+
+                sum <-
+                    sum
+                    + RockPaperScissors.outcome self opponent
+                    + RockPaperScissors.shapeScore self
+
+        sum

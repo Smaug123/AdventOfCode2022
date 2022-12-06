@@ -68,18 +68,20 @@ module Day3Efficient =
         else
             go set s (i + 1)
 
-    let part1 (lines : string seq) : int<Priority> =
-        lines
-        |> Seq.map (fun s ->
-            let s = s.AsSpan().Trim ()
+    let part1 (lines : StringSplitEnumerator) : int<Priority> =
+        let mutable sum = 0<Priority>
+
+        for s in lines do
+            let s = s.Trim ()
             let set = CharSet.ofSpan (s.Slice (0, s.Length / 2))
 
-            go set (s.Slice (s.Length / 2)) 0
-        )
-        |> Seq.sum
+            sum <- sum + go set (s.Slice (s.Length / 2)) 0
+
+        sum
 
     let part2 (lines : string seq) : int<Priority> =
         lines
+        |> Seq.filter (not << String.IsNullOrEmpty)
         |> Seq.chunkBySize 3
         |> Seq.map (fun strArr ->
             strArr

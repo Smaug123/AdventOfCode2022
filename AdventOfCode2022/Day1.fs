@@ -9,6 +9,7 @@ module Day1 =
     let counts (lines : byref<StringSplitEnumerator>) : int IReadOnlyList =
         let counts = ResizeArray ()
         let mutable acc = 0
+
         for line in lines do
             if line.IsWhiteSpace () then
                 counts.Add acc
@@ -16,14 +17,15 @@ module Day1 =
             else
                 acc <- acc + Int32.Parse line
 
-        if acc <> 0 then counts.Add acc
+        if acc <> 0 then
+            counts.Add acc
+
         counts
 
     /// Expects a trailing newline (as is present in the given input data).
     let part1 (lines : StringSplitEnumerator) : int =
         let mutable lines = lines
-        counts &lines
-        |> Seq.max
+        counts &lines |> Seq.max
 
     /// I wanted to save cloning the entire seq, so here is some bonus efficiency.
     let maxThree (inputs : int IReadOnlyList) : struct (int * int * int) =

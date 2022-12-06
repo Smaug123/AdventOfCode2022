@@ -15,19 +15,19 @@ C Z"""
 
     [<Test>]
     let ``Part 1, given`` () =
-        testInput.Split Environment.NewLine |> Day2.part1 |> shouldEqual 15
+        Day2.part1 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 15
 
     [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day2.txt"
-        input.Split '\n' |> Day2.part1 |> shouldEqual 9651
+        Day2.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 9651
 
 
     [<Test>]
     let ``Part 2, given`` () =
-        testInput.Split Environment.NewLine |> Day2.part2 |> shouldEqual 12
+        Day2.part2 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 12
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day2.txt"
-        input.Split '\n' |> Day2.part2 |> shouldEqual 10560
+        Day2.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 10560

@@ -22,15 +22,24 @@ module Day4 =
         let secondElf2 = secondElf.Slice (secondDashIndex + 1)
         (Int32.Parse firstElf1, Int32.Parse firstElf2), (Int32.Parse secondElf1, Int32.Parse secondElf2)
 
-    let part1 (lines : string seq) : int =
-        lines
-        |> Seq.map (fun s -> parse (s.AsSpan ()))
-        |> Seq.filter (fun (firstElf, secondElf) -> fullyContains firstElf secondElf || fullyContains secondElf firstElf
-        )
-        |> Seq.length
+    let part1 (lines : StringSplitEnumerator) : int =
+        let mutable count = 0
 
-    let part2 (lines : string seq) : int =
-        lines
-        |> Seq.map (fun s -> parse (s.AsSpan ()))
-        |> Seq.filter (fun (firstElf, secondElf) -> overlaps firstElf secondElf)
-        |> Seq.length
+        for line in lines do
+            let firstElf, secondElf = parse line
+
+            if fullyContains firstElf secondElf || fullyContains secondElf firstElf then
+                count <- count + 1
+
+        count
+
+    let part2 (lines : StringSplitEnumerator) : int =
+        let mutable count = 0
+
+        for line in lines do
+            let firstElf, secondElf = parse line
+
+            if overlaps firstElf secondElf then
+                count <- count + 1
+
+        count

@@ -1,5 +1,7 @@
 namespace AdventOfCode2022
 
+open System
+
 [<Measure>]
 type Priority
 
