@@ -5,7 +5,7 @@ open System
 [<RequireQualifiedAccess>]
 module Day6 =
 
-    let findDuplicate (a : 'a array) : int ValueOption =
+    let findDuplicateSorted (a : 'a array) : int ValueOption =
         let mutable i = 0
         let mutable result = ValueNone
 
@@ -22,7 +22,7 @@ module Day6 =
         let arr = fourChars.ToArray ()
         Array.sortInPlace arr
 
-        match findDuplicate arr with
+        match findDuplicateSorted arr with
         | ValueSome _ -> go count s (i + 1)
         | ValueNone -> i + 1
 
