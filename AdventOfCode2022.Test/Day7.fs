@@ -51,4 +51,4 @@ $ ls
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day7.txt"
-        Day7.part2 (input.Split '\n') |> shouldEqual 2145
+        Day7.part2 (input.Split '\n') |> shouldEqual 3842121

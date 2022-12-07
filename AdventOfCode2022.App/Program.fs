@@ -59,8 +59,8 @@ module Program =
             printfn "%i" (Day6.part2 day6)
 
         do
-            let day7 = day 7
-            printfn "%i" (Day7.part1 (day7.Split '\n'))
+            let day7 = day(7).Split '\n'
+            printfn "%i" (Day7.part1 day7)
             printfn "%i" (Day7.part2 day7)
 
         time.Stop ()

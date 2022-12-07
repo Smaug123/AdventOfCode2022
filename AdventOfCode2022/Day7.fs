@@ -99,7 +99,7 @@ module Day7 =
                 | Day7Command.Cd dir ->
                     let newPath =
                         match dir, parentPath with
-                        | "..", (_ :: rest) -> rest
+                        | "..", _ :: rest -> rest
                         | "..", [] -> failwith "can't cd above root"
                         | _ -> dir :: parentPath
 
@@ -160,7 +160,7 @@ module Day7 =
         let _totalSize, results = cumulativeDirectorySizes dirs
 
         results
-        |> Seq.choose (fun (KeyValue (path, size)) -> if size <= 100000 then Some size else None)
+        |> Seq.choose (fun (KeyValue (_, size)) -> if size <= 100000 then Some size else None)
         |> Seq.sum
 
     let part2 (lines : string seq) : int =
