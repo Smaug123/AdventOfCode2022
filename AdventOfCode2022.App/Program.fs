@@ -20,7 +20,7 @@ module Program =
 
     [<EntryPoint>]
     let main _ =
-        let days = Array.init 7 (fun day -> readResource $"Day%i{day + 1}.txt")
+        let days = Array.init 9 (fun day -> readResource $"Day%i{day + 1}.txt")
 
         let inline day (i : int) = days.[i - 1]
 
@@ -62,6 +62,16 @@ module Program =
             let day7 = day(7).Split '\n'
             printfn "%i" (Day7.part1 day7)
             printfn "%i" (Day7.part2 day7)
+
+        do
+            let day8 = StringSplitEnumerator.make '\n' (day 8)
+            printfn "%i" (Day8.part1 day8)
+            printfn "%i" (Day8.part2 day8)
+
+        do
+            let day9 = StringSplitEnumerator.make '\n' (day 9)
+            printfn "%i" (Day9.part1 day9)
+            printfn "%i" (Day9.part2 day9)
 
         time.Stop ()
         printfn $"Took %i{time.ElapsedMilliseconds}ms"
