@@ -44,11 +44,21 @@ module Day9 =
         elif snd head = snd tail then
             fst head + (if fst head < fst tail then 1 else -1), snd head
         else
-            [ (1, 1) ; (1, -1) ; (-1, 1) ; (-1, -1) ]
-            |> List.map (fun (x, y) -> fst tail + x, snd tail + y)
-            |> List.find (fun (x, y) -> abs (fst head - x) <= 1 && abs (snd head - y) <= 1)
+            let fstCoord =
+                if abs (fst head - fst tail + 1) <= 1 then
+                    fst tail - 1
+                else
+                    fst tail + 1
 
-    let newHead (pos : int * int) (direction : Direction) : int * int =
+            let sndCoord =
+                if abs (snd head - snd tail + 1) <= 1 then
+                    snd tail - 1
+                else
+                    snd tail + 1
+
+            (fstCoord, sndCoord)
+
+    let newHead (pos : Position) (direction : Direction) : int * int =
         match direction with
         | Direction.Up -> fst pos, snd pos + 1
         | Direction.Down -> fst pos, snd pos - 1
@@ -58,16 +68,21 @@ module Day9 =
     let go (count : int) (directions : (Direction * int) seq) : int =
         let knots = Array.create count (0, 0)
         let tailVisits = HashSet ()
+        tailVisits.Add (0, 0) |> ignore
 
         for direction, distance in directions do
             for _ in 1..distance do
                 let newHead = newHead knots.[0] direction
                 knots.[0] <- newHead
 
-                for knot in 1 .. knots.Length - 1 do
+                for knot in 1 .. knots.Length - 2 do
                     knots.[knot] <- bringTailTogether knots.[knot - 1] knots.[knot]
 
-                tailVisits.Add knots.[count - 1] |> ignore
+                let newTail = bringTailTogether knots.[knots.Length - 2] knots.[knots.Length - 1]
+
+                if newTail <> knots.[knots.Length - 1] then
+                    knots.[knots.Length - 1] <- newTail
+                    tailVisits.Add newTail |> ignore
 
         tailVisits.Count
 
