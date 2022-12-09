@@ -177,5 +177,5 @@ module Day7 =
         let required = 30000000 - unused
 
         results
-        |> Seq.choose (fun (KeyValue (path, size)) -> if size >= required then Some size else None)
+        |> Seq.choose (fun (KeyValue (_, size)) -> if size >= required then Some size else None)
         |> Seq.min

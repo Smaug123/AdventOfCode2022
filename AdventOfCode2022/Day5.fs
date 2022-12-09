@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Collections.Generic
 
 type Day5Instruction =
     {
@@ -17,7 +18,7 @@ module Day5 =
         while enumerator.MoveNext () && not (enumerator.Current.IsWhiteSpace ()) do
             let s = enumerator.Current
 
-            if s.Contains ']' then
+            if s.IndexOf ']' >= 0 then
                 for i in 1..4 .. s.Length - 1 do
                     let pile = (i - 1) / 4
 
@@ -30,7 +31,7 @@ module Day5 =
 
         Array.init piles.Count (fun i -> List.init piles.[i].Count (fun j -> piles.[i].[j]))
 
-    let rec private parseInstruction (enumerator : byref<StringSplitEnumerator>) =
+    let rec private parseInstruction (enumerator : byref<StringSplitEnumerator>) : Day5Instruction IReadOnlyList =
         let outputs = ResizeArray ()
 
         while (enumerator.MoveNext ()) && (not (enumerator.Current.IsWhiteSpace ())) do
@@ -59,9 +60,9 @@ module Day5 =
             }
             |> outputs.Add
 
-        List.init outputs.Count (fun i -> outputs.[i])
+        outputs
 
-    let parse (s : StringSplitEnumerator) : char list array * Day5Instruction list =
+    let parse (s : StringSplitEnumerator) : char list array * Day5Instruction IReadOnlyList  =
         use mutable enumerator = s
 
         let piles = parseDrawing &enumerator
@@ -71,26 +72,23 @@ module Day5 =
     let part1 (lines : StringSplitEnumerator) : string =
         let piles, instructions = parse lines
 
-        let rec go (instructions : _ list) (piles : _ list array) =
-            match instructions with
-            | [] -> piles
-            | instr :: rest ->
+        let go (instructions : _ IReadOnlyList) (piles : _ list array) =
+            for instr in instructions do
                 piles.[instr.To - 1] <- List.rev piles.[instr.From - 1].[0 .. instr.Count - 1] @ piles.[instr.To - 1]
                 piles.[instr.From - 1] <- piles.[instr.From - 1].[instr.Count ..]
 
-                go rest piles
+            piles
 
         String (go instructions piles |> Array.map List.head)
 
     let part2 (lines : StringSplitEnumerator) : string =
         let piles, instructions = parse lines
 
-        let rec go (instructions : _ list) (piles : _ list array) =
-            match instructions with
-            | [] -> piles
-            | instr :: rest ->
+        let rec go (instructions : _ IReadOnlyList) (piles : _ list array) =
+            for instr in instructions do
                 piles.[instr.To - 1] <- piles.[instr.From - 1].[0 .. instr.Count - 1] @ piles.[instr.To - 1]
                 piles.[instr.From - 1] <- piles.[instr.From - 1].[instr.Count ..]
-                go rest piles
+
+            piles
 
         String (go instructions piles |> Array.map List.head)

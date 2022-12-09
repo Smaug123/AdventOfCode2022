@@ -26,6 +26,32 @@ module Day8 =
         output :> _
 
     let isVisible (board : byte[] IReadOnlyList) (x : int) (y : int) : bool =
+        // From the left?
+        let mutable isVisible = true
+        let mutable i = 0
+
+        while i < x && isVisible do
+            if board.[y].[i] >= board.[y].[x] then
+                isVisible <- false
+
+            i <- i + 1
+
+        if isVisible then
+            true
+        else
+
+        // From the right?
+        let mutable isVisible = true
+        let mutable i = board.[0].Length - 1
+
+        while i > x && isVisible do
+            if board.[y].[i] >= board.[y].[x] then
+                isVisible <- false
+
+            i <- i - 1
+
+        if isVisible then true else
+
         // From the top?
         let mutable isVisible = true
         let mutable i = 0
@@ -50,35 +76,7 @@ module Day8 =
 
             i <- i - 1
 
-        if isVisible then
-            true
-        else
-
-            // From the left?
-            let mutable isVisible = true
-            let mutable i = 0
-
-            while i < x && isVisible do
-                if board.[y].[i] >= board.[y].[x] then
-                    isVisible <- false
-
-                i <- i + 1
-
-            if isVisible then
-                true
-            else
-
-                // From the right?
-                let mutable isVisible = true
-                let mutable i = board.[0].Length - 1
-
-                while i > x && isVisible do
-                    if board.[y].[i] >= board.[y].[x] then
-                        isVisible <- false
-
-                    i <- i - 1
-
-                isVisible
+        isVisible
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board = parse lines
