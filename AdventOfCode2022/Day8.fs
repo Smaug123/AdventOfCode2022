@@ -26,12 +26,12 @@ module Day8 =
         output :> _
 
     let isVisible (board : byte[] IReadOnlyList) (x : int) (y : int) : bool =
-        // From the top?
+        // From the left?
         let mutable isVisible = true
         let mutable i = 0
 
-        while i < y && isVisible do
-            if board.[i].[x] >= board.[y].[x] then
+        while i < x && isVisible do
+            if board.[y].[i] >= board.[y].[x] then
                 isVisible <- false
 
             i <- i + 1
@@ -40,12 +40,12 @@ module Day8 =
             true
         else
 
-        // From the bottom?
+        // From the right?
         let mutable isVisible = true
-        let mutable i = board.Count - 1
+        let mutable i = board.[0].Length - 1
 
-        while i > y && isVisible do
-            if board.[i].[x] >= board.[y].[x] then
+        while i > x && isVisible do
+            if board.[y].[i] >= board.[y].[x] then
                 isVisible <- false
 
             i <- i - 1
@@ -54,12 +54,12 @@ module Day8 =
             true
         else
 
-            // From the left?
+            // From the top?
             let mutable isVisible = true
             let mutable i = 0
 
-            while i < x && isVisible do
-                if board.[y].[i] >= board.[y].[x] then
+            while i < y && isVisible do
+                if board.[i].[x] >= board.[y].[x] then
                     isVisible <- false
 
                 i <- i + 1
@@ -68,17 +68,17 @@ module Day8 =
                 true
             else
 
-                // From the right?
-                let mutable isVisible = true
-                let mutable i = board.[0].Length - 1
+            // From the bottom?
+            let mutable isVisible = true
+            let mutable i = board.Count - 1
 
-                while i > x && isVisible do
-                    if board.[y].[i] >= board.[y].[x] then
-                        isVisible <- false
+            while i > y && isVisible do
+                if board.[i].[x] >= board.[y].[x] then
+                    isVisible <- false
 
-                    i <- i - 1
+                i <- i - 1
 
-                isVisible
+            isVisible
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board = parse lines
