@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Collections.Generic
 open System.Runtime.CompilerServices
 
 type EfficientString = System.ReadOnlySpan<char>
@@ -90,3 +91,138 @@ module StringSplitEnumerator =
             failwith "expected an int, got nothing"
 
         Int32.Parse e.Current
+
+[<Struct>]
+[<IsByRefLike>]
+type MapEnumerator<'a, 'b> =
+    internal
+        {
+            F : 'a -> 'b
+            Seq : 'a IEnumerator
+            mutable CurrentInternal : 'b
+        }
+
+    interface IDisposable with
+        member this.Dispose () = this.Seq.Dispose ()
+
+    interface IEnumerator<'b> with
+        member this.Current = this.CurrentInternal
+        member this.get_Current () = box this.CurrentInternal
+        member this.Reset () = this.Seq.Reset ()
+
+        member this.MoveNext () =
+            if this.Seq.MoveNext () then
+                this.CurrentInternal <- this.F this.Seq.Current
+                true
+            else
+                false
+
+    member this.Current = this.CurrentInternal
+
+    member this.MoveNext () =
+        if this.Seq.MoveNext () then
+            this.CurrentInternal <- this.F this.Seq.Current
+            true
+        else
+            false
+
+    member this.GetEnumerator () = this
+
+[<RequireQualifiedAccess>]
+module MapEnumerator =
+    let make<'a, 'b> (f : 'a -> 'b) (s : 'a IEnumerator) =
+        {
+            F = f
+            Seq = s
+            CurrentInternal = Unchecked.defaultof<_>
+        }
+
+[<Struct>]
+[<IsByRefLike>]
+type ChooseEnumerator<'a, 'b> =
+    internal
+        {
+            F : 'a -> 'b ValueOption
+            Seq : 'a IEnumerator
+            mutable CurrentOutput : 'b
+        }
+
+    interface IDisposable with
+        member this.Dispose () = this.Seq.Dispose ()
+
+    member this.Current : 'b = this.CurrentOutput
+
+    member this.Reset () =
+        this.Seq.Reset ()
+        this.CurrentOutput <- Unchecked.defaultof<_>
+
+    member this.MoveNext () : bool =
+        let mutable keepGoing = true
+        let mutable toRet = true
+
+        while keepGoing do
+            if this.Seq.MoveNext () then
+                match this.F this.Seq.Current with
+                | ValueNone -> ()
+                | ValueSome v ->
+                    this.CurrentOutput <- v
+                    keepGoing <- false
+            else
+                keepGoing <- false
+                toRet <- false
+
+        toRet
+
+    member this.GetEnumerator () = this
+
+[<RequireQualifiedAccess>]
+module ChooseEnumerator =
+    let make<'a, 'b> (f : 'a -> 'b ValueOption) (s : 'a IEnumerator) : ChooseEnumerator<'a, 'b> =
+        {
+            F = f
+            Seq = s
+            CurrentOutput = Unchecked.defaultof<_>
+        }
+
+[<Struct>]
+[<IsByRefLike>]
+type RangeEnumerator<'T
+    when 'T : (static member (+) : 'T -> 'T -> 'T) and 'T : (static member One : 'T) and 'T : equality> =
+    {
+        /// Do not mutate this!
+        mutable Started : bool
+        /// Do not mutate this!
+        mutable CurrentOutput : 'T
+        Start : 'T
+        End : 'T
+    }
+
+    member inline this.Current : 'T = this.CurrentOutput
+
+    member inline this.MoveNext () =
+        if not this.Started then
+            this.Started <- true
+            true
+        elif this.End = this.CurrentOutput then
+            false
+        else
+            this.CurrentOutput <- this.CurrentOutput + LanguagePrimitives.GenericOne
+            true
+
+    member inline this.GetEnumerator () = this
+
+[<RequireQualifiedAccess>]
+module RangeEnumerator =
+
+    let inline make<'T
+        when 'T : equality and 'T : (static member (+) : 'T -> 'T -> 'T) and 'T : (static member One : 'T)>
+        (start : 'T)
+        (endAtInclusive : 'T)
+        : RangeEnumerator<'T>
+        =
+        {
+            Started = false
+            Start = start
+            End = endAtInclusive
+            CurrentOutput = Unchecked.defaultof<_>
+        }
