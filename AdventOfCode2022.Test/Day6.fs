@@ -18,7 +18,7 @@ module TestDay6 =
         ]
         |> List.map TestCaseData
 
-    [<TestCaseSource(nameof (testInput1))>]
+    [<TestCaseSource(nameof testInput1)>]
     let ``Part 1, given`` (input : string, output : int) = Day6.part1 input |> shouldEqual output
 
     [<Test>]
