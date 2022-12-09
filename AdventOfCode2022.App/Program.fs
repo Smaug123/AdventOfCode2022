@@ -13,20 +13,14 @@ module Program =
     let readResource (name : string) : string =
         let asm = Assembly.GetAssembly typeof<Dummy>
 
-        use stream = asm.GetManifestResourceStream (sprintf "AdventOfCode2022.App.%s" name)
+        use stream = asm.GetManifestResourceStream $"AdventOfCode2022.App.%s{name}"
 
         use reader = new StreamReader (stream)
         reader.ReadToEnd ()
 
     [<EntryPoint>]
     let main _ =
-<<<<<<< HEAD
         let days = Array.init 9 (fun day -> readResource $"Day%i{day + 1}.txt")
-||||||| ed0e191
-        let days = Array.init 7 (fun day -> readResource $"Day%i{day + 1}.txt")
-=======
-        let days = Array.init 8 (fun day -> readResource $"Day%i{day + 1}.txt")
->>>>>>> main
 
         let inline day (i : int) = days.[i - 1]
 
@@ -69,7 +63,6 @@ module Program =
             printfn "%i" (Day7.part1 day7)
             printfn "%i" (Day7.part2 day7)
 
-<<<<<<< HEAD
         do
             let day8 = StringSplitEnumerator.make '\n' (day 8)
             printfn "%i" (Day8.part1 day8)
@@ -80,14 +73,6 @@ module Program =
             printfn "%i" (Day9.part1 day9)
             printfn "%i" (Day9.part2 day9)
 
-||||||| ed0e191
-=======
-        do
-            let day8 = StringSplitEnumerator.make '\n' (day 8)
-            printfn "%i" (Day8.part1 day8)
-            printfn "%i" (Day8.part2 day8)
-
->>>>>>> main
         time.Stop ()
         printfn $"Took %i{time.ElapsedMilliseconds}ms"
         0
