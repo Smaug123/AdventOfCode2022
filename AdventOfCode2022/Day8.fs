@@ -50,33 +50,35 @@ module Day8 =
 
             i <- i - 1
 
-        if isVisible then true else
-
-        // From the top?
-        let mutable isVisible = true
-        let mutable i = 0
-
-        while i < y && isVisible do
-            if board.[i].[x] >= board.[y].[x] then
-                isVisible <- false
-
-            i <- i + 1
-
         if isVisible then
             true
         else
 
-        // From the bottom?
-        let mutable isVisible = true
-        let mutable i = board.Count - 1
+            // From the top?
+            let mutable isVisible = true
+            let mutable i = 0
 
-        while i > y && isVisible do
-            if board.[i].[x] >= board.[y].[x] then
-                isVisible <- false
+            while i < y && isVisible do
+                if board.[i].[x] >= board.[y].[x] then
+                    isVisible <- false
 
-            i <- i - 1
+                i <- i + 1
 
-        isVisible
+            if isVisible then
+                true
+            else
+
+            // From the bottom?
+            let mutable isVisible = true
+            let mutable i = board.Count - 1
+
+            while i > y && isVisible do
+                if board.[i].[x] >= board.[y].[x] then
+                    isVisible <- false
+
+                i <- i - 1
+
+            isVisible
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board = parse lines

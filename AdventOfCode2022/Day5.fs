@@ -62,7 +62,7 @@ module Day5 =
 
         outputs
 
-    let parse (s : StringSplitEnumerator) : char list array * Day5Instruction IReadOnlyList  =
+    let parse (s : StringSplitEnumerator) : char list array * Day5Instruction IReadOnlyList =
         use mutable enumerator = s
 
         let piles = parseDrawing &enumerator
