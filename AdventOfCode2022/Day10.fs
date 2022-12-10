@@ -66,23 +66,25 @@ module Day10 =
 
         perform 0 updateState instructions
 
-    let part2 (lines : StringSplitEnumerator) : bool[] =
+    let part2 (lines : StringSplitEnumerator) : char[] =
         let instructions = parse lines
-        let arr = Array.zeroCreate<bool> 240
+        let arr = Array.create 240 '.'
 
-        let updateState (arr : bool[]) cycle spritePos =
+        let updateState (arr : char[]) cycle spritePos =
             if spritePos - 1 = cycle % 40 && spritePos % 40 <> 0 then
-                arr.[cycle] <- true
+                arr.[cycle] <- '#'
             elif spritePos + 1 = cycle % 40 && spritePos % 40 <> 39 then
-                arr.[cycle] <- true
+                arr.[cycle] <- '#'
             elif spritePos = cycle % 40 then
-                arr.[cycle] <- true
+                arr.[cycle] <- '#'
 
             arr
 
         perform arr updateState instructions
 
-    let render (print : string -> unit) (arr : bool[]) : unit =
-        for row in Array.chunkBySize 40 arr do
-            let toPrint = row |> Array.map (fun s -> if s then '#' else '.') |> System.String
-            print toPrint
+    let inline render ([<InlineIfLambda>] print : string -> unit) (arr : char[]) : unit =
+        let arr = arr.AsSpan ()
+
+        for i in 0..5 do
+            let toPrint = arr.Slice (i * 40, 40)
+            print (toPrint.ToString ())
