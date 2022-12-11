@@ -6,7 +6,7 @@ open System
 [<RequireQualifiedAccess>]
 module Day8 =
 
-    let parse (lines : StringSplitEnumerator) : byte[] IReadOnlyList =
+    let parse (lines : StringSplitEnumerator) : byte[] ResizeArray =
         use mutable enum = lines
         let output = ResizeArray ()
 
@@ -23,9 +23,9 @@ module Day8 =
 
                 output.Add arr
 
-        output :> _
+        output
 
-    let isVisible (board : byte[] IReadOnlyList) (x : int) (y : int) : bool =
+    let isVisible (board : byte[] ResizeArray) (x : int) (y : int) : bool =
         // From the left?
         let mutable isVisible = true
         let mutable i = 0
