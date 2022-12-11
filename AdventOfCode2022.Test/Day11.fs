@@ -58,7 +58,7 @@ Monkey 3:
 
 
     [<Test>]
-    let ``Part 2, given 1`` () =
+    let ``Part 2, given`` () =
         Day11.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 2713310158L
 
     [<Test>]
