@@ -211,7 +211,9 @@ module Day11 =
             let monkey = monkeys.[i]
             inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
-            for worry in monkey.StartingItems do
+            for worryIndex in 0 .. monkey.StartingItems.Count - 1 do
+                let worry = monkey.StartingItems.[worryIndex]
+
                 let newWorry =
                     let arg =
                         match monkey.Argument with
