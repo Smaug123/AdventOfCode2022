@@ -81,9 +81,13 @@ module StringSplitEnumerator =
             SplitOn = splitChar
         }
 
-    let chomp (s : string) (e : byref<StringSplitEnumerator>) =
+    let chomp (s : string) (e : byref<StringSplitEnumerator>) : unit =
+#if DEBUG
         if not (e.MoveNext ()) || not (EfficientString.equals s e.Current) then
             failwithf "expected '%s', got '%s'" s (e.Current.ToString ())
+#else
+        e.MoveNext () |> ignore
+#endif
 
     let consumeInt (e : byref<StringSplitEnumerator>) : int =
         if not (e.MoveNext ()) then
