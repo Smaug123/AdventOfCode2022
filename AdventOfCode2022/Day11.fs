@@ -3,37 +3,239 @@ namespace AdventOfCode2022
 open System.Collections.Generic
 open System
 
+[<Measure>]
+type monkey
+
 [<RequireQualifiedAccess>]
 module Day11 =
 
-    let parse (lines : StringSplitEnumerator) : (Direction * byte) IReadOnlyList =
+    type Arg =
+        | Literal of int
+        | Old
+
+    type Monkey =
+        {
+            Number : int<monkey>
+            StartingItems : int ResizeArray
+            Operation : (int -> int -> int) * Arg * Arg
+            TestDivisibleBy : int
+            TrueCase : int<monkey>
+            FalseCase : int<monkey>
+        }
+
+    let parse (lines : StringSplitEnumerator) : Monkey IReadOnlyList =
         use mutable enum = lines
         let output = ResizeArray ()
 
-        for line in enum do
-            let line = line.TrimEnd ()
+        while enum.MoveNext () do
+            let monkey =
+                let line = enum.Current.TrimEnd ()
+                let mutable enum = StringSplitEnumerator.make' ' ' (line.TrimEnd ':')
+                StringSplitEnumerator.chomp "Monkey" &enum
+                let monkey = StringSplitEnumerator.consumeInt &enum * 1<monkey>
 
-            if not (line.IsWhiteSpace ()) then
-                let dir =
-                    match Char.ToUpperInvariant line.[0] with
-                    | 'U' -> Direction.Up
-                    | 'D' -> Direction.Down
-                    | 'L' -> Direction.Left
-                    | 'R' -> Direction.Right
-                    | _ -> failwith "Unexpected direction"
+                if enum.MoveNext () then
+                    failwith "Bad Monkey row"
 
-                let distance = Byte.Parse (line.Slice 2)
+                monkey
 
-                output.Add (dir, distance)
+            if not (enum.MoveNext ()) then
+                failwith "Ran out of rows"
 
-        output :> _
+            let line = enum.Current
+
+            let startItems =
+                let line = line.Trim ()
+                let mutable enum = StringSplitEnumerator.make' ' ' line
+                StringSplitEnumerator.chomp "Starting" &enum
+                StringSplitEnumerator.chomp "items:" &enum
+                let items = ResizeArray ()
+
+                while enum.MoveNext () do
+                    let s = enum.Current.TrimEnd ','
+                    items.Add (Int32.Parse s)
+
+                items
+
+            if not (enum.MoveNext ()) then
+                failwith "Ran out of rows"
+
+            let line = enum.Current
+
+            let operation, arg1, arg2 =
+                let line = line.Trim ()
+                let mutable enum = StringSplitEnumerator.make' ':' line
+                StringSplitEnumerator.chomp "Operation" &enum
+
+                if not (enum.MoveNext ()) then
+                    failwith "expected an operation"
+
+                let line = enum.Current.Trim ()
+
+                if enum.MoveNext () then
+                    failwith "bad formatting on operation"
+
+                let mutable enum = StringSplitEnumerator.make' '=' line
+                StringSplitEnumerator.chomp "new " &enum
+
+                if not (enum.MoveNext ()) then
+                    failwith "expected an RHS"
+
+                let rhs = enum.Current.Trim ()
+
+                if enum.MoveNext () then
+                    failwith "too many equals signs"
+
+                let mutable enum = StringSplitEnumerator.make' ' ' rhs
+
+                if not (enum.MoveNext ()) then
+                    failwith "expected an RHS"
+
+                let arg1 =
+                    if EfficientString.equals "old" enum.Current then
+                        Arg.Old
+                    else
+                        Arg.Literal (Int32.Parse enum.Current)
+
+                if not (enum.MoveNext ()) then
+                    failwith "expected three elements on RHS"
+
+                let op =
+                    if enum.Current.Length > 1 then
+                        failwith "expected operation of exactly 1 char"
+
+                    match enum.Current.[0] with
+                    | '*' -> (+)
+                    | '-' -> (-)
+                    | '+' -> (*)
+                    | '/' -> (/)
+                    | c -> failwithf "Unrecognised op: %c" c
+
+                if not (enum.MoveNext ()) then
+                    failwith "expected three elements on RHS"
+
+                let arg2 =
+                    if EfficientString.equals "old" enum.Current then
+                        Arg.Old
+                    else
+                        Arg.Literal (Int32.Parse enum.Current)
+
+                if enum.MoveNext () then
+                    failwith "too many entries on row"
+
+                op, arg1, arg2
+
+            if not (enum.MoveNext ()) then
+                failwith "Ran out of rows"
+
+            let line = enum.Current.Trim ()
+
+            let test =
+                if not (line.StartsWith "Test: divisible by ") then
+                    failwith "bad formatting on test line"
+
+                Int32.Parse (line.Slice 20)
+
+            if not (enum.MoveNext ()) then
+                failwith "Ran out of rows"
+
+            let line = enum.Current.Trim ()
+
+            let ifTrue =
+                if not (line.StartsWith "If true: throw to monkey ") then
+                    failwith "bad formatting for ifTrue line"
+
+                Int32.Parse (line.Slice 25) * 1<monkey>
+
+            if not (enum.MoveNext ()) then
+                failwith "Ran out of rows"
+
+            let line = enum.Current.Trim ()
+
+            let ifFalse =
+                if not (line.StartsWith "If false: throw to monkey ") then
+                    failwith "bad formatting for ifFalse line"
+
+                Int32.Parse (line.Slice 26) * 1<monkey>
+
+            // We may be at the end, in which case there's no empty row.
+            enum.MoveNext () |> ignore
+
+            if ifTrue = monkey then
+                failwith "assumption broken: throws to self"
+
+            if ifFalse = monkey then
+                failwith "assumption broken: throws to self"
+
+            {
+                Number = monkey
+                StartingItems = startItems
+                Operation = operation, arg1, arg2
+                TestDivisibleBy = test
+                TrueCase = ifTrue
+                FalseCase = ifFalse
+            }
+            |> output.Add
+
+        output :> IReadOnlyList<_>
 
     let part1 (lines : StringSplitEnumerator) : int =
-        let directions = parse lines
+        let monkeys = parse lines
 
-        go 2 directions
+        let mutable inspections = Array.zeroCreate<int> monkeys.Count
+
+        for _round in 1..20 do
+            for i in 0..monkeys.Count - 1 do
+                printfn "Monkey %i:" i
+                let monkey = monkeys.[i]
+                inspections.[i] <- inspections.[i] + monkey.StartingItems.Count
+
+                for worry in monkey.StartingItems do
+                    printfn "  Monkey inspects an item with a worry level of %i." worry
+
+                    let newWorry =
+                        match monkey.Operation with
+                        | op, arg1, arg2 ->
+                            let arg1 =
+                                match arg1 with
+                                | Arg.Old -> worry
+                                | Arg.Literal l -> l
+
+                            let arg2 =
+                                match arg2 with
+                                | Arg.Old -> worry
+                                | Arg.Literal l -> l
+
+                            op arg1 arg2
+
+                    printfn "    Worry level is changed to %i" newWorry
+                    let newWorry = newWorry / 3
+                    printfn "    Monkey gets bored with item. Worry level is divided by three to %i" newWorry
+
+                    let target =
+                        if newWorry % monkey.TestDivisibleBy = 0 then
+                            printfn
+                                "    Current worry level is divisible by %i. Throwing to monkey %i."
+                                monkey.TestDivisibleBy
+                                monkey.FalseCase
+
+                            monkey.TrueCase
+                        else
+                            printfn
+                                "    Current worry level is not divisible by %i. Throwing to monkey %i."
+                                monkey.TestDivisibleBy
+                                monkey.FalseCase
+
+                            monkey.FalseCase
+
+                    monkeys.[target / 1<monkey>].StartingItems.Add newWorry
+
+        inspections |> Array.sortInPlace
+
+        inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
+
 
     let part2 (lines : StringSplitEnumerator) : int =
         let directions = parse lines
 
-        go 10 directions
+        0
