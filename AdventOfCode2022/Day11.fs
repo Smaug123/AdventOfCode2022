@@ -2,9 +2,13 @@ namespace AdventOfCode2022
 
 open System.Collections.Generic
 open System
+open Microsoft.FSharp.NativeInterop
+
 #if DEBUG
 open Checked
 #endif
+
+#nowarn "9"
 
 [<Measure>]
 type monkey
@@ -210,10 +214,11 @@ module Day11 =
         inspections |> Array.sortInPlace
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
 
-    let inline oneRound (modulus : int64) (monkeys : Monkey array) (inspections : int64 array) =
+    let oneRound (modulus : int64) (monkeys : Monkey array) (inspections : nativeptr<int64>) =
         for i in 0 .. monkeys.Length - 1 do
             let monkey = monkeys.[i]
-            inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
+            let entry = NativePtr.add inspections i
+            NativePtr.write entry (NativePtr.read entry + int64 monkey.StartingItems.Count)
 
             for worryIndex in 0 .. monkey.StartingItems.Count - 1 do
                 let worry = monkey.StartingItems.[worryIndex]
@@ -241,18 +246,37 @@ module Day11 =
     let inline maxTwo (arr : int64 array) : struct (int64 * int64) =
         let mutable best = max arr.[1] arr.[0]
         let mutable secondBest = min arr.[1] arr.[0]
-        for i in 2..arr.Length - 1 do
+
+        for i in 2 .. arr.Length - 1 do
             if arr.[i] > best then
                 secondBest <- best
                 best <- arr.[i]
-            elif arr.[i] > secondBest then secondBest <- arr.[i]
+            elif arr.[i] > secondBest then
+                secondBest <- arr.[i]
+
+        struct (secondBest, best)
+
+    let inline unsafeMaxTwo (len : int) (arr : nativeptr<int64>) : struct (int64 * int64) =
+        let arr0 = NativePtr.read arr
+        let arr1 = NativePtr.read (NativePtr.add arr 1)
+        let mutable best = max arr0 arr1
+        let mutable secondBest = min arr0 arr1
+
+        for i in 2 .. len - 1 do
+            let arrI = NativePtr.read (NativePtr.add arr i)
+
+            if arrI > best then
+                secondBest <- best
+                best <- arrI
+            elif arrI > secondBest then
+                secondBest <- arrI
 
         struct (secondBest, best)
 
     let part2 (lines : StringSplitEnumerator) : int64 =
         let monkeys = parse lines
 
-        let mutable inspections = Array.zeroCreate<int64> monkeys.Length
+        use inspections = fixed Array.zeroCreate<int64> monkeys.Length
 
         let modulus =
             (1L, monkeys) ||> Seq.fold (fun i monkey -> i * monkey.TestDivisibleBy)
@@ -260,5 +284,5 @@ module Day11 =
         for _round in 1..10000 do
             oneRound modulus monkeys inspections
 
-        let struct (a, b) = maxTwo inspections
+        let struct (a, b) = unsafeMaxTwo monkeys.Length inspections
         a * b
