@@ -95,7 +95,7 @@ module Day11 =
                     if EfficientString.equals "old" enum.Current then
                         Arg.Old
                     else
-                        Arg.Literal (Int32.Parse enum.Current)
+                        failwith "never encountered"
 
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
@@ -105,10 +105,8 @@ module Day11 =
                         failwith "expected operation of exactly 1 char"
 
                     match enum.Current.[0] with
-                    | '*' -> (+)
-                    | '-' -> (-)
-                    | '+' -> (*)
-                    | '/' -> (/)
+                    | '*' -> (*)
+                    | '+' -> (+)
                     | c -> failwithf "Unrecognised op: %c" c
 
                 if not (enum.MoveNext ()) then
@@ -134,7 +132,7 @@ module Day11 =
                 if not (line.StartsWith "Test: divisible by ") then
                     failwith "bad formatting on test line"
 
-                Int32.Parse (line.Slice 20)
+                Int32.Parse (line.Slice 19)
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -145,7 +143,7 @@ module Day11 =
                 if not (line.StartsWith "If true: throw to monkey ") then
                     failwith "bad formatting for ifTrue line"
 
-                Int32.Parse (line.Slice 25) * 1<monkey>
+                Int32.Parse (line.Slice 24) * 1<monkey>
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -156,7 +154,7 @@ module Day11 =
                 if not (line.StartsWith "If false: throw to monkey ") then
                     failwith "bad formatting for ifFalse line"
 
-                Int32.Parse (line.Slice 26) * 1<monkey>
+                Int32.Parse (line.Slice 25) * 1<monkey>
 
             // We may be at the end, in which case there's no empty row.
             enum.MoveNext () |> ignore
@@ -179,61 +177,64 @@ module Day11 =
 
         output :> IReadOnlyList<_>
 
-    let part1 (lines : StringSplitEnumerator) : int =
+    let oneRound (logDebug : string -> unit) (monkeys : IReadOnlyList<Monkey>) (inspections : int array) =
+        for i in 0 .. monkeys.Count - 1 do
+            logDebug $"Monkey %i{i}:"
+            let monkey = monkeys.[i]
+            inspections.[i] <- inspections.[i] + monkey.StartingItems.Count
+
+            for worry in monkey.StartingItems do
+                logDebug $"  Monkey inspects an item with a worry level of %i{worry}."
+
+                let newWorry =
+                    match monkey.Operation with
+                    | op, arg1, arg2 ->
+                        let arg1 =
+                            match arg1 with
+                            | Arg.Old -> worry
+                            | Arg.Literal l -> l
+
+                        let arg2 =
+                            match arg2 with
+                            | Arg.Old -> worry
+                            | Arg.Literal l -> l
+
+                        op arg1 arg2
+
+                logDebug $"    Worry level is changed to %i{newWorry}."
+                let newWorry = newWorry / 3
+                logDebug $"    Monkey gets bored with item. Worry level is divided by 3 to %i{newWorry}."
+
+                let target =
+                    if newWorry % monkey.TestDivisibleBy = 0 then
+                        logDebug $"    Current worry level is divisible by %i{monkey.TestDivisibleBy}."
+                        monkey.TrueCase
+                    else
+                        logDebug $"    Current worry level is not divisible by %i{monkey.TestDivisibleBy}."
+                        monkey.FalseCase
+
+                logDebug $"    Item with worry level %i{newWorry} is thrown to monkey %i{target}."
+
+                monkeys.[target / 1<monkey>].StartingItems.Add newWorry
+
+            monkey.StartingItems.Clear ()
+
+    let part1 (emitCounts : int list seq -> unit) (lines : StringSplitEnumerator) : int =
         let monkeys = parse lines
 
         let mutable inspections = Array.zeroCreate<int> monkeys.Count
 
         for _round in 1..20 do
-            for i in 0..monkeys.Count - 1 do
-                printfn "Monkey %i:" i
-                let monkey = monkeys.[i]
-                inspections.[i] <- inspections.[i] + monkey.StartingItems.Count
+            oneRound ignore monkeys inspections
 
-                for worry in monkey.StartingItems do
-                    printfn "  Monkey inspects an item with a worry level of %i." worry
-
-                    let newWorry =
-                        match monkey.Operation with
-                        | op, arg1, arg2 ->
-                            let arg1 =
-                                match arg1 with
-                                | Arg.Old -> worry
-                                | Arg.Literal l -> l
-
-                            let arg2 =
-                                match arg2 with
-                                | Arg.Old -> worry
-                                | Arg.Literal l -> l
-
-                            op arg1 arg2
-
-                    printfn "    Worry level is changed to %i" newWorry
-                    let newWorry = newWorry / 3
-                    printfn "    Monkey gets bored with item. Worry level is divided by three to %i" newWorry
-
-                    let target =
-                        if newWorry % monkey.TestDivisibleBy = 0 then
-                            printfn
-                                "    Current worry level is divisible by %i. Throwing to monkey %i."
-                                monkey.TestDivisibleBy
-                                monkey.FalseCase
-
-                            monkey.TrueCase
-                        else
-                            printfn
-                                "    Current worry level is not divisible by %i. Throwing to monkey %i."
-                                monkey.TestDivisibleBy
-                                monkey.FalseCase
-
-                            monkey.FalseCase
-
-                    monkeys.[target / 1<monkey>].StartingItems.Add newWorry
+            seq {
+                for monkey in monkeys do
+                    yield monkey.StartingItems |> List.ofSeq
+            }
+            |> emitCounts
 
         inspections |> Array.sortInPlace
-
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
-
 
     let part2 (lines : StringSplitEnumerator) : int =
         let directions = parse lines
