@@ -6,6 +6,9 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <Compile Include="Assembly.fs" />
+      <Compile Include="Run.fs" />
+      <Compile Include="Inputs.fs" />
       <Compile Include="Program.fs" />
       <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day1.txt" />
       <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day2.txt" />
@@ -22,6 +25,10 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AdventOfCode2022\AdventOfCode2022.fsproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+      <PackageReference Include="BenchmarkDotNet" Version="0.13.2" />
     </ItemGroup>
 
 </Project>
