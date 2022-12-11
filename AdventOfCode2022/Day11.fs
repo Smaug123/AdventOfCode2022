@@ -194,12 +194,12 @@ module Day11 =
         (monkeys : IReadOnlyList<Monkey>)
         (items : nativeptr<int64>[])
         (counts : nativeptr<int>)
-        (inspections : int64 array)
+        (inspections : int array)
         =
         for i in 0 .. monkeys.Count - 1 do
             let monkey = monkeys.[i]
             let countsI = NativePtr.get counts i
-            inspections.[i] <- inspections.[i] + int64 countsI
+            inspections.[i] <- inspections.[i] + countsI
 
             for worryIndex in 0 .. countsI - 1 do
                 let worry = NativePtr.get items.[i] worryIndex
@@ -227,7 +227,7 @@ module Day11 =
 
             NativePtr.write (NativePtr.add counts i) 0
 
-    let inline maxTwo (arr : int64 array) : struct (int64 * int64) =
+    let inline maxTwo (arr : int array) : struct (int * int) =
         let mutable best = max arr.[1] arr.[0]
         let mutable secondBest = min arr.[1] arr.[0]
 
@@ -245,27 +245,27 @@ module Day11 =
         let monkeys, items, counts = parse memory lines
         use counts = fixed counts
 
-        let mutable inspections = Array.zeroCreate<int64> monkeys.Length
+        let mutable inspections = Array.zeroCreate<int> monkeys.Length
 
         for _round in 1..20 do
             oneRoundDivThree monkeys items counts inspections
 
         let struct (a, b) = maxTwo inspections
 
-        a * b
+        int64 a * int64 b
 
     let oneRound
         (modulus : int64)
         (monkeys : Monkey array)
         (items : nativeptr<nativeptr<int64>>)
         (counts : nativeptr<int>)
-        (inspections : nativeptr<int64>)
+        (inspections : nativeptr<int>)
         =
         for i in 0 .. monkeys.Length - 1 do
             let monkey = monkeys.[i]
             let entry = NativePtr.add inspections i
             let countI = NativePtr.get counts i
-            NativePtr.write entry (NativePtr.read entry + int64 countI)
+            NativePtr.write entry (NativePtr.read entry + countI)
 
             for worryIndex in 0 .. countI - 1 do
                 let worry = NativePtr.get (NativePtr.get items i) worryIndex
@@ -292,10 +292,14 @@ module Day11 =
 
             NativePtr.write (NativePtr.add counts i) 0
 
-    let inline unsafeMaxTwo (len : int) (arr : nativeptr<int64>) : struct (int64 * int64) =
+    let inline unsafeMaxTwo< ^a when ^a : unmanaged and ^a : comparison>
+        (len : int)
+        (arr : nativeptr<'a>)
+        : struct ('a * 'a)
+        =
         let arr0 = NativePtr.read arr
         let arr1 = NativePtr.get arr 1
-        let mutable best = max arr0 arr1
+        let mutable best = LanguagePrimitives.GenericMaximum arr0 arr1
         let mutable secondBest = min arr0 arr1
 
         for i in 2 .. len - 1 do
@@ -315,7 +319,7 @@ module Day11 =
         use counts = fixed counts
         use items = fixed items
 
-        let inspections = NativePtr.stackalloc<int64> monkeys.Length
+        let inspections = NativePtr.stackalloc<int> monkeys.Length
 
         let modulus =
             (1L, monkeys) ||> Seq.fold (fun i monkey -> i * monkey.TestDivisibleBy)
@@ -324,4 +328,4 @@ module Day11 =
             oneRound modulus monkeys items counts inspections
 
         let struct (a, b) = unsafeMaxTwo monkeys.Length inspections
-        a * b
+        int64 a * int64 b
