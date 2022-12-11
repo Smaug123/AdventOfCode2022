@@ -17,7 +17,7 @@ module Day11 =
         {
             Number : int<monkey>
             StartingItems : int ResizeArray
-            Operation : (int -> int -> int) * Arg * Arg
+            Operation : string * (int -> int -> int) * Arg * Arg
             TestDivisibleBy : int
             TrueCase : int<monkey>
             FalseCase : int<monkey>
@@ -62,7 +62,7 @@ module Day11 =
 
             let line = enum.Current
 
-            let operation, arg1, arg2 =
+            let opDescriptor, operation, arg1, arg2 =
                 let line = line.Trim ()
                 let mutable enum = StringSplitEnumerator.make' ':' line
                 StringSplitEnumerator.chomp "Operation" &enum
@@ -100,28 +100,29 @@ module Day11 =
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
 
-                let op =
+                let opDescriptor, op =
                     if enum.Current.Length > 1 then
                         failwith "expected operation of exactly 1 char"
 
                     match enum.Current.[0] with
-                    | '*' -> (*)
-                    | '+' -> (+)
+                    | '*' -> sprintf "is multiplied by %s", (*)
+                    | '+' -> sprintf "increases by %s", (+)
                     | c -> failwithf "Unrecognised op: %c" c
 
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
 
-                let arg2 =
+                let arg2, opDescriptor =
                     if EfficientString.equals "old" enum.Current then
-                        Arg.Old
+                        Arg.Old, opDescriptor "itself"
                     else
-                        Arg.Literal (Int32.Parse enum.Current)
+                        let literal = Int32.Parse enum.Current
+                        Arg.Literal literal, opDescriptor (literal.ToString ())
 
                 if enum.MoveNext () then
                     failwith "too many entries on row"
 
-                op, arg1, arg2
+                opDescriptor, op, arg1, arg2
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -168,7 +169,7 @@ module Day11 =
             {
                 Number = monkey
                 StartingItems = startItems
-                Operation = operation, arg1, arg2
+                Operation = opDescriptor, operation, arg1, arg2
                 TestDivisibleBy = test
                 TrueCase = ifTrue
                 FalseCase = ifFalse
@@ -186,9 +187,9 @@ module Day11 =
             for worry in monkey.StartingItems do
                 logDebug $"  Monkey inspects an item with a worry level of %i{worry}."
 
-                let newWorry =
+                let descriptor, newWorry =
                     match monkey.Operation with
-                    | op, arg1, arg2 ->
+                    | opDescriptor, op, arg1, arg2 ->
                         let arg1 =
                             match arg1 with
                             | Arg.Old -> worry
@@ -199,9 +200,9 @@ module Day11 =
                             | Arg.Old -> worry
                             | Arg.Literal l -> l
 
-                        op arg1 arg2
+                        opDescriptor, op arg1 arg2
 
-                logDebug $"    Worry level is changed to %i{newWorry}."
+                logDebug $"    Worry level %s{descriptor} to %i{newWorry}."
                 let newWorry = newWorry / 3
                 logDebug $"    Monkey gets bored with item. Worry level is divided by 3 to %i{newWorry}."
 
@@ -225,13 +226,16 @@ module Day11 =
         let mutable inspections = Array.zeroCreate<int> monkeys.Count
 
         for _round in 1..20 do
-            oneRound ignore monkeys inspections
+            oneRound (printfn "%s") monkeys inspections
 
             seq {
                 for monkey in monkeys do
                     yield monkey.StartingItems |> List.ofSeq
             }
             |> emitCounts
+
+        for i in inspections do
+            printfn "Monkey inspected %i" i
 
         inspections |> Array.sortInPlace
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
