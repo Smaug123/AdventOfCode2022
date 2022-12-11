@@ -6,7 +6,7 @@ open System
 [<RequireQualifiedAccess>]
 module Day8 =
 
-    let parse (lines : StringSplitEnumerator) : byte[] IReadOnlyList =
+    let parse (lines : StringSplitEnumerator) : byte[][] =
         use mutable enum = lines
         let output = ResizeArray ()
 
@@ -23,7 +23,7 @@ module Day8 =
 
                 output.Add arr
 
-        output :> _
+        output.ToArray()
 
     let isVisible (board : byte[] IReadOnlyList) (x : int) (y : int) : bool =
         // From the left?
@@ -85,14 +85,14 @@ module Day8 =
 
         let mutable visibleCount = 0
 
-        for y in 0 .. board.Count - 1 do
+        for y in 0 .. board.Length - 1 do
             for x in 0 .. board.[0].Length - 1 do
                 if isVisible board x y then
                     visibleCount <- visibleCount + 1
 
         visibleCount
 
-    let scenicScore (board : byte[] IReadOnlyList) (x : int) (y : int) : int =
+    let scenicScore (board : byte[][]) (x : int) (y : int) : int =
         let mutable scenicCount = 0
 
         do
@@ -112,7 +112,7 @@ module Day8 =
             let mutable i = y + 1
             let mutable subCount = 0
 
-            while i < board.Count && isVisible do
+            while i < board.Length && isVisible do
                 if board.[i].[x] >= board.[y].[x] then
                     isVisible <- false
 
@@ -159,7 +159,7 @@ module Day8 =
         let board = parse lines
         let mutable scenicMax = 0
 
-        for y in 0 .. board.Count - 1 do
+        for y in 0 .. board.Length - 1 do
             for x in 0 .. board.[0].Length - 1 do
                 scenicMax <- max scenicMax (scenicScore board x y)
 
