@@ -80,7 +80,7 @@ module Program =
 
         do
             let day11 = StringSplitEnumerator.make '\n' (day 11)
-            printfn "%i" (Day11.part1 ignore day11)
+            printfn "%i" (Day11.part1 day11)
             printfn "%i" (Day11.part2 day11)
 
         time.Stop ()

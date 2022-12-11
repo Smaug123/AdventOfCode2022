@@ -9,21 +9,21 @@ type monkey
 [<RequireQualifiedAccess>]
 module Day11 =
 
-    type Arg =
-        | Literal of int
+    type Arg<'T> =
+        | Literal of 'T
         | Old
 
-    type Monkey =
+    type Monkey<'T> =
         {
             Number : int<monkey>
-            StartingItems : int ResizeArray
-            Operation : string * (int -> int -> int) * Arg * Arg
-            TestDivisibleBy : int
+            StartingItems : 'T ResizeArray
+            Operation : string * ('T -> 'T -> 'T) * Arg<'T>
+            TestDivisibleBy : 'T
             TrueCase : int<monkey>
             FalseCase : int<monkey>
         }
 
-    let parse (lines : StringSplitEnumerator) : Monkey IReadOnlyList =
+    let parse (lines : StringSplitEnumerator) : Monkey<int64> IReadOnlyList =
         use mutable enum = lines
         let output = ResizeArray ()
 
@@ -53,7 +53,7 @@ module Day11 =
 
                 while enum.MoveNext () do
                     let s = enum.Current.TrimEnd ','
-                    items.Add (Int32.Parse s)
+                    items.Add (Int64.Parse s)
 
                 items
 
@@ -62,7 +62,7 @@ module Day11 =
 
             let line = enum.Current
 
-            let opDescriptor, operation, arg1, arg2 =
+            let opDescriptor, operation, arg =
                 let line = line.Trim ()
                 let mutable enum = StringSplitEnumerator.make' ':' line
                 StringSplitEnumerator.chomp "Operation" &enum
@@ -88,14 +88,7 @@ module Day11 =
 
                 let mutable enum = StringSplitEnumerator.make' ' ' rhs
 
-                if not (enum.MoveNext ()) then
-                    failwith "expected an RHS"
-
-                let arg1 =
-                    if EfficientString.equals "old" enum.Current then
-                        Arg.Old
-                    else
-                        failwith "never encountered"
+                StringSplitEnumerator.chomp "old" &enum
 
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
@@ -112,17 +105,17 @@ module Day11 =
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
 
-                let arg2, opDescriptor =
+                let arg, opDescriptor =
                     if EfficientString.equals "old" enum.Current then
                         Arg.Old, opDescriptor "itself"
                     else
-                        let literal = Int32.Parse enum.Current
+                        let literal = Int64.Parse enum.Current
                         Arg.Literal literal, opDescriptor (literal.ToString ())
 
                 if enum.MoveNext () then
                     failwith "too many entries on row"
 
-                opDescriptor, op, arg1, arg2
+                opDescriptor, op, arg
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -169,7 +162,7 @@ module Day11 =
             {
                 Number = monkey
                 StartingItems = startItems
-                Operation = opDescriptor, operation, arg1, arg2
+                Operation = opDescriptor, operation, arg
                 TestDivisibleBy = test
                 TrueCase = ifTrue
                 FalseCase = ifFalse
@@ -178,69 +171,84 @@ module Day11 =
 
         output :> IReadOnlyList<_>
 
-    let oneRound (logDebug : string -> unit) (monkeys : IReadOnlyList<Monkey>) (inspections : int array) =
+    let oneRoundDivThree (monkeys : IReadOnlyList<Monkey<int64>>) (inspections : int64 array) =
         for i in 0 .. monkeys.Count - 1 do
-            logDebug $"Monkey %i{i}:"
             let monkey = monkeys.[i]
-            inspections.[i] <- inspections.[i] + monkey.StartingItems.Count
+            inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
             for worry in monkey.StartingItems do
-                logDebug $"  Monkey inspects an item with a worry level of %i{worry}."
-
-                let descriptor, newWorry =
+                let _descriptor, newWorry =
                     match monkey.Operation with
-                    | opDescriptor, op, arg1, arg2 ->
-                        let arg1 =
-                            match arg1 with
+                    | opDescriptor, op, arg ->
+                        let arg =
+                            match arg with
                             | Arg.Old -> worry
                             | Arg.Literal l -> l
 
-                        let arg2 =
-                            match arg2 with
-                            | Arg.Old -> worry
-                            | Arg.Literal l -> l
+                        opDescriptor, op worry arg
 
-                        opDescriptor, op arg1 arg2
-
-                logDebug $"    Worry level %s{descriptor} to %i{newWorry}."
-                let newWorry = newWorry / 3
-                logDebug $"    Monkey gets bored with item. Worry level is divided by 3 to %i{newWorry}."
+                let newWorry = newWorry / 3L
 
                 let target =
                     if newWorry % monkey.TestDivisibleBy = 0 then
-                        logDebug $"    Current worry level is divisible by %i{monkey.TestDivisibleBy}."
                         monkey.TrueCase
                     else
-                        logDebug $"    Current worry level is not divisible by %i{monkey.TestDivisibleBy}."
                         monkey.FalseCase
-
-                logDebug $"    Item with worry level %i{newWorry} is thrown to monkey %i{target}."
 
                 monkeys.[target / 1<monkey>].StartingItems.Add newWorry
 
             monkey.StartingItems.Clear ()
 
-    let part1 (emitCounts : int list seq -> unit) (lines : StringSplitEnumerator) : int =
+    let part1 (lines : StringSplitEnumerator) : int64 =
         let monkeys = parse lines
 
-        let mutable inspections = Array.zeroCreate<int> monkeys.Count
+        let mutable inspections = Array.zeroCreate<int64> monkeys.Count
 
         for _round in 1..20 do
-            oneRound (printfn "%s") monkeys inspections
-
-            seq {
-                for monkey in monkeys do
-                    yield monkey.StartingItems |> List.ofSeq
-            }
-            |> emitCounts
-
-        for i in inspections do
-            printfn "Monkey inspected %i" i
+            oneRoundDivThree monkeys inspections
 
         inspections |> Array.sortInPlace
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
 
-    let part2 (lines : StringSplitEnumerator) : int =
-        let directions = parse lines
+    let oneRound (modulus : int64) (monkeys : IReadOnlyList<Monkey<int64>>) (inspections : int64 array) =
+        for i in 0 .. monkeys.Count - 1 do
+            let monkey = monkeys.[i]
+            inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
-        0
+            for worry in monkey.StartingItems do
+                let _descriptor, newWorry =
+                    match monkey.Operation with
+                    | opDescriptor, op, arg ->
+                        let arg =
+                            match arg with
+                            | Arg.Old -> worry
+                            | Arg.Literal l -> l
+
+                        opDescriptor, op worry arg
+
+                let newWorry = newWorry % modulus
+
+                let target =
+                    if newWorry % monkey.TestDivisibleBy = 0 then
+                        monkey.TrueCase
+                    else
+                        monkey.FalseCase
+
+                monkeys.[target / 1<monkey>].StartingItems.Add newWorry
+
+            monkey.StartingItems.Clear ()
+
+
+    let part2 (lines : StringSplitEnumerator) : int64 =
+        let monkeys = parse lines
+
+        let mutable inspections = Array.zeroCreate<int64> monkeys.Count
+
+        let modulus =
+            (1L, monkeys) ||> Seq.fold (fun i monkey -> i * monkey.TestDivisibleBy)
+
+        for _round in 1..10000 do
+            oneRound modulus monkeys inspections
+
+        inspections |> Array.sortInPlace
+        inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
