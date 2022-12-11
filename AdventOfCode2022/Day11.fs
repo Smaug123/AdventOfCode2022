@@ -2,6 +2,9 @@ namespace AdventOfCode2022
 
 open System.Collections.Generic
 open System
+#if DEBUG
+open Checked
+#endif
 
 [<Measure>]
 type monkey
