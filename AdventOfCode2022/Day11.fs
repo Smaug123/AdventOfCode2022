@@ -238,6 +238,16 @@ module Day11 =
 
             monkey.StartingItems.Clear ()
 
+    let inline maxTwo (arr : int64 array) : struct (int64 * int64) =
+        let mutable best = max arr.[1] arr.[0]
+        let mutable secondBest = min arr.[1] arr.[0]
+        for i in 2..arr.Length - 1 do
+            if arr.[i] > best then
+                secondBest <- best
+                best <- arr.[i]
+            elif arr.[i] > secondBest then secondBest <- arr.[i]
+
+        struct (secondBest, best)
 
     let part2 (lines : StringSplitEnumerator) : int64 =
         let monkeys = parse lines
@@ -250,5 +260,5 @@ module Day11 =
         for _round in 1..10000 do
             oneRound modulus monkeys inspections
 
-        inspections |> Array.sortInPlace
-        inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
+        let struct (a, b) = maxTwo inspections
+        a * b
