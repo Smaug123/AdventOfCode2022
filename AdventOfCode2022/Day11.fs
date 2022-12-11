@@ -9,21 +9,18 @@ type monkey
 [<RequireQualifiedAccess>]
 module Day11 =
 
-    type Arg<'T> =
-        | Literal of 'T
-        | Old
-
-    type Monkey<'T> =
+    type Monkey =
         {
             Number : int<monkey>
-            StartingItems : 'T ResizeArray
-            Operation : string * ('T -> 'T -> 'T) * Arg<'T>
-            TestDivisibleBy : 'T
+            StartingItems : int64 ResizeArray
+            OperationIsPlus : bool
+            Argument : int64 option
+            TestDivisibleBy : int64
             TrueCase : int<monkey>
             FalseCase : int<monkey>
         }
 
-    let parse (lines : StringSplitEnumerator) : Monkey<int64> IReadOnlyList =
+    let parse (lines : StringSplitEnumerator) : Monkey IReadOnlyList =
         use mutable enum = lines
         let output = ResizeArray ()
 
@@ -62,7 +59,7 @@ module Day11 =
 
             let line = enum.Current
 
-            let opDescriptor, operation, arg =
+            let operationIsPlus, arg =
                 let line = line.Trim ()
                 let mutable enum = StringSplitEnumerator.make' ':' line
                 StringSplitEnumerator.chomp "Operation" &enum
@@ -93,29 +90,29 @@ module Day11 =
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
 
-                let opDescriptor, op =
+                let operationIsPlus =
                     if enum.Current.Length > 1 then
                         failwith "expected operation of exactly 1 char"
 
                     match enum.Current.[0] with
-                    | '*' -> sprintf "is multiplied by %s", (*)
-                    | '+' -> sprintf "increases by %s", (+)
+                    | '*' -> false
+                    | '+' -> true
                     | c -> failwithf "Unrecognised op: %c" c
 
                 if not (enum.MoveNext ()) then
                     failwith "expected three elements on RHS"
 
-                let arg, opDescriptor =
+                let arg =
                     if EfficientString.equals "old" enum.Current then
-                        Arg.Old, opDescriptor "itself"
+                        None
                     else
                         let literal = Int64.Parse enum.Current
-                        Arg.Literal literal, opDescriptor (literal.ToString ())
+                        Some literal
 
                 if enum.MoveNext () then
                     failwith "too many entries on row"
 
-                opDescriptor, op, arg
+                operationIsPlus, arg
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -162,7 +159,8 @@ module Day11 =
             {
                 Number = monkey
                 StartingItems = startItems
-                Operation = opDescriptor, operation, arg
+                OperationIsPlus = operationIsPlus
+                Argument = arg
                 TestDivisibleBy = test
                 TrueCase = ifTrue
                 FalseCase = ifFalse
@@ -171,21 +169,19 @@ module Day11 =
 
         output :> IReadOnlyList<_>
 
-    let oneRoundDivThree (monkeys : IReadOnlyList<Monkey<int64>>) (inspections : int64 array) =
+    let oneRoundDivThree (monkeys : IReadOnlyList<Monkey>) (inspections : int64 array) =
         for i in 0 .. monkeys.Count - 1 do
             let monkey = monkeys.[i]
             inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
             for worry in monkey.StartingItems do
-                let _descriptor, newWorry =
-                    match monkey.Operation with
-                    | opDescriptor, op, arg ->
-                        let arg =
-                            match arg with
-                            | Arg.Old -> worry
-                            | Arg.Literal l -> l
+                let newWorry =
+                    let arg =
+                        match monkey.Argument with
+                        | None -> worry
+                        | Some l -> l
 
-                        opDescriptor, op worry arg
+                    if monkey.OperationIsPlus then worry + arg else worry * arg
 
                 let newWorry = newWorry / 3L
 
@@ -210,21 +206,19 @@ module Day11 =
         inspections |> Array.sortInPlace
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
 
-    let oneRound (modulus : int64) (monkeys : IReadOnlyList<Monkey<int64>>) (inspections : int64 array) =
+    let oneRound (modulus : int64) (monkeys : IReadOnlyList<Monkey>) (inspections : int64 array) =
         for i in 0 .. monkeys.Count - 1 do
             let monkey = monkeys.[i]
             inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
             for worry in monkey.StartingItems do
-                let _descriptor, newWorry =
-                    match monkey.Operation with
-                    | opDescriptor, op, arg ->
-                        let arg =
-                            match arg with
-                            | Arg.Old -> worry
-                            | Arg.Literal l -> l
+                let newWorry =
+                    let arg =
+                        match monkey.Argument with
+                        | None -> worry
+                        | Some l -> l
 
-                        opDescriptor, op worry arg
+                    if monkey.OperationIsPlus then worry + arg else worry * arg
 
                 let newWorry = newWorry % modulus
 
