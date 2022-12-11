@@ -17,6 +17,7 @@
       <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day8.txt" />
       <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day9.txt" />
       <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day10.txt" />
+      <EmbeddedResource Include="..\AdventOfCode2022.Test\Inputs\Day11.txt" />
     </ItemGroup>
 
     <ItemGroup>

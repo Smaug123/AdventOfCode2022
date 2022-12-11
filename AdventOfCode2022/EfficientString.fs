@@ -83,7 +83,7 @@ module StringSplitEnumerator =
 
     let chomp (s : string) (e : byref<StringSplitEnumerator>) =
         if not (e.MoveNext ()) || not (EfficientString.equals s e.Current) then
-            failwithf "expected '%s'" s
+            failwithf "expected '%s', got '%s'" s (e.Current.ToString ())
 
     let consumeInt (e : byref<StringSplitEnumerator>) : int =
         if not (e.MoveNext ()) then
