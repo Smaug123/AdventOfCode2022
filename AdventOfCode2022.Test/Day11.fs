@@ -44,7 +44,7 @@ Monkey 3:
     [<Test>]
     let ``Part 1, single round, given`` () =
         let monkeys = Day11.parse (StringSplitEnumerator.make '\n' input)
-        let inspections = Array.zeroCreate monkeys.Count
+        let inspections = Array.zeroCreate monkeys.Length
 
         Day11.oneRoundDivThree monkeys inspections
 

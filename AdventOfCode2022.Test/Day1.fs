@@ -38,7 +38,6 @@ module TestDay1 =
     let ``Part 1, given example`` () =
         Day1.part1 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 24000
 
-
     [<Test>]
     let ``Part 2, given example`` () =
         Day1.part2 (StringSplitEnumerator.make '\n' testInput) |> shouldEqual 45000

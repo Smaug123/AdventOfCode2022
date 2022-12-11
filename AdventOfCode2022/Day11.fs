@@ -17,13 +17,14 @@ module Day11 =
             Number : int<monkey>
             StartingItems : int64 ResizeArray
             OperationIsPlus : bool
-            Argument : int64 option
+            /// Negative is None
+            Argument : int64
             TestDivisibleBy : int64
             TrueCase : int<monkey>
             FalseCase : int<monkey>
         }
 
-    let parse (lines : StringSplitEnumerator) : Monkey IReadOnlyList =
+    let parse (lines : StringSplitEnumerator) : Monkey array =
         use mutable enum = lines
         let output = ResizeArray ()
 
@@ -107,10 +108,10 @@ module Day11 =
 
                 let arg =
                     if EfficientString.equals "old" enum.Current then
-                        None
+                        -1L
                     else
                         let literal = Int64.Parse enum.Current
-                        Some literal
+                        literal
 
                 if enum.MoveNext () then
                     failwith "too many entries on row"
@@ -170,7 +171,7 @@ module Day11 =
             }
             |> output.Add
 
-        output :> IReadOnlyList<_>
+        output.ToArray ()
 
     let oneRoundDivThree (monkeys : IReadOnlyList<Monkey>) (inspections : int64 array) =
         for i in 0 .. monkeys.Count - 1 do
@@ -181,8 +182,8 @@ module Day11 =
                 let newWorry =
                     let arg =
                         match monkey.Argument with
-                        | None -> worry
-                        | Some l -> l
+                        | -1L -> worry
+                        | l -> l
 
                     if monkey.OperationIsPlus then worry + arg else worry * arg
 
@@ -201,7 +202,7 @@ module Day11 =
     let part1 (lines : StringSplitEnumerator) : int64 =
         let monkeys = parse lines
 
-        let mutable inspections = Array.zeroCreate<int64> monkeys.Count
+        let mutable inspections = Array.zeroCreate<int64> monkeys.Length
 
         for _round in 1..20 do
             oneRoundDivThree monkeys inspections
@@ -209,8 +210,8 @@ module Day11 =
         inspections |> Array.sortInPlace
         inspections.[inspections.Length - 1] * inspections.[inspections.Length - 2]
 
-    let oneRound (modulus : int64) (monkeys : IReadOnlyList<Monkey>) (inspections : int64 array) =
-        for i in 0 .. monkeys.Count - 1 do
+    let inline oneRound (modulus : int64) (monkeys : Monkey array) (inspections : int64 array) =
+        for i in 0 .. monkeys.Length - 1 do
             let monkey = monkeys.[i]
             inspections.[i] <- inspections.[i] + int64 monkey.StartingItems.Count
 
@@ -220,8 +221,8 @@ module Day11 =
                 let newWorry =
                     let arg =
                         match monkey.Argument with
-                        | None -> worry
-                        | Some l -> l
+                        | -1L -> worry
+                        | l -> l
 
                     if monkey.OperationIsPlus then worry + arg else worry * arg
 
@@ -241,7 +242,7 @@ module Day11 =
     let part2 (lines : StringSplitEnumerator) : int64 =
         let monkeys = parse lines
 
-        let mutable inspections = Array.zeroCreate<int64> monkeys.Count
+        let mutable inspections = Array.zeroCreate<int64> monkeys.Length
 
         let modulus =
             (1L, monkeys) ||> Seq.fold (fun i monkey -> i * monkey.TestDivisibleBy)
