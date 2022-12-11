@@ -42,15 +42,6 @@ Monkey 3:
         Day11.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 10605
 
     [<Test>]
-    let ``Part 1, single round, given`` () =
-        let monkeys = Day11.parse (StringSplitEnumerator.make '\n' input)
-        let inspections = Array.zeroCreate monkeys.Length
-
-        Day11.oneRoundDivThree monkeys inspections
-
-        inspections |> shouldEqual [| 2 ; 4 ; 3 ; 5 |]
-
-    [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day11.txt"
 
@@ -58,7 +49,7 @@ Monkey 3:
 
 
     [<Test>]
-    let ``Part 2, given 1`` () =
+    let ``Part 2, given`` () =
         Day11.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 2713310158L
 
     [<Test>]
