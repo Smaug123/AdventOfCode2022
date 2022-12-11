@@ -292,7 +292,11 @@ module Day11 =
 
             NativePtr.write (NativePtr.add counts i) 0
 
-    let inline unsafeMaxTwo< ^a when ^a : unmanaged and ^a : comparison> (len : int) (arr : nativeptr<'a>) : struct ('a * 'a) =
+    let inline unsafeMaxTwo< ^a when ^a : unmanaged and ^a : comparison>
+        (len : int)
+        (arr : nativeptr<'a>)
+        : struct ('a * 'a)
+        =
         let arr0 = NativePtr.read arr
         let arr1 = NativePtr.get arr 1
         let mutable best = LanguagePrimitives.GenericMaximum arr0 arr1
