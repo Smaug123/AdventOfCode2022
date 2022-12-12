@@ -32,10 +32,20 @@ module Day12 =
 
                 for i in 0 .. arr.Length - 1 do
                     if current.[i] = 'S' then
-                        startPos <- { X = i ; Y = row }
+                        startPos <-
+                            {
+                                X = i
+                                Y = row
+                            }
+
                         arr.[i] <- 0uy
                     elif current.[i] = 'E' then
-                        endPos <- { X = i ; Y = row }
+                        endPos <-
+                            {
+                                X = i
+                                Y = row
+                            }
+
                         arr.[i] <- 25uy
                     else
                         arr.[i] <- charToByte current.[i]
@@ -43,15 +53,10 @@ module Day12 =
                 arr |> output.Add
                 row <- row + 1
 
-        let output =
-            Arr2D.init output.[0].Length output.Count (fun x y -> output.[y].[x])
+        let output = Arr2D.init output.[0].Length output.Count (fun x y -> output.[y].[x])
         output, startPos, endPos
 
-    let dijkstra
-        (nodes : Arr2D<byte>)
-        (start : Coordinate)
-        (dest : Coordinate)
-        =
+    let dijkstra (nodes : Arr2D<byte>) (start : Coordinate) (dest : Coordinate) =
         let mutable currentX = start.X
         let mutable currentY = start.Y
         let mutable currentDistance = 0
@@ -64,30 +69,11 @@ module Day12 =
         let mutable stillGoing = true
 
         while stillGoing && currentDistance < Int32.MaxValue do
-            if currentY > 0 then
-                if
-                    not (Arr2D.get isVisited currentX (currentY - 1))
-                    && Arr2D.get nodes currentX (currentY - 1) <= 1uy + Arr2D.get nodes currentX currentY
-                then
-                    let newDistance = 1 + currentDistance
-
-                    if newDistance < Arr2D.get distances currentX (currentY - 1) then
-                        Arr2D.set distances currentX (currentY - 1) newDistance
-
-            if currentY < distances.Height - 1 then
-                if
-                    not (Arr2D.get isVisited currentX (currentY + 1))
-                    && Arr2D.get nodes currentX (currentY + 1) <= 1uy + Arr2D.get nodes currentX currentY
-                then
-                    let newDistance = 1 + currentDistance
-
-                    if newDistance < Arr2D.get distances currentX (currentY + 1) then
-                        Arr2D.set distances currentX (currentY + 1) newDistance
-
             if currentX < distances.Width - 1 then
                 if
                     not (Arr2D.get isVisited (currentX + 1) currentY)
-                    && Arr2D.get nodes (currentX + 1) currentY <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes (currentX + 1) currentY
+                       <= 1uy + Arr2D.get nodes currentX currentY
                 then
                     let newDistance = 1 + currentDistance
 
@@ -97,12 +83,35 @@ module Day12 =
             if currentX > 0 then
                 if
                     not (Arr2D.get isVisited (currentX - 1) currentY)
-                    && Arr2D.get nodes (currentX - 1) currentY <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes (currentX - 1) currentY
+                       <= 1uy + Arr2D.get nodes currentX currentY
                 then
                     let newDistance = 1 + currentDistance
 
                     if newDistance < Arr2D.get distances (currentX - 1) currentY then
                         Arr2D.set distances (currentX - 1) currentY newDistance
+
+            if currentY > 0 then
+                if
+                    not (Arr2D.get isVisited currentX (currentY - 1))
+                    && Arr2D.get nodes currentX (currentY - 1)
+                       <= 1uy + Arr2D.get nodes currentX currentY
+                then
+                    let newDistance = 1 + currentDistance
+
+                    if newDistance < Arr2D.get distances currentX (currentY - 1) then
+                        Arr2D.set distances currentX (currentY - 1) newDistance
+
+            if currentY < distances.Height - 1 then
+                if
+                    not (Arr2D.get isVisited currentX (currentY + 1))
+                    && Arr2D.get nodes currentX (currentY + 1)
+                       <= 1uy + Arr2D.get nodes currentX currentY
+                then
+                    let newDistance = 1 + currentDistance
+
+                    if newDistance < Arr2D.get distances currentX (currentY + 1) then
+                        Arr2D.set distances currentX (currentY + 1) newDistance
 
             Arr2D.set isVisited currentX currentY true
 
@@ -113,7 +122,10 @@ module Day12 =
 
                 for nextX in 0 .. isVisited.Width - 1 do
                     for nextY in 0 .. isVisited.Height - 1 do
-                        if not (Arr2D.get isVisited nextX nextY) && Arr2D.get distances nextX nextY <= smallestDistance then
+                        if
+                            not (Arr2D.get isVisited nextX nextY)
+                            && Arr2D.get distances nextX nextY <= smallestDistance
+                        then
                             currentX <- nextX
                             currentY <- nextY
                             smallestDistance <- Arr2D.get distances nextX nextY
@@ -130,10 +142,16 @@ module Day12 =
         let data, _, endPoint = parse lines
         let mutable best = Int32.MaxValue
 
-        for x in 0 .. data.Width - 1 do
-            for y in 0 .. data.Height - 1 do
+        for y in 0 .. data.Height - 1 do
+            for x in 0 .. data.Width - 1 do
                 if Arr2D.get data x y = 0uy then
-                    let d = dijkstra data { X = x ; Y = y } endPoint
+                    let coord =
+                        {
+                            X = x
+                            Y = y
+                        }
+
+                    let d = dijkstra data coord endPoint
 
                     if d < best then
                         best <- d
