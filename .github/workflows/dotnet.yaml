@@ -62,8 +62,8 @@ jobs:
     name: Linkcheck
     runs-on: ubuntu-latest
     steps:
-      - uses: filiph/linkcheck@2.0.23
       - name: Run LinkCheck
+        uses: filiph/linkcheck@2.0.23
 
   all-required-checks-complete:
     needs: [check-format, build, shellcheck, linkcheck]
