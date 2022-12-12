@@ -56,15 +56,22 @@ module Day12 =
         let output = Arr2D.init output.[0].Length output.Count (fun x y -> output.[y].[x])
         output, startPos, endPos
 
+    let inline isEdge (nodes : Arr2D< ^a >) sourceX sourceY destX destY =
+        Arr2D.get nodes destX destY
+        <= LanguagePrimitives.GenericOne + Arr2D.get nodes sourceX sourceY
+
     /// The input arrays must all have the same dimensions.
     /// `nodes` will not be mutated; `distances` and `isVisited` will be mutated.
-    /// (As a result of these arguments, `dijkstra` is intended to be allocation-free.)
+    /// (As a result of these arguments, `dijkstra` could be allocation-free if we returned only the length of the
+    /// shortest path.)
+    /// Returns such a shortest path (in reverse, destination first), or None if there was none.
     let dijkstra
         (distances : Arr2D<int>)
         (isVisited : Arr2D<bool>)
         (nodes : Arr2D<byte>)
         (start : Coordinate)
         (dest : Coordinate)
+        : Coordinate ResizeArray option
         =
         let mutable currentX = start.X
         let mutable currentY = start.Y
@@ -81,7 +88,7 @@ module Day12 =
             if currentX < distances.Width - 1 then
                 if
                     not (Arr2D.get isVisited (currentX + 1) currentY)
-                    && Arr2D.get nodes (currentX + 1) currentY <= 1uy + currentNode
+                    && isEdge nodes currentX currentY (currentX + 1) currentY
                 then
                     let newDistance = 1 + currentDistance
 
@@ -91,7 +98,7 @@ module Day12 =
             if currentX > 0 then
                 if
                     not (Arr2D.get isVisited (currentX - 1) currentY)
-                    && Arr2D.get nodes (currentX - 1) currentY <= 1uy + currentNode
+                    && isEdge nodes currentX currentY (currentX - 1) currentY
                 then
                     let newDistance = 1 + currentDistance
 
@@ -101,7 +108,7 @@ module Day12 =
             if currentY > 0 then
                 if
                     not (Arr2D.get isVisited currentX (currentY - 1))
-                    && Arr2D.get nodes currentX (currentY - 1) <= 1uy + currentNode
+                    && isEdge nodes currentX currentY currentX (currentY - 1)
                 then
                     let newDistance = 1 + currentDistance
 
@@ -111,7 +118,7 @@ module Day12 =
             if currentY < distances.Height - 1 then
                 if
                     not (Arr2D.get isVisited currentX (currentY + 1))
-                    && Arr2D.get nodes currentX (currentY + 1) <= 1uy + currentNode
+                    && isEdge nodes currentX currentY currentX (currentY + 1)
                 then
                     let newDistance = 1 + currentDistance
 
@@ -137,33 +144,92 @@ module Day12 =
 
                 currentDistance <- smallestDistance
 
-        Arr2D.get distances dest.X dest.Y
+        let output = ResizeArray ()
+        let d = Arr2D.get distances dest.X dest.Y
 
-    let part1 (lines : StringSplitEnumerator) : int64 =
+        if d = Int32.MaxValue then
+            None
+        else
+            currentX <- dest.X
+            currentY <- dest.Y
+            let mutable counter = d
+
+            while counter > 0 do
+                counter <- counter - 1
+
+                if
+                    currentX > 0
+                    && Arr2D.get distances (currentX - 1) currentY = counter
+                    && isEdge nodes (currentX - 1) currentY currentX currentY
+                then
+                    currentX <- currentX - 1
+                elif
+                    currentX + 1 < distances.Width
+                    && Arr2D.get distances (currentX + 1) currentY = counter
+                    && isEdge nodes (currentX + 1) currentY currentX currentY
+                then
+                    currentX <- currentX + 1
+                elif
+                    currentY > 0
+                    && Arr2D.get distances currentX (currentY - 1) = counter
+                    && isEdge nodes currentX (currentY - 1) currentX currentY
+                then
+                    currentY <- currentY - 1
+                elif
+                    currentY + 1 < distances.Height
+                    && Arr2D.get distances currentX (currentY + 1) = counter
+                    && isEdge nodes currentX (currentY + 1) currentX currentY
+                then
+                    currentY <- currentY + 1
+                else
+                    failwith "could not move"
+
+                output.Add
+                    {
+                        X = currentX
+                        Y = currentY
+                    }
+
+            Some output
+
+    let part1 (lines : StringSplitEnumerator) : int =
         let data, start, endPoint = parse lines
         let distances = Arr2D.create data.Width data.Height Int32.MaxValue
         let isVisited = Arr2D.zeroCreate<bool> data.Width data.Height
 
-        dijkstra distances isVisited data start endPoint
+        let path = dijkstra distances isVisited data start endPoint
+        path.Value.Count
 
     let part2 (lines : StringSplitEnumerator) : int =
         let data, _, endPoint = parse lines
-        let mutable best = Int32.MaxValue
         let distances = Arr2D.zeroCreate<int32> data.Width data.Height
         let isVisited = Arr2D.zeroCreate<bool> data.Width data.Height
 
+        let bestDistances = Arr2D.create data.Width data.Height Int32.MaxValue
+
         for y in 0 .. data.Height - 1 do
             for x in 0 .. data.Width - 1 do
-                if Arr2D.get data x y = 0uy then
+                if Arr2D.get data x y = 0uy && Arr2D.get bestDistances x y = Int32.MaxValue then
                     let coord =
                         {
                             X = x
                             Y = y
                         }
 
-                    let d = dijkstra distances isVisited data coord endPoint
+                    match dijkstra distances isVisited data coord endPoint with
+                    | None -> ()
+                    | Some path ->
 
-                    if d < best then
-                        best <- d
+                    for i in 0 .. path.Count - 1 do
+                        let coord = path.[i]
+                        // +1 because we want the length of the path, not the index of the last element in it
+                        Arr2D.set bestDistances coord.X coord.Y (i + 1)
 
-        best
+        let mutable minVal = Int32.MaxValue
+
+        for y in 0 .. data.Height - 1 do
+            for x in 0 .. data.Width - 1 do
+                if Arr2D.get data x y = 0uy then
+                    minVal <- min minVal (Arr2D.get bestDistances x y)
+
+        minVal
