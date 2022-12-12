@@ -41,8 +41,6 @@ module Arr2D =
 
         result
 
-    let inline clear (a : Arr2D<'a>) : unit =
-        System.Array.Clear a.Elements
+    let inline clear (a : Arr2D<'a>) : unit = System.Array.Clear a.Elements
 
-    let inline setAll (a : Arr2D<'a>) (v : 'a) : unit =
-        System.Array.Fill (a.Elements, v)
+    let inline setAll (a : Arr2D<'a>) (v : 'a) : unit = System.Array.Fill (a.Elements, v)
