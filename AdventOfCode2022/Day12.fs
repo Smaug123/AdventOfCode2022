@@ -69,11 +69,12 @@ module Day12 =
         let mutable stillGoing = true
 
         while stillGoing && currentDistance < Int32.MaxValue do
+            let currentNode = Arr2D.get nodes currentX currentY
+
             if currentX < distances.Width - 1 then
                 if
                     not (Arr2D.get isVisited (currentX + 1) currentY)
-                    && Arr2D.get nodes (currentX + 1) currentY
-                       <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes (currentX + 1) currentY <= 1uy + currentNode
                 then
                     let newDistance = 1 + currentDistance
 
@@ -83,8 +84,7 @@ module Day12 =
             if currentX > 0 then
                 if
                     not (Arr2D.get isVisited (currentX - 1) currentY)
-                    && Arr2D.get nodes (currentX - 1) currentY
-                       <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes (currentX - 1) currentY <= 1uy + currentNode
                 then
                     let newDistance = 1 + currentDistance
 
@@ -94,8 +94,7 @@ module Day12 =
             if currentY > 0 then
                 if
                     not (Arr2D.get isVisited currentX (currentY - 1))
-                    && Arr2D.get nodes currentX (currentY - 1)
-                       <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes currentX (currentY - 1) <= 1uy + currentNode
                 then
                     let newDistance = 1 + currentDistance
 
@@ -105,8 +104,7 @@ module Day12 =
             if currentY < distances.Height - 1 then
                 if
                     not (Arr2D.get isVisited currentX (currentY + 1))
-                    && Arr2D.get nodes currentX (currentY + 1)
-                       <= 1uy + Arr2D.get nodes currentX currentY
+                    && Arr2D.get nodes currentX (currentY + 1) <= 1uy + currentNode
                 then
                     let newDistance = 1 + currentDistance
 
