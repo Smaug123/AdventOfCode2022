@@ -15,7 +15,7 @@ type Benchmarks () =
     [<Params(false, true)>]
     member val IsPartOne = false with get, set
 
-    [<Params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11)>]
+    [<Params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)>]
     member val Day = 0 with get, set
 
     [<Benchmark>]
