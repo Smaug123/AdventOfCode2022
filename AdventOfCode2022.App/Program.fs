@@ -12,7 +12,7 @@ type Benchmarks () =
     [<GlobalSetup>]
     member _.Setup () = Run.shouldWrite <- false
 
-    [<Params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)>]
+    [<Params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)>]
     member val Day = 0 with get, set
 
     [<Params(false, true)>]
@@ -36,7 +36,7 @@ module Program =
                     .Create(DefaultConfig.Instance)
                     .WithOptions ConfigOptions.DisableOptimizationsValidator
 
-            let summary = BenchmarkRunner.Run<Benchmarks> config
+            let _summary = BenchmarkRunner.Run<Benchmarks> config
             0
         | _ ->
 

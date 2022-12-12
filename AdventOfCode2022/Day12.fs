@@ -142,19 +142,18 @@ module Day12 =
 
                 currentDistance <- smallestDistance
 
-        let output = ResizeArray ()
-
         match dest with
         | Some dest -> Arr2D.get distances dest.X dest.Y
         | None ->
-            let mutable minValue = Int32.MaxValue
 
-            for y in 0 .. nodes.Height - 1 do
-                for x in 0 .. nodes.Width - 1 do
-                    if Arr2D.get nodes x y = 0uy then
-                        minValue <- min minValue (Arr2D.get distances x y)
+        let mutable minValue = Int32.MaxValue
 
-            minValue
+        for y in 0 .. nodes.Height - 1 do
+            for x in 0 .. nodes.Width - 1 do
+                if Arr2D.get nodes x y = 0uy then
+                    minValue <- min minValue (Arr2D.get distances x y)
+
+        minValue
 
     let part1 (lines : StringSplitEnumerator) : int =
         let data, start, endPoint = parse lines
