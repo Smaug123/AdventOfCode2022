@@ -20,7 +20,7 @@
         <Compile Include="Day10.fs" />
         <Compile Include="Day11.fs" />
         <Compile Include="Day12.fs" />
-        <Compile Include="Day13.fs" />
+        <None Include="Day13.fs" />
         <EmbeddedResource Include="Inputs\Day1.txt" />
         <EmbeddedResource Include="Inputs\Day2.txt" />
         <EmbeddedResource Include="Inputs\Day3.txt" />
