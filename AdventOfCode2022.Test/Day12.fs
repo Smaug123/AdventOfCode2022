@@ -23,14 +23,14 @@ abdefghi
     let ``Part 1`` () =
         let input = Assembly.readResource "Day12.txt"
 
-        Day12.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 120384
+        Day12.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 456
 
 
     [<Test>]
     let ``Part 2, given`` () =
-        Day12.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 2713310158L
+        Day12.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 29
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day12.txt"
-        Day12.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 32059801242L
+        Day12.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 454
