@@ -58,8 +58,16 @@ jobs:
       - name: Run ShellCheck
         uses: ludeeus/action-shellcheck@master
 
+  linkcheck:
+    name: Check links
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@master
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        name: Run link checker
+
   all-required-checks-complete:
-    needs: [check-format, build, shellcheck]
+    needs: [check-format, build, shellcheck, linkcheck]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All required checks complete."

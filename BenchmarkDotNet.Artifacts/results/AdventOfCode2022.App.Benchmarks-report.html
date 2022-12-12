@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>AdventOfCode2022.App.Benchmarks-20221212-123338</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=macOS 13.0.1 (22A400) [Darwin 22.1.0]
+Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=7.0.100
+  [Host]     : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD DEBUG
+  DefaultJob : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Day</th><th>IsPartOne</th><th>      Mean</th><th>   Error</th><th>  StdDev</th>
+</tr>
+</thead><tbody><tr><td>Benchmark</td><td>1</td><td>False</td><td>32.603 &mu;s</td><td>0.1156 &mu;s</td><td>0.1025 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>1</td><td>True</td><td>32.631 &mu;s</td><td>0.0869 &mu;s</td><td>0.0771 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>False</td><td>82.653 &mu;s</td><td>0.1401 &mu;s</td><td>0.1170 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>True</td><td>80.848 &mu;s</td><td>0.1771 &mu;s</td><td>0.1657 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>False</td><td>32.453 &mu;s</td><td>0.3211 &mu;s</td><td>0.3004 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>True</td><td>73.870 &mu;s</td><td>0.4218 &mu;s</td><td>0.3945 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>False</td><td>68.849 &mu;s</td><td>0.2764 &mu;s</td><td>0.2585 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>True</td><td>56.220 &mu;s</td><td>0.4178 &mu;s</td><td>0.3262 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>False</td><td>96.159 &mu;s</td><td>0.8042 &mu;s</td><td>0.7129 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>True</td><td>82.477 &mu;s</td><td>0.3252 &mu;s</td><td>0.3042 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>6</td><td>False</td><td>87.074 &mu;s</td><td>0.4153 &mu;s</td><td>0.3885 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>6</td><td>True</td><td>171.234 &mu;s</td><td>0.6468 &mu;s</td><td>0.6050 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>7</td><td>False</td><td>469.857 &mu;s</td><td>9.0091 &mu;s</td><td>8.8482 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>7</td><td>True</td><td>467.825 &mu;s</td><td>1.4685 &mu;s</td><td>1.2263 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>8</td><td>False</td><td>766.520 &mu;s</td><td>2.0220 &mu;s</td><td>1.8914 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>8</td><td>True</td><td>381.438 &mu;s</td><td>7.2321 &mu;s</td><td>6.7649 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>9</td><td>False</td><td>521.262 &mu;s</td><td>2.5656 &mu;s</td><td>2.3999 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>9</td><td>True</td><td>946.909 &mu;s</td><td>2.6168 &mu;s</td><td>2.4478 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>10</td><td>False</td><td>7.632 &mu;s</td><td>0.0200 &mu;s</td><td>0.0177 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>10</td><td>True</td><td>8.494 &mu;s</td><td>0.0227 &mu;s</td><td>0.0201 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>11</td><td>False</td><td>7.377 &mu;s</td><td>0.0141 &mu;s</td><td>0.0117 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>11</td><td>True</td><td>2,929.034 &mu;s</td><td>20.6688 &mu;s</td><td>17.2594 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>12</td><td>False</td><td>26,970.013 &mu;s</td><td>43.1843 &mu;s</td><td>36.0608 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>12</td><td>True</td><td>4,996,237.958 &mu;s</td><td>30,838.7917 &mu;s</td><td>28,846.6248 &mu;s</td>
+</tr></tbody></table>
+</body>
+</html>
