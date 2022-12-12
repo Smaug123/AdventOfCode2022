@@ -34,3 +34,4 @@ abdefghi
     let ``Part 2`` () =
         let input = Assembly.readResource "Day12.txt"
         Day12.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 454
+

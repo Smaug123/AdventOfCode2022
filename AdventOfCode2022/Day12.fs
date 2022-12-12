@@ -1,6 +1,5 @@
 namespace AdventOfCode2022
 
-open System.Collections.Generic
 open System
 
 #if DEBUG
@@ -12,11 +11,18 @@ module Day12 =
 
     let private charToByte (c : char) = byte c - byte 'a'
 
-    let parse (lines : StringSplitEnumerator) : byte[] ResizeArray * struct (byte * byte) * struct (byte * byte) =
+    [<Struct>]
+    type Coordinate =
+        {
+            X : int
+            Y : int
+        }
+
+    let parse (lines : StringSplitEnumerator) : Arr2D<byte> * Coordinate * Coordinate =
         use mutable enum = lines
         let output = ResizeArray ()
-        let mutable startPos = struct (0uy, 0uy)
-        let mutable endPos = struct (0uy, 0uy)
+        let mutable startPos = Unchecked.defaultof<Coordinate>
+        let mutable endPos = Unchecked.defaultof<Coordinate>
         let mutable row = 0
 
         while enum.MoveNext () do
@@ -26,10 +32,10 @@ module Day12 =
 
                 for i in 0 .. arr.Length - 1 do
                     if current.[i] = 'S' then
-                        startPos <- struct (byte i, byte row)
+                        startPos <- { X = i ; Y = row }
                         arr.[i] <- 0uy
                     elif current.[i] = 'E' then
-                        endPos <- struct (byte i, byte row)
+                        endPos <- { X = i ; Y = row }
                         arr.[i] <- 25uy
                     else
                         arr.[i] <- charToByte current.[i]
@@ -37,75 +43,84 @@ module Day12 =
                 arr |> output.Add
                 row <- row + 1
 
+        let output =
+            Arr2D.init output.[0].Length output.Count (fun x y -> output.[y].[x])
         output, startPos, endPos
 
     let dijkstra
-        (nodes : byte[] ResizeArray)
-        (struct (startY : byte, startX : byte))
-        (struct (destY : byte, destX : byte))
+        (nodes : Arr2D<byte>)
+        (start : Coordinate)
+        (dest : Coordinate)
         =
-        let startY, startX = int startX, int startY
-        let destY, destX = int destX, int destY
-
-        let mutable currentY = startY
-        let mutable currentX = startX
+        let mutable currentX = start.X
+        let mutable currentY = start.Y
         let mutable currentDistance = 0
 
-        let distances : int[][] =
-            Array.init nodes.Count (fun _ -> Array.create nodes.[0].Length Int32.MaxValue)
+        let distances = Arr2D.create nodes.Width nodes.Height Int32.MaxValue
 
-        let isVisited : bool[][] =
-            Array.init nodes.Count (fun _ -> Array.zeroCreate nodes.[0].Length)
+        let isVisited = Arr2D.zeroCreate<bool> nodes.Width nodes.Height
 
-        distances.[startY].[startX] <- 0
+        Arr2D.set distances start.X start.Y 0
         let mutable stillGoing = true
 
         while stillGoing && currentDistance < Int32.MaxValue do
-            if currentX > 0 then
-                if not isVisited.[currentY].[currentX - 1] && nodes.[currentY].[currentX - 1] <= 1uy + nodes.[currentY].[currentX] then
-                    let newDistance = 1 + currentDistance
-
-                    if newDistance < distances.[currentY].[currentX - 1] then
-                        distances.[currentY].[currentX - 1] <- newDistance
-
-            if currentX < distances.[currentY].Length - 1 then
-                if not isVisited.[currentY].[currentX + 1] && nodes.[currentY].[currentX + 1] <= 1uy + nodes.[currentY].[currentX] then
-                    let newDistance = 1 + currentDistance
-
-                    if newDistance < distances.[currentY].[currentX + 1] then
-                        distances.[currentY].[currentX + 1] <- newDistance
-
-            if currentY < distances.Length - 1 then
-                if not isVisited.[currentY + 1].[currentX] && nodes.[currentY + 1].[currentX] <= 1uy + nodes.[currentY].[currentX] then
-                    let newDistance = 1 + currentDistance
-
-                    if newDistance < distances.[currentY + 1].[currentX] then
-                        distances.[currentY + 1].[currentX] <- newDistance
-
-
             if currentY > 0 then
-                if not isVisited.[currentY - 1].[currentX] && nodes.[currentY - 1].[currentX] <= 1uy + nodes.[currentY].[currentX] then
+                if
+                    not (Arr2D.get isVisited currentX (currentY - 1))
+                    && Arr2D.get nodes currentX (currentY - 1) <= 1uy + Arr2D.get nodes currentX currentY
+                then
                     let newDistance = 1 + currentDistance
 
-                    if newDistance < distances.[currentY - 1].[currentX] then
-                        distances.[currentY - 1].[currentX] <- newDistance
+                    if newDistance < Arr2D.get distances currentX (currentY - 1) then
+                        Arr2D.set distances currentX (currentY - 1) newDistance
 
-            isVisited.[currentY].[currentX] <- true
+            if currentY < distances.Height - 1 then
+                if
+                    not (Arr2D.get isVisited currentX (currentY + 1))
+                    && Arr2D.get nodes currentX (currentY + 1) <= 1uy + Arr2D.get nodes currentX currentY
+                then
+                    let newDistance = 1 + currentDistance
 
-            if currentY = destY && currentX = destX then
+                    if newDistance < Arr2D.get distances currentX (currentY + 1) then
+                        Arr2D.set distances currentX (currentY + 1) newDistance
+
+            if currentX < distances.Width - 1 then
+                if
+                    not (Arr2D.get isVisited (currentX + 1) currentY)
+                    && Arr2D.get nodes (currentX + 1) currentY <= 1uy + Arr2D.get nodes currentX currentY
+                then
+                    let newDistance = 1 + currentDistance
+
+                    if newDistance < Arr2D.get distances (currentX + 1) currentY then
+                        Arr2D.set distances (currentX + 1) currentY newDistance
+
+            if currentX > 0 then
+                if
+                    not (Arr2D.get isVisited (currentX - 1) currentY)
+                    && Arr2D.get nodes (currentX - 1) currentY <= 1uy + Arr2D.get nodes currentX currentY
+                then
+                    let newDistance = 1 + currentDistance
+
+                    if newDistance < Arr2D.get distances (currentX - 1) currentY then
+                        Arr2D.set distances (currentX - 1) currentY newDistance
+
+            Arr2D.set isVisited currentX currentY true
+
+            if currentX = dest.X && currentY = dest.Y then
                 stillGoing <- false
             else
                 let mutable smallestDistance = Int32.MaxValue
 
-                for nextY in 0 .. isVisited.Length - 1 do
-                    for nextX in 0 .. isVisited.[0].Length - 1 do
-                        if not isVisited.[nextY].[nextX] && distances.[nextY].[nextX] <= smallestDistance then
-                            currentY <- nextY
+                for nextX in 0 .. isVisited.Width - 1 do
+                    for nextY in 0 .. isVisited.Height - 1 do
+                        if not (Arr2D.get isVisited nextX nextY) && Arr2D.get distances nextX nextY <= smallestDistance then
                             currentX <- nextX
-                            smallestDistance <- distances.[nextY].[nextX]
+                            currentY <- nextY
+                            smallestDistance <- Arr2D.get distances nextX nextY
+
                 currentDistance <- smallestDistance
 
-        distances.[destY].[destX]
+        Arr2D.get distances dest.X dest.Y
 
     let part1 (lines : StringSplitEnumerator) : int64 =
         let data, start, endPoint = parse lines
@@ -114,10 +129,13 @@ module Day12 =
     let part2 (lines : StringSplitEnumerator) : int =
         let data, _, endPoint = parse lines
         let mutable best = Int32.MaxValue
-        for i in 0..data.Count - 1 do
-            for j in 0..data.[0].Length - 1 do
-                if data.[i].[j] = 0uy then
-                    let d = dijkstra data (struct(byte j, byte i)) endPoint
+
+        for x in 0 .. data.Width - 1 do
+            for y in 0 .. data.Height - 1 do
+                if Arr2D.get data x y = 0uy then
+                    let d = dijkstra data { X = x ; Y = y } endPoint
+
                     if d < best then
                         best <- d
+
         best
