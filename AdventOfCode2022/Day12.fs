@@ -62,9 +62,9 @@ module Day12 =
 
     /// The input arrays must all have the same dimensions.
     /// `nodes` will not be mutated; `distances` and `isVisited` will be mutated.
-    /// (As a result of these arguments, `dijkstra` could be allocation-free if we returned only the length of the
-    /// shortest path.)
-    /// Returns such a shortest path (in reverse, destination first), or None if there was none.
+    /// (As a result of these arguments, `dijkstra` is allocation-free.)
+    /// Returns the shortest path to the destination, or the min of the shortest path to all
+    /// destinations.
     let dijkstra
         (distances : Arr2D<int>)
         (isVisited : Arr2D<bool>)
