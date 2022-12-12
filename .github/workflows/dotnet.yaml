@@ -59,11 +59,12 @@ jobs:
         uses: ludeeus/action-shellcheck@master
 
   linkcheck:
-    name: Linkcheck
+    name: Check links
     runs-on: ubuntu-latest
     steps:
-      - name: Run LinkCheck
-        uses: filiph/linkcheck@2.0.23
+      - uses: actions/checkout@master
+      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+        name: Run link checker
 
   all-required-checks-complete:
     needs: [check-format, build, shellcheck, linkcheck]
