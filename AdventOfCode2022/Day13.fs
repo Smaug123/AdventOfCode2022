@@ -14,9 +14,9 @@ module Day13 =
         let output = ResizeArray ()
 
         while enum.MoveNext () do
-            output.Add foo
+            output.Add ()
 
-        output
+        0
 
     let part1 (lines : StringSplitEnumerator) : int =
         let data = parse lines
