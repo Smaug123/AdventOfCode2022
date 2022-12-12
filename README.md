@@ -5,4 +5,4 @@ Just `dotnet build` and `dotnet test`.
 
 ## Perf
 
-See [BenchmarkDotNet report](./BenchmarkDotNet.Artifacts/results/AdventOfCode2022.App.Benchmarks-report-github.md).
+See [BenchmarkDotNet report](./BenchmarkDotNet.Artifacts/AdventOfCode2022.App.Benchmarks-report-github.md).
