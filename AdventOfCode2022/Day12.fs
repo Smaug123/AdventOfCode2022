@@ -56,15 +56,22 @@ module Day12 =
         let output = Arr2D.init output.[0].Length output.Count (fun x y -> output.[y].[x])
         output, startPos, endPos
 
-    let dijkstra (nodes : Arr2D<byte>) (start : Coordinate) (dest : Coordinate) =
+    /// The input arrays must all have the same dimensions.
+    /// `nodes` will not be mutated; `distances` and `isVisited` will be mutated.
+    /// (As a result of these arguments, `dijkstra` is intended to be allocation-free.)
+    let dijkstra
+        (distances : Arr2D<int>)
+        (isVisited : Arr2D<bool>)
+        (nodes : Arr2D<byte>)
+        (start : Coordinate)
+        (dest : Coordinate)
+        =
         let mutable currentX = start.X
         let mutable currentY = start.Y
         let mutable currentDistance = 0
 
-        let distances = Arr2D.create nodes.Width nodes.Height Int32.MaxValue
-
-        let isVisited = Arr2D.zeroCreate<bool> nodes.Width nodes.Height
-
+        Arr2D.clear isVisited
+        Arr2D.setAll distances Int32.MaxValue
         Arr2D.set distances start.X start.Y 0
         let mutable stillGoing = true
 
@@ -134,11 +141,16 @@ module Day12 =
 
     let part1 (lines : StringSplitEnumerator) : int64 =
         let data, start, endPoint = parse lines
-        dijkstra data start endPoint
+        let distances = Arr2D.create data.Width data.Height Int32.MaxValue
+        let isVisited = Arr2D.zeroCreate<bool> data.Width data.Height
+
+        dijkstra distances isVisited data start endPoint
 
     let part2 (lines : StringSplitEnumerator) : int =
         let data, _, endPoint = parse lines
         let mutable best = Int32.MaxValue
+        let distances = Arr2D.zeroCreate<int32> data.Width data.Height
+        let isVisited = Arr2D.zeroCreate<bool> data.Width data.Height
 
         for y in 0 .. data.Height - 1 do
             for x in 0 .. data.Width - 1 do
@@ -149,7 +161,7 @@ module Day12 =
                             Y = y
                         }
 
-                    let d = dijkstra data coord endPoint
+                    let d = dijkstra distances isVisited data coord endPoint
 
                     if d < best then
                         best <- d

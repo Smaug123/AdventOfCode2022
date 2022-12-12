@@ -8,28 +8,37 @@ Just `dotnet build` and `dotnet test`.
 As of Day 11:
 
 ```
-|    Method | IsPartOne | Day |         Mean |      Error |     StdDev |
-|---------- |---------- |---- |-------------:|-----------:|-----------:|
-| Benchmark |     False |   1 |    32.663 us |  0.4192 us |  0.3921 us |
-| Benchmark |     False |   2 |    82.502 us |  0.4576 us |  0.4281 us |
-| Benchmark |     False |   3 |    33.273 us |  0.5546 us |  0.5188 us |
-| Benchmark |     False |   4 |    66.689 us |  0.3763 us |  0.2938 us |
-| Benchmark |     False |   5 |    96.317 us |  1.4445 us |  1.3511 us |
-| Benchmark |     False |   6 |    90.087 us |  0.7930 us |  0.6622 us |
-| Benchmark |     False |   7 |   466.332 us |  5.0471 us |  4.7211 us |
-| Benchmark |     False |   8 |   759.873 us |  4.3523 us |  4.0712 us |
-| Benchmark |     False |   9 |   507.427 us |  5.8451 us |  5.4675 us |
-| Benchmark |     False |  10 |     7.615 us |  0.0300 us |  0.0280 us |
-| Benchmark |     False |  11 |    12.617 us |  0.0716 us |  0.0670 us |
-| Benchmark |      True |   1 |    33.206 us |  0.1680 us |  0.1572 us |
-| Benchmark |      True |   2 |    80.874 us |  0.3673 us |  0.3436 us |
-| Benchmark |      True |   3 |    72.505 us |  0.8570 us |  0.8016 us |
-| Benchmark |      True |   4 |    56.584 us |  0.5950 us |  0.5565 us |
-| Benchmark |      True |   5 |    84.942 us |  0.4420 us |  0.4135 us |
-| Benchmark |      True |   6 |   167.142 us |  1.0515 us |  0.9836 us |
-| Benchmark |      True |   7 |   454.487 us |  3.4531 us |  2.8835 us |
-| Benchmark |      True |   8 |   370.147 us |  2.0985 us |  1.9630 us |
-| Benchmark |      True |   9 |   938.836 us | 10.7999 us |  9.0184 us |
-| Benchmark |      True |  10 |     8.446 us |  0.0685 us |  0.0641 us |
-| Benchmark |      True |  11 | 3,768.481 us | 15.3375 us | 14.3467 us |
+BenchmarkDotNet=v0.13.2, OS=macOS 13.0.1 (22A400) [Darwin 22.1.0]
+Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=7.0.100
+  [Host]     : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD DEBUG
+  DefaultJob : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD
+
+
+|    Method | Day | IsPartOne |             Mean |          Error |         StdDev |
+|---------- |---- |---------- |-----------------:|---------------:|---------------:|
+| Benchmark |   1 |     False |        32.603 us |      0.1156 us |      0.1025 us |
+| Benchmark |   1 |      True |        32.631 us |      0.0869 us |      0.0771 us |
+| Benchmark |   2 |     False |        82.653 us |      0.1401 us |      0.1170 us |
+| Benchmark |   2 |      True |        80.848 us |      0.1771 us |      0.1657 us |
+| Benchmark |   3 |     False |        32.453 us |      0.3211 us |      0.3004 us |
+| Benchmark |   3 |      True |        73.870 us |      0.4218 us |      0.3945 us |
+| Benchmark |   4 |     False |        68.849 us |      0.2764 us |      0.2585 us |
+| Benchmark |   4 |      True |        56.220 us |      0.4178 us |      0.3262 us |
+| Benchmark |   5 |     False |        96.159 us |      0.8042 us |      0.7129 us |
+| Benchmark |   5 |      True |        82.477 us |      0.3252 us |      0.3042 us |
+| Benchmark |   6 |     False |        87.074 us |      0.4153 us |      0.3885 us |
+| Benchmark |   6 |      True |       171.234 us |      0.6468 us |      0.6050 us |
+| Benchmark |   7 |     False |       469.857 us |      9.0091 us |      8.8482 us |
+| Benchmark |   7 |      True |       467.825 us |      1.4685 us |      1.2263 us |
+| Benchmark |   8 |     False |       766.520 us |      2.0220 us |      1.8914 us |
+| Benchmark |   8 |      True |       381.438 us |      7.2321 us |      6.7649 us |
+| Benchmark |   9 |     False |       521.262 us |      2.5656 us |      2.3999 us |
+| Benchmark |   9 |      True |       946.909 us |      2.6168 us |      2.4478 us |
+| Benchmark |  10 |     False |         7.632 us |      0.0200 us |      0.0177 us |
+| Benchmark |  10 |      True |         8.494 us |      0.0227 us |      0.0201 us |
+| Benchmark |  11 |     False |         7.377 us |      0.0141 us |      0.0117 us |
+| Benchmark |  11 |      True |     2,929.034 us |     20.6688 us |     17.2594 us |
+| Benchmark |  12 |     False |    26,970.013 us |     43.1843 us |     36.0608 us |
+| Benchmark |  12 |      True | 4,996,237.958 us | 30,838.7917 us | 28,846.6248 us |
 ```

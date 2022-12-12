@@ -40,3 +40,9 @@ module Arr2D =
                 set result x y (f x y)
 
         result
+
+    let inline clear (a : Arr2D<'a>) : unit =
+        System.Array.Clear a.Elements
+
+    let inline setAll (a : Arr2D<'a>) (v : 'a) : unit =
+        System.Array.Fill (a.Elements, v)
