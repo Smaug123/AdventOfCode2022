@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Globalization
 open System.Runtime.CompilerServices
 
 type EfficientString = System.ReadOnlySpan<char>

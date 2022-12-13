@@ -2,6 +2,7 @@
 
 open System
 open System.Collections.Generic
+open System.Globalization
 
 [<RequireQualifiedAccess>]
 module Day1 =
@@ -15,7 +16,7 @@ module Day1 =
                 counts.Add acc
                 acc <- 0
             else
-                acc <- acc + Int32.Parse line
+                acc <- acc + Int32.Parse (line, NumberStyles.None)
 
         if acc <> 0 then
             counts.Add acc
