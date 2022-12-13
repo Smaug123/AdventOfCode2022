@@ -52,7 +52,9 @@ module Day13 =
                         curr <- curr.Slice 1
 
                     if curr.[0] <> ']' then
-                        stack.Peek().Add (Day13Packet.Int (Int32.Parse (curr.TrimEnd ']', NumberStyles.None)))
+                        stack
+                            .Peek()
+                            .Add (Day13Packet.Int (Int32.Parse (curr.TrimEnd ']', NumberStyles.None)))
 
                     while curr.Length > 0 && curr.[curr.Length - 1] = ']' do
                         let closed = Day13Packet.PacketList (stack.Pop().ToArray ())
