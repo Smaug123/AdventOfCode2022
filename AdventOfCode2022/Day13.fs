@@ -80,9 +80,15 @@ module Day13 =
 
     let part2 (lines : StringSplitEnumerator) : int =
         let data = parse lines
-        let marker1 = Day13Packet.PacketList [| Day13Packet.PacketList [| Day13Packet.Int 2 |] |]
+
+        let marker1 =
+            Day13Packet.PacketList [| Day13Packet.PacketList [| Day13Packet.Int 2 |] |]
+
         data.Add marker1
-        let marker2 = Day13Packet.PacketList [| Day13Packet.PacketList [| Day13Packet.Int 6 |] |]
+
+        let marker2 =
+            Day13Packet.PacketList [| Day13Packet.PacketList [| Day13Packet.Int 6 |] |]
+
         data.Add marker2
         let data = data.ToArray () |> Array.indexed
         Array.sortInPlaceWith (fun (_, a) (_, b) -> if Option.get (cmp a b) then -1 else 1) data
@@ -97,6 +103,7 @@ module Day13 =
             elif fst data.[i] = data.Length - 1 then
                 answer <- answer * (i + 1)
                 keepGoing <- false
+
             i <- i + 1
 
         answer
