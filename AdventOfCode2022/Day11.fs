@@ -2,6 +2,7 @@ namespace AdventOfCode2022
 
 open System.Collections.Generic
 open System
+open System.Globalization
 open Microsoft.FSharp.NativeInterop
 
 #if DEBUG
@@ -130,7 +131,7 @@ module Day11 =
                 if not (line.StartsWith "Test: divisible by ") then
                     failwith "bad formatting on test line"
 
-                Int32.Parse (line.Slice 19)
+                Int32.Parse (line.Slice 19, NumberStyles.None)
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -141,7 +142,7 @@ module Day11 =
                 if not (line.StartsWith "If true: throw to monkey ") then
                     failwith "bad formatting for ifTrue line"
 
-                Int32.Parse (line.Slice 24) * 1<monkey>
+                Int32.Parse (line.Slice 25, NumberStyles.None) * 1<monkey>
 
             if not (enum.MoveNext ()) then
                 failwith "Ran out of rows"
@@ -152,7 +153,7 @@ module Day11 =
                 if not (line.StartsWith "If false: throw to monkey ") then
                     failwith "bad formatting for ifFalse line"
 
-                Int32.Parse (line.Slice 25) * 1<monkey>
+                Int32.Parse (line.Slice 26, NumberStyles.None) * 1<monkey>
 
             // We may be at the end, in which case there's no empty row.
             enum.MoveNext () |> ignore

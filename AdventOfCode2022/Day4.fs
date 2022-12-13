@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Globalization
 
 [<RequireQualifiedAccess>]
 module Day4 =
@@ -9,6 +10,9 @@ module Day4 =
     let inline fullyContains (a, b) (c, d) : bool = a <= c && b >= d
 
     let inline overlaps (a, b) (c, d) : bool = b >= c && a <= d
+
+    let inline private parseInt (c : ReadOnlySpan<char>) : int =
+        Int32.Parse (c, NumberStyles.AllowTrailingWhite)
 
     let parse (s : ReadOnlySpan<char>) : (int * int) * (int * int) =
         let commaIndex = s.IndexOf ','
@@ -20,7 +24,7 @@ module Day4 =
         let secondDashIndex = secondElf.IndexOf '-'
         let secondElf1 = secondElf.Slice (0, secondDashIndex)
         let secondElf2 = secondElf.Slice (secondDashIndex + 1)
-        (Int32.Parse firstElf1, Int32.Parse firstElf2), (Int32.Parse secondElf1, Int32.Parse secondElf2)
+        (parseInt firstElf1, parseInt firstElf2), (parseInt secondElf1, parseInt secondElf2)
 
     let part1 (lines : StringSplitEnumerator) : int =
         let mutable count = 0
