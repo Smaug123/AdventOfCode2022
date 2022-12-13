@@ -1,14 +1,16 @@
 namespace AdventOfCode2022
 
 open System
+open System.Collections.Generic
 
 #if DEBUG
 open Checked
 #endif
 
+[<Struct>]
 type Day13Packet =
-    | PacketList of Day13Packet[]
-    | Int of int
+    | PacketList of leaf : Day13Packet[]
+    | Int of int : int
 
 [<RequireQualifiedAccess>]
 module Day13 =
@@ -33,7 +35,7 @@ module Day13 =
     let parse (lines : StringSplitEnumerator) : Day13Packet ResizeArray =
         use mutable enum = lines
         let output = ResizeArray ()
-        let mutable stack = []
+        let mutable stack = Stack<_> ()
 
         while enum.MoveNext () do
             if not (enum.Current.IsWhiteSpace ()) then
@@ -45,21 +47,20 @@ module Day13 =
                     let mutable curr = elements.Current
 
                     while curr.[0] = '[' do
-                        stack <- ResizeArray () :: stack
+                        stack.Push (ResizeArray ())
                         curr <- curr.Slice 1
 
                     if curr.[0] <> ']' then
-                        (List.head stack).Add (Day13Packet.Int (Int32.Parse (curr.TrimEnd (']'))))
+                        stack.Peek().Add (Day13Packet.Int (Int32.Parse (curr.TrimEnd (']'))))
 
                     while curr.Length > 0 && curr.[curr.Length - 1] = ']' do
-                        let closed = Day13Packet.PacketList (stack.Head.ToArray ())
+                        let closed = Day13Packet.PacketList (stack.Pop().ToArray ())
 
-                        match stack with
-                        | [] -> failwith "oh no"
-                        | [ head ] -> output.Add closed
-                        | head :: tail -> tail.Head.Add closed
+                        if stack.Count = 0 then
+                            output.Add closed
+                        else
+                            stack.Peek().Add closed
 
-                        stack <- stack.Tail
                         curr <- curr.Slice (0, curr.Length - 1)
 
         output

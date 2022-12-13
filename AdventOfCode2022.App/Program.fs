@@ -8,11 +8,11 @@ open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Configs
 open BenchmarkDotNet.Running
 
-type Benchmarks () =
+type Benchmark1To5 () =
     [<GlobalSetup>]
     member _.Setup () = Run.shouldWrite <- false
 
-    [<Params(1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13)>]
+    [<Params(1, 2, 3, 4, 5)>]
     member val Day = 0 with get, set
 
     [<Params(false, true)>]
@@ -25,6 +25,42 @@ type Benchmarks () =
     [<GlobalCleanup>]
     member _.Cleanup () = Run.shouldWrite <- true
 
+
+type Benchmark6To10 () =
+    [<GlobalSetup>]
+    member _.Setup () = Run.shouldWrite <- false
+
+    [<Params(6, 7, 8, 9, 10)>]
+    member val Day = 0 with get, set
+
+    [<Params(false, true)>]
+    member val IsPartOne = false with get, set
+
+    [<Benchmark>]
+    member this.Benchmark () : unit =
+        Run.allRuns.[this.Day - 1] this.IsPartOne (Inputs.day this.Day)
+
+    [<GlobalCleanup>]
+    member _.Cleanup () = Run.shouldWrite <- true
+
+type Benchmark11To15 () =
+    [<GlobalSetup>]
+    member _.Setup () = Run.shouldWrite <- false
+
+    [<Params(11, 12, 13)>]
+    member val Day = 0 with get, set
+
+    [<Params(false, true)>]
+    member val IsPartOne = false with get, set
+
+    [<Benchmark>]
+    member this.Benchmark () : unit =
+        Run.allRuns.[this.Day - 1] this.IsPartOne (Inputs.day this.Day)
+
+    [<GlobalCleanup>]
+    member _.Cleanup () = Run.shouldWrite <- true
+
+
 module Program =
 
     [<EntryPoint>]
@@ -36,7 +72,9 @@ module Program =
                     .Create(DefaultConfig.Instance)
                     .WithOptions ConfigOptions.DisableOptimizationsValidator
 
-            let _summary = BenchmarkRunner.Run<Benchmarks> config
+            let _summary = BenchmarkRunner.Run<Benchmark1To5> config
+            let _summary = BenchmarkRunner.Run<Benchmark6To10> config
+            let _summary = BenchmarkRunner.Run<Benchmark11To15> config
             0
         | _ ->
 

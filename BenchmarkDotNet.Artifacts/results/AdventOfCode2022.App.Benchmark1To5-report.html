@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>AdventOfCode2022.App.Benchmark1To5-20221213-191534</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=macOS 13.0.1 (22A400) [Darwin 22.1.0]
+Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=7.0.100
+  [Host]     : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD DEBUG
+  DefaultJob : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Day</th><th>IsPartOne</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>Benchmark</td><td>1</td><td>False</td><td>32.03 &mu;s</td><td>0.108 &mu;s</td><td>0.101 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>1</td><td>True</td><td>32.00 &mu;s</td><td>0.051 &mu;s</td><td>0.045 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>False</td><td>81.14 &mu;s</td><td>0.177 &mu;s</td><td>0.166 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>True</td><td>79.17 &mu;s</td><td>0.158 &mu;s</td><td>0.140 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>False</td><td>30.16 &mu;s</td><td>0.395 &mu;s</td><td>0.369 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>True</td><td>68.15 &mu;s</td><td>1.358 &mu;s</td><td>1.510 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>False</td><td>66.18 &mu;s</td><td>0.187 &mu;s</td><td>0.175 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>True</td><td>54.17 &mu;s</td><td>0.171 &mu;s</td><td>0.152 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>False</td><td>90.90 &mu;s</td><td>0.109 &mu;s</td><td>0.091 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>True</td><td>78.93 &mu;s</td><td>0.262 &mu;s</td><td>0.245 &mu;s</td>
+</tr></tbody></table>
+</body>
+</html>
