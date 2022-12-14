@@ -11,17 +11,16 @@ open Checked
 #nowarn "9"
 #endif
 
+type Coordinate =
+    {
+        X : int
+        Y : int
+    }
+
 [<RequireQualifiedAccess>]
 module Day12 =
 
     let private charToByte (c : char) = byte c - byte 'a'
-
-    [<Struct>]
-    type Coordinate =
-        {
-            X : int
-            Y : int
-        }
 
     let parse (lines : StringSplitEnumerator) : array<byte> * int * Coordinate * Coordinate =
         use mutable enum = lines
