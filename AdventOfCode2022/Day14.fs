@@ -1,10 +1,9 @@
 namespace AdventOfCode2022
 
 open System
-open System.Collections.Generic
-open System.Globalization
 
 #if DEBUG
+open System.Runtime.InteropServices
 open Checked
 #endif
 
@@ -56,6 +55,27 @@ module Day14 =
             for x in min point1.X point2.X .. max point1.X point2.X do
                 Arr2D.set arr x point1.Y true
 
+    type MutableCoordinate =
+        {
+            mutable X : int
+            mutable Y : int
+        }
+
+    let inline fallOnce (sandPos : MutableCoordinate) (arr : Arr2D<bool>) : bool =
+        if not (Arr2D.get arr sandPos.X (sandPos.Y + 1)) then
+            sandPos.Y <- sandPos.Y + 1
+            true
+        elif not (Arr2D.get arr (sandPos.X - 1) (sandPos.Y + 1)) then
+            sandPos.X <- sandPos.X - 1
+            sandPos.Y <- sandPos.Y + 1
+            true
+        elif not (Arr2D.get arr (sandPos.X + 1) (sandPos.Y + 1)) then
+            sandPos.X <- sandPos.X + 1
+            sandPos.Y <- sandPos.Y + 1
+            true
+        else
+            false
+
     let part1 (lines : StringSplitEnumerator) : int =
         let data = parse lines
 
@@ -68,7 +88,7 @@ module Day14 =
 #else
         let board = Array.zeroCreate ((maxX + 1) * (maxY + 1))
         use ptr = fixed board
-        let arr = Arr2D.zeroCreate<bool> (maxX + 1) (maxY + 1)
+        let arr = Arr2D.zeroCreate<bool> ptr (maxX + 1) (maxY + 1)
 #endif
         for line in data do
             for i in 0 .. line.Count - 2 do
@@ -78,35 +98,18 @@ module Day14 =
         let mutable keepGoing = true
 
         while keepGoing do
-            let mutable sandPos =
+            let sandPos =
                 {
-                    X = 500
+                    MutableCoordinate.X = 500
                     Y = 0
                 }
 
             let mutable stillFalling = true
 
             while stillFalling && sandPos.X >= minX && sandPos.X <= maxX && sandPos.Y < maxY do
-                // Fall one place
-                if not (Arr2D.get arr sandPos.X (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X
-                            Y = sandPos.Y + 1
-                        }
-                elif not (Arr2D.get arr (sandPos.X - 1) (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X - 1
-                            Y = sandPos.Y + 1
-                        }
-                elif not (Arr2D.get arr (sandPos.X + 1) (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X + 1
-                            Y = sandPos.Y + 1
-                        }
-                else
+                let movedDown = fallOnce sandPos arr
+
+                if not movedDown then
                     stillFalling <- false
                     sand <- sand + 1
                     Arr2D.set arr sandPos.X sandPos.Y true
@@ -119,7 +122,6 @@ module Day14 =
     let part2 (lines : StringSplitEnumerator) : int =
         let data = parse lines
 
-        let minX = data |> Seq.concat |> Seq.map (fun s -> s.X) |> Seq.min
         let maxX = data |> Seq.concat |> Seq.map (fun s -> s.X) |> Seq.max
         let maxY = data |> Seq.concat |> Seq.map (fun s -> s.Y) |> Seq.max |> ((+) 2)
 
@@ -128,19 +130,19 @@ module Day14 =
 #else
         let board = Array.zeroCreate ((maxX + 1001) * (maxY + 1))
         use ptr = fixed board
-        let arr = Arr2D.zeroCreate<bool> (maxX + 1001) (maxY + 1)
+        let arr = Arr2D.zeroCreate<bool> ptr (maxX + 1001) (maxY + 1)
 #endif
         for line in data do
             for i in 0 .. line.Count - 2 do
                 let point1 =
                     {
-                        X = line.[i].X + 500
+                        Coordinate.X = line.[i].X + 500
                         Y = line.[i].Y
                     }
 
                 let point2 =
                     {
-                        X = line.[i + 1].X + 500
+                        Coordinate.X = line.[i + 1].X + 500
                         Y = line.[i + 1].Y
                     }
 
@@ -161,35 +163,18 @@ module Day14 =
         let mutable keepGoing = true
 
         while keepGoing do
-            let mutable sandPos =
+            let sandPos =
                 {
-                    X = 1000
+                    MutableCoordinate.X = 1000
                     Y = 0
                 }
 
             let mutable stillFalling = true
 
             while stillFalling && sandPos.Y < maxY do
-                // Fall one place
-                if not (Arr2D.get arr sandPos.X (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X
-                            Y = sandPos.Y + 1
-                        }
-                elif not (Arr2D.get arr (sandPos.X - 1) (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X - 1
-                            Y = sandPos.Y + 1
-                        }
-                elif not (Arr2D.get arr (sandPos.X + 1) (sandPos.Y + 1)) then
-                    sandPos <-
-                        {
-                            X = sandPos.X + 1
-                            Y = sandPos.Y + 1
-                        }
-                else
+                let movedDown = fallOnce sandPos arr
+
+                if not movedDown then
                     sand <- sand + 1
                     Arr2D.set arr sandPos.X sandPos.Y true
 
