@@ -61,17 +61,6 @@ module Day15 =
 
     let inline manhattan (p1 : Coordinate) (p2 : Coordinate) : int = abs (p1.X - p2.X) + abs (p1.Y - p2.Y)
 
-    let inline cantorBijection (x : int) (y : int) : int64 =
-        let sum = x + y
-
-        let major =
-            if sum % 2 = 0 then
-                int64 (sum / 2) * int64 (sum + 1)
-            else
-                int64 sum * int64 ((sum + 1) / 2)
-
-        major + int64 y
-
     let inline couldBeBeacon
         (sensors : ResizeArray<Coordinate>)
         (closestManhattans : int[])
