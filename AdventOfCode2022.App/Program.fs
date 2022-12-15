@@ -55,7 +55,7 @@ type Benchmark11To15 () =
 
     [<Benchmark>]
     member this.Benchmark () : unit =
-        Run.allRuns.[this.Day - 1] this.IsPartOne (Inputs.day this.Day)
+        Run.allRuns.[this.Day - 1] (not this.IsPartOne) (Inputs.day this.Day)
 
     [<GlobalCleanup>]
     member _.Cleanup () = Run.shouldWrite <- true

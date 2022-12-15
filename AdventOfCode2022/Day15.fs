@@ -4,7 +4,6 @@ open System
 open System.Collections.Generic
 
 #if DEBUG
-open System.Globalization
 open Checked
 #endif
 
@@ -62,9 +61,19 @@ module Day15 =
 
     let inline manhattan (p1 : Coordinate) (p2 : Coordinate) : int = abs (p1.X - p2.X) + abs (p1.Y - p2.Y)
 
-    let inline isAmbiguous
+    let inline cantorBijection (x : int) (y : int) : int64 =
+        let sum = x + y
+
+        let major =
+            if sum % 2 = 0 then
+                int64 (sum / 2) * int64 (sum + 1)
+            else
+                int64 sum * int64 ((sum + 1) / 2)
+
+        major + int64 y
+
+    let inline couldBeBeacon
         (sensors : ResizeArray<Coordinate>)
-        (beacons : HashSet<Coordinate>)
         (closestManhattans : int[])
         (point : Coordinate)
         : bool
@@ -73,10 +82,7 @@ module Day15 =
         let mutable i = 0
 
         while keepGoing && i < sensors.Count do
-            if
-                manhattan point sensors.[i] <= closestManhattans.[i]
-                && not (beacons.Contains point)
-            then
+            if manhattan point sensors.[i] <= closestManhattans.[i] then
                 keepGoing <- false
 
             i <- i + 1
@@ -99,7 +105,6 @@ module Day15 =
         let closestManhattans =
             Array.init sensors.Count (fun i -> manhattan sensors.[i] beacons.[i])
 
-        let beacons = toHashSet beacons
         let mutable minX = Int32.MaxValue
         let mutable maxX = Int32.MinValue
 
@@ -119,8 +124,15 @@ module Day15 =
                     Y = y
                 }
 
-            if not (isAmbiguous sensors beacons closestManhattans point) then
+            if not (couldBeBeacon sensors closestManhattans point) then
                 count <- count + 1
+
+        // We've overcounted by the number of beacons in the row - they not only *could* be beacons, they *are* beacons!
+        let beacons = toHashSet beacons
+
+        for beacon in beacons do
+            if minX <= beacon.X && beacon.X <= maxX && beacon.Y = y then
+                count <- count - 1
 
         count
 
