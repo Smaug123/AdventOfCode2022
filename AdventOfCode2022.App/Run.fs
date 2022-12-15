@@ -208,12 +208,12 @@ module Run =
         let day15 = StringSplitEnumerator.make '\n' input
 
         if not partTwo then
-            let output = Day15.part1 day15
+            let output = Day15.part1 2000000 day15
 
             if shouldWrite then
                 printfn "%i" output
         else
-            let output = Day15.part2 day15
+            let output = Day15.part2 4000000 day15
 
             if shouldWrite then
                 printfn "%i" output
