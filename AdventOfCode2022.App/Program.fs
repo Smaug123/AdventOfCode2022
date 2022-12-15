@@ -1,9 +1,6 @@
 ﻿namespace AdventOfCode2022.App
 
 open System.Diagnostics
-open System.IO
-open System.Reflection
-open AdventOfCode2022
 open BenchmarkDotNet.Attributes
 open BenchmarkDotNet.Configs
 open BenchmarkDotNet.Running
@@ -20,7 +17,7 @@ type Benchmark1To5 () =
 
     [<Benchmark>]
     member this.Benchmark () : unit =
-        Run.allRuns.[this.Day - 1] this.IsPartOne (Inputs.day this.Day)
+        Run.allRuns.[this.Day - 1] (not this.IsPartOne) (Inputs.day this.Day)
 
     [<GlobalCleanup>]
     member _.Cleanup () = Run.shouldWrite <- true
@@ -38,7 +35,7 @@ type Benchmark6To10 () =
 
     [<Benchmark>]
     member this.Benchmark () : unit =
-        Run.allRuns.[this.Day - 1] this.IsPartOne (Inputs.day this.Day)
+        Run.allRuns.[this.Day - 1] (not this.IsPartOne) (Inputs.day this.Day)
 
     [<GlobalCleanup>]
     member _.Cleanup () = Run.shouldWrite <- true
