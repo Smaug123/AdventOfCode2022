@@ -33,11 +33,11 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 
     [<Test>]
     let ``Part 2, given`` () =
-        Day16.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 56000011
+        Day16.part2 (input.Split '\n') |> shouldEqual 1707
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day16.txt"
 
-        Day16.part2 (StringSplitEnumerator.make '\n' input)
-        |> shouldEqual 11747175442119L
+        Day16.part2 (input.Split '\n')
+        |> shouldEqual -1
