@@ -49,11 +49,8 @@ module Day16 =
 
             Some answer
 
-    let part1 (lines : string seq) : int =
-        let valves = parse lines
-        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> Set.ofSeq
-
-        let rec getShortestPathLength (seenSoFar : Node Set) (v1 : Node) (v2 : Node) =
+    let getShortestPathLength (valves : Map<_, _>) : Node -> Node -> int =
+        let rec go (seenSoFar : Node Set) (v1 : Node) (v2 : Node) =
             let v2Neighbours = snd valves.[v2]
 
             if v1 = v2 then
@@ -64,21 +61,31 @@ module Day16 =
                 None
             else
                 v2Neighbours
-                |> Seq.choose (getShortestPathLength (Set.add v2 seenSoFar) v1)
+                |> Seq.choose (go (Set.add v2 seenSoFar) v1)
                 |> tryMin
                 |> Option.map ((+) 1)
+
+        fun v1 v2 ->
+            go Set.empty v1 v2
+            |> Option.get
+
+    let part1 (lines : string seq) : int =
+        let valves = parse lines
+        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> Set.ofSeq
+
+        let getShortestPathLength = getShortestPathLength valves
 
         let pathWeights =
             Seq.allPairs allTaps allTaps
             |> Seq.map (fun (v1, v2) ->
-                let length = Option.get (getShortestPathLength Set.empty v1 v2)
+                let length = getShortestPathLength v1 v2
                 (v1, v2), length
             )
             |> Map.ofSeq
 
         let startChoices =
             allTaps
-            |> Seq.map (fun startNode -> startNode, Option.get (getShortestPathLength Set.empty "AA" startNode))
+            |> Seq.map (fun startNode -> startNode, getShortestPathLength "AA" startNode)
             |> Map.ofSeq
 
         let rec go
