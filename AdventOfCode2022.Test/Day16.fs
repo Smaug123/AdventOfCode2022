@@ -13,14 +13,13 @@ module TestDay16 =
 
     [<Test>]
     let ``Part 1, given`` () =
-        Day16.part1 10 (StringSplitEnumerator.make '\n' input) |> shouldEqual 26
+        Day16.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 26
 
     [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day16.txt"
 
-        Day16.part1 (StringSplitEnumerator.make '\n' input)
-        |> shouldEqual 6275922
+        Day16.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 6275922
 
 
     [<Test>]

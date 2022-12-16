@@ -56,7 +56,7 @@ module Day16 =
                 sensors.Add sensor
                 beacons.Add closest
 
-        sensors, beacons
+        failwith ""
 
 
     let part1 (lines : StringSplitEnumerator) : int =
