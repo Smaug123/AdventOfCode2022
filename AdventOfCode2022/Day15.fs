@@ -248,18 +248,4 @@ module Day15 =
                 if not falsified then
                     answer <- int64 xMax * 4000000L + int64 yMax
 
-        if answer = -1L then
-            // In fact one of the xMax/xMin or yMax/yMin constraints binds.
-            let mutable xIndex = 0
-
-            while answer = -1 && xIndex < sensorXCoords.Length do
-                xIndex <- xIndex + 1
-                // Try with this x.
-                let _x = sensorXCoords.Length
-
-                for _sensor in sensors do
-                    // Construct the necessary inequalities, then solve them.
-                    failwith "I couldn't be bothered to implement this"
-
-
         answer
