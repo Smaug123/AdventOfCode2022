@@ -204,9 +204,13 @@ module Day16 =
 
         let getShortestPathLength = getShortestPathLength valves
 
+#if DEBUG
+        let pathWeights = Arr2D.zeroCreate<int> valves.Count valves.Count
+#else
         let pathWeightsStorage = Array.zeroCreate (valves.Count * valves.Count)
         use ptr = fixed pathWeightsStorage
         let pathWeights = Arr2D.zeroCreate<int> ptr valves.Count valves.Count
+#endif
 
         for v1 in toSeq allTaps do
             for v2 in toSeq allTaps do
