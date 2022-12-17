@@ -30,5 +30,4 @@ module Day18 =
 
         1
 
-    let part2 (line : string) : int64 =
-        -1L
+    let part2 (line : string) : int64 = -1L

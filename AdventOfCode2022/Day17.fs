@@ -65,18 +65,21 @@ module Day17 =
                     let y = currentBase + row - shape.Length + 1
                     Arr2D.set startGrid x y 1
 
-    let moveJet (direction : Direction) (currentBase : int) (startGrid : Arr2D<int>) : unit =
+    let inline moveJet (direction : Direction) (currentBase : int) (startGrid : Arr2D<int>) : unit =
         match direction with
         | Direction.Left ->
             let mutable canMove = true
+            let mutable row = currentBase
 
-            for row in currentBase .. -1 .. currentBase - 3 do
+            while row >= currentBase - 3 && canMove do
                 if Arr2D.get startGrid 0 row = 1 then
                     canMove <- false
                 else
                     for col in 1..6 do
                         if Arr2D.get startGrid col row = 1 && Arr2D.get startGrid (col - 1) row = 2 then
                             canMove <- false
+
+                row <- row - 1
 
             if canMove then
                 for row in currentBase .. -1 .. currentBase - 3 do
@@ -89,14 +92,17 @@ module Day17 =
                         Arr2D.set startGrid 6 row 0
         | Direction.Right ->
             let mutable canMove = true
+            let mutable row = currentBase
 
-            for row in currentBase .. -1 .. currentBase - 3 do
+            while row >= currentBase - 3 && canMove do
                 if Arr2D.get startGrid 6 row = 1 then
                     canMove <- false
                 else
                     for col in 0..5 do
                         if Arr2D.get startGrid col row = 1 && Arr2D.get startGrid (col + 1) row = 2 then
                             canMove <- false
+
+                row <- row - 1
 
             if canMove then
                 for row in currentBase .. -1 .. currentBase - 3 do
@@ -109,9 +115,9 @@ module Day17 =
                         Arr2D.set startGrid 0 row 0
         | _ -> failwith "Unexpected direction"
 
-    /// Returns the new currentBase if we're still falling, or None if we're not
-    /// still falling.
-    let fallOnce (currentBase : int) (startGrid : Arr2D<int>) : int option =
+    /// Returns the new currentBase if we're still falling, or -1 if we're not
+    /// still falling. (Allocation of a ValueNone was actually nontrivially slow!)
+    let fallOnce (currentBase : int) (startGrid : Arr2D<int>) : int =
         let mutable isFalling = true
 
         // Fall one place. Can we fall?
@@ -130,7 +136,7 @@ module Day17 =
                         Arr2D.set startGrid col (row + 1) 1
                         Arr2D.set startGrid col row 0
 
-            Some (currentBase + 1)
+            currentBase + 1
         else
             for row in currentBase .. -1 .. currentBase - 3 do
                 for col in 0..6 do
@@ -138,7 +144,7 @@ module Day17 =
                         // Freeze in place
                         Arr2D.set startGrid col row 2
 
-            None
+            -1
 
     let findCurrentTop (currentTop : int) (startGrid : Arr2D<int>) : int =
         let mutable currentTop = currentTop
@@ -203,8 +209,8 @@ module Day17 =
                 jetCount <- (jetCount + 1) % directions.Length
 
                 match fallOnce currentBase startGrid with
-                | Some newCurrentBase -> currentBase <- newCurrentBase
-                | None -> isFalling <- false
+                | -1 -> isFalling <- false
+                | newCurrentBase -> currentBase <- newCurrentBase
 
                 // Set new currentTop
                 currentTop <- findCurrentTop currentTop startGrid
@@ -259,8 +265,8 @@ module Day17 =
                     jetCount <- (jetCount + 1) % directions.Length
 
                     match fallOnce currentBase startGrid with
-                    | Some newCurrentBase -> currentBase <- newCurrentBase
-                    | None -> isFalling <- false
+                    | -1 -> isFalling <- false
+                    | newCurrentBase -> currentBase <- newCurrentBase
 
                     // Set new currentTop
                     currentTop <- findCurrentTop currentTop startGrid
