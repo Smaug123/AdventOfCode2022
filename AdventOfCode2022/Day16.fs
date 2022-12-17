@@ -238,28 +238,27 @@ module Day16 =
 
                 let alreadyOn = setNode alreadyOn headingTo1
 
-                let mutable allTaps = allTaps
+                let mutable allTaps = allTaps &&& ~~~alreadyOn
                 let mutable node = 0
                 let mutable max = ValueNone
 
                 while allTaps > 0L do
                     if allTaps % 2L = 1L then
-                        if not (getNode alreadyOn node) then
-                            let next =
-                                go
-                                    (Arr2D.get pathWeights node headingTo1)
-                                    (journey2 - 1)
-                                    node
-                                    headingTo2
-                                    alreadyOn
-                                    newWeight
-                                    (remaining - 1)
+                        let next =
+                            go
+                                (Arr2D.get pathWeights node headingTo1)
+                                (journey2 - 1)
+                                node
+                                headingTo2
+                                alreadyOn
+                                newWeight
+                                (remaining - 1)
 
-                            match max with
-                            | ValueNone -> max <- ValueSome next
-                            | ValueSome existingMax ->
-                                if next > existingMax then
-                                    max <- ValueSome next
+                        match max with
+                        | ValueNone -> max <- ValueSome next
+                        | ValueSome existingMax ->
+                            if next > existingMax then
+                                max <- ValueSome next
 
                     allTaps <- allTaps >>> 1
                     node <- node + 1
@@ -279,28 +278,27 @@ module Day16 =
 
                 let alreadyOn = setNode alreadyOn headingTo2
 
-                let mutable allTaps = allTaps
+                let mutable allTaps = allTaps &&& ~~~alreadyOn
                 let mutable node = 0
                 let mutable max = ValueNone
 
                 while allTaps > 0L do
                     if allTaps % 2L = 1L then
-                        if not (getNode alreadyOn node) then
-                            let next =
-                                go
-                                    (journey1 - 1)
-                                    (Arr2D.get pathWeights node headingTo2)
-                                    headingTo1
-                                    node
-                                    alreadyOn
-                                    newWeight
-                                    (remaining - 1)
+                        let next =
+                            go
+                                (journey1 - 1)
+                                (Arr2D.get pathWeights node headingTo2)
+                                headingTo1
+                                node
+                                alreadyOn
+                                newWeight
+                                (remaining - 1)
 
-                            match max with
-                            | ValueNone -> max <- ValueSome next
-                            | ValueSome existingMax ->
-                                if next > existingMax then
-                                    max <- ValueSome next
+                        match max with
+                        | ValueNone -> max <- ValueSome next
+                        | ValueSome existingMax ->
+                            if next > existingMax then
+                                max <- ValueSome next
 
                     allTaps <- allTaps >>> 1
                     node <- node + 1
@@ -343,6 +341,7 @@ module Day16 =
                         if next1 % 2L = 1 then
                             let mutable next2 = nextChoices
                             let mutable count2 = 0
+
                             while next2 > 0 do
                                 if next2 % 2L = 1 then
                                     let candidate =
@@ -354,7 +353,9 @@ module Day16 =
                                             alreadyOn
                                             newWeight
                                             (remaining - 1)
+
                                     maxVal <- max maxVal candidate
+
                                 next2 <- next2 >>> 1
                                 count2 <- count2 + 1
 
