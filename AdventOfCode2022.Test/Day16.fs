@@ -21,6 +21,13 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 """
 
     [<Test>]
+    let ``seq behaviour`` () =
+        Day16.ofSeq [ 1 ; 2 ; 3 ; 16 ]
+        |> Day16.toSeq
+        |> List.ofSeq
+        |> shouldEqual [ 1 ; 2 ; 3 ; 16 ]
+
+    [<Test>]
     let ``Part 1, given`` () =
         Day16.part1 (input.Split '\n') |> shouldEqual 1651
 
@@ -38,7 +45,7 @@ Valve JJ has flow rate=21; tunnel leads to valve II
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day16.txt"
-        // 1921 is too low
+        // 2126 is too low
 
         Day16.part2 (input.Split '\n')
         |> shouldEqual -1

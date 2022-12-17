@@ -82,23 +82,53 @@ module Day16 =
         fun v1 v2 -> go Set.empty v1 v2 |> Option.get
 
 
-    type NodeSet = int
+    type NodeSet = int64
 
-    let inline setNode (set : NodeSet) (nodeId : int) : int = set ||| (1 <<< nodeId)
-    let inline getNode (set : NodeSet) (nodeId : int) : bool = set &&& (1 <<< nodeId) <> 0
-    let ofSeq (nodes : Node seq) : NodeSet =
-        (0, nodes)
-        ||> Seq.fold setNode
+    let inline setNode (set : NodeSet) (nodeId : int) : NodeSet = set ||| (1L <<< nodeId)
+    let inline getNode (set : NodeSet) (nodeId : int) : bool = set &&& (1L <<< nodeId) <> 0
+    let ofSeq (nodes : Node seq) : NodeSet = (0L, nodes) ||> Seq.fold setNode
 
     let toSeq (nodes : NodeSet) : Node seq =
         seq {
             let mutable nodes = nodes
             let mutable count = 0
+
             while nodes > 0 do
-                if nodes % 2 = 0 then yield count
-                nodes <- nodes / 2
+                if nodes % 2L = 1L then
+                    yield count
+
+                nodes <- nodes >>> 1
                 count <- count + 1
         }
+
+    let count (nodes : NodeSet) : int =
+        let mutable nodes = nodes
+        let mutable ans = 0
+
+        while nodes > 0 do
+            if nodes % 2L = 1L then
+                ans <- ans + 1
+
+            nodes <- nodes >>> 1
+
+        ans
+
+
+    let first (nodes : NodeSet) : int =
+        let mutable nodes = nodes
+        let mutable count = 0
+        let mutable ans = 0
+        let mutable keepGoing = true
+
+        while keepGoing && nodes > 0 do
+            if nodes % 2L = 1L then
+                ans <- count
+                keepGoing <- false
+
+            nodes <- nodes >>> 1
+            count <- count + 1
+
+        ans
 
     let part1 (lines : string seq) : int =
         let valves, aaNode = parse lines
@@ -107,7 +137,7 @@ module Day16 =
         let getShortestPathLength = getShortestPathLength valves
 
         let pathWeights =
-            Seq.allPairs allTaps allTaps
+            Seq.allPairs (toSeq allTaps) (toSeq allTaps)
             |> Seq.map (fun (v1, v2) ->
                 let length = getShortestPathLength v1 v2
                 (v1, v2), length
@@ -116,6 +146,7 @@ module Day16 =
 
         let startChoices =
             allTaps
+            |> toSeq
             |> Seq.map (fun startNode -> startNode, getShortestPathLength aaNode startNode)
             |> Map.ofSeq
 
@@ -132,23 +163,33 @@ module Day16 =
                 go (timeRemainingOnCurrentPath - 1) headingTo alreadyOn currentWeight (remaining - 1)
             else
 
-            let nextChoices =
-                allTaps
-                |> Set.filter (fun t -> t <> headingTo && not (getNode alreadyOn t))
+            let alreadyOn = setNode alreadyOn headingTo
 
-            nextChoices
-            |> Seq.map (fun nextVertex ->
-                let addToWeight = fst valves.[headingTo] * (remaining - 1)
+            let mutable allTaps = allTaps &&& (~~~alreadyOn)
+            let mutable count = 0
+            let mutable max = ValueNone
+            while allTaps > 0 do
+                if allTaps % 2L = 1 then
+                    let addToWeight = fst valves.[headingTo] * (remaining - 1)
 
-                go
-                    pathWeights.[nextVertex, headingTo]
-                    nextVertex
-                    (setNode alreadyOn headingTo)
-                    (currentWeight + addToWeight)
-                    (remaining - 1)
-            )
-            |> tryMax
-            |> Option.defaultValue (currentWeight + (remaining - 1) * (fst valves.[headingTo]))
+                    let candidate =
+                        go
+                            pathWeights.[count, headingTo]
+                            count
+                            alreadyOn
+                            (currentWeight + addToWeight)
+                            (remaining - 1)
+                    match max with
+                    | ValueNone -> max <- ValueSome candidate
+                    | ValueSome existingMax ->
+                        if existingMax < candidate then
+                            max <- ValueSome candidate
+                allTaps <- allTaps >>> 1
+                count <- count + 1
+            match max with
+            | ValueSome v -> v
+            | ValueNone ->
+                currentWeight + (remaining - 1) * (fst valves.[headingTo])
 
         startChoices
         |> Map.map (fun start distance -> go distance start 0 0 30)
@@ -158,12 +199,12 @@ module Day16 =
     let part2 (lines : string seq) : int =
         let valves, aaNode = parse lines
 
-        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> Set.ofSeq
+        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> ofSeq
 
         let getShortestPathLength = getShortestPathLength valves
 
         let pathWeights =
-            Seq.allPairs allTaps allTaps
+            Seq.allPairs (toSeq allTaps) (toSeq allTaps)
             |> Seq.map (fun (v1, v2) ->
                 let length = getShortestPathLength v1 v2
                 (v1, v2), length
@@ -193,20 +234,35 @@ module Day16 =
 
                 let alreadyOn = setNode alreadyOn headingTo1
 
-                allTaps
-                |> Seq.filter (fun t -> not <| getNode alreadyOn t)
-                |> Seq.map (fun nextVertex ->
-                    go
-                        pathWeights.[nextVertex, headingTo1]
-                        (journey2 - 1)
-                        nextVertex
-                        headingTo2
-                        alreadyOn
-                        (currentWeight + addToWeight)
-                        (remaining - 1)
-                )
-                |> tryMax
-                |> Option.defaultWith (fun () ->
+                let mutable allTaps = allTaps
+                let mutable node = 0
+                let mutable max = ValueNone
+
+                while allTaps > 0L do
+                    if allTaps % 2L = 1L then
+                        if not (getNode alreadyOn node) then
+                            let next =
+                                go
+                                    pathWeights.[node, headingTo1]
+                                    (journey2 - 1)
+                                    node
+                                    headingTo2
+                                    alreadyOn
+                                    (currentWeight + addToWeight)
+                                    (remaining - 1)
+
+                            match max with
+                            | ValueNone -> max <- ValueSome next
+                            | ValueSome existingMax ->
+                                if next > existingMax then
+                                    max <- ValueSome next
+
+                    allTaps <- allTaps >>> 1
+                    node <- node + 1
+
+                match max with
+                | ValueSome v -> v
+                | ValueNone ->
                     go
                         1000000
                         (journey2 - 1)
@@ -215,7 +271,7 @@ module Day16 =
                         alreadyOn
                         (currentWeight + addToWeight)
                         (remaining - 1)
-                )
+
             elif journey2 = 0 && journey1 > 0 then
                 let addToWeight =
                     if getNode alreadyOn headingTo2 then
@@ -225,20 +281,35 @@ module Day16 =
 
                 let alreadyOn = setNode alreadyOn headingTo2
 
-                allTaps
-                |> Seq.filter (fun t -> not (getNode alreadyOn t))
-                |> Seq.map (fun nextVertex ->
-                    go
-                        (journey1 - 1)
-                        pathWeights.[nextVertex, headingTo2]
-                        headingTo1
-                        nextVertex
-                        alreadyOn
-                        (currentWeight + addToWeight)
-                        (remaining - 1)
-                )
-                |> tryMax
-                |> Option.defaultWith (fun () ->
+                let mutable allTaps = allTaps
+                let mutable node = 0
+                let mutable max = ValueNone
+
+                while allTaps > 0L do
+                    if allTaps % 2L = 1L then
+                        if not (getNode alreadyOn node) then
+                            let next =
+                                go
+                                    (journey1 - 1)
+                                    pathWeights.[node, headingTo2]
+                                    headingTo1
+                                    node
+                                    alreadyOn
+                                    (currentWeight + addToWeight)
+                                    (remaining - 1)
+
+                            match max with
+                            | ValueNone -> max <- ValueSome next
+                            | ValueSome existingMax ->
+                                if next > existingMax then
+                                    max <- ValueSome next
+
+                    allTaps <- allTaps >>> 1
+                    node <- node + 1
+
+                match max with
+                | ValueSome v -> v
+                | ValueNone ->
                     go
                         (journey1 - 1)
                         1000000
@@ -247,7 +318,7 @@ module Day16 =
                         alreadyOn
                         (currentWeight + addToWeight)
                         (remaining - 1)
-                )
+
             else
                 // Both reached destination at same time
                 let addToWeight1 =
@@ -270,10 +341,10 @@ module Day16 =
 
                 let alreadyOn = setNode (setNode alreadyOn headingTo1) headingTo2
 
-                let nextChoices = allTaps |> Set.filter (fun v -> not (getNode alreadyOn v))
+                let nextChoices = allTaps &&& ~~~alreadyOn
 
-                if nextChoices.Count >= 2 then
-                    Seq.allPairs nextChoices nextChoices
+                if count nextChoices >= 2 then
+                    Seq.allPairs (toSeq nextChoices) (toSeq nextChoices)
                     |> Seq.map (fun (next1, next2) ->
                         go
                             pathWeights.[next1, headingTo1]
@@ -285,10 +356,10 @@ module Day16 =
                             (remaining - 1)
                     )
                     |> Seq.max
-                elif nextChoices.Count = 0 then
+                elif nextChoices = 0 then
                     0
                 else
-                    let next = Seq.exactlyOne nextChoices
+                    let next = first nextChoices
                     // nextChoices.Count = 1
                     go
                         100000
@@ -301,6 +372,7 @@ module Day16 =
 
         let startChoices =
             allTaps
+            |> toSeq
             |> Seq.map (fun startNode -> startNode, getShortestPathLength aaNode startNode)
             |> Map.ofSeq
 
