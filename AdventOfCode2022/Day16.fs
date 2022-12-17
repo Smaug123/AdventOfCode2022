@@ -199,8 +199,13 @@ module Day16 =
         while startChoices > 0 do
             if startChoices % 2L = 1L then
                 let distance = getShortestPathLength aaNode start
-                let candidate = go distance start 0 0 30
-                maxValue <- max maxValue candidate
+                // By inspecting the graph, I can see that AA is screened off from the rest
+                // of the graph by the set of valves with distance at most 3 from it.
+                // Assume that we're going to turn them on when we pass through - this isn't
+                // actually fully general, but it is enough.
+                if distance <= 3 then
+                    let candidate = go distance start 0 0 30
+                    maxValue <- max maxValue candidate
 
             startChoices <- startChoices >>> 1
             start <- start + 1
