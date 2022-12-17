@@ -61,17 +61,6 @@ module Day15 =
 
     let inline manhattan (p1 : Coordinate) (p2 : Coordinate) : int = abs (p1.X - p2.X) + abs (p1.Y - p2.Y)
 
-    let inline cantorBijection (x : int) (y : int) : int64 =
-        let sum = x + y
-
-        let major =
-            if sum % 2 = 0 then
-                int64 (sum / 2) * int64 (sum + 1)
-            else
-                int64 sum * int64 ((sum + 1) / 2)
-
-        major + int64 y
-
     let inline couldBeBeacon
         (sensors : ResizeArray<Coordinate>)
         (closestManhattans : int[])
@@ -163,14 +152,14 @@ module Day15 =
 
         let mutable xIndex = 0
 
-        while answer = -1L && xIndex < sensorXCoords.Length - 1 do
+        while answer <> 1L && xIndex < sensorXCoords.Length - 1 do
             let xMin = sensorXCoords.[xIndex]
             xIndex <- xIndex + 1
             let xMax = sensorXCoords.[xIndex]
 
             let mutable yIndex = 0
 
-            while answer = -1L && yIndex < sensorYCoords.Length - 1 do
+            while answer <> 1L && yIndex < sensorYCoords.Length - 1 do
                 let yMin = sensorYCoords.[yIndex]
                 yIndex <- yIndex + 1
                 let yMax = sensorYCoords.[yIndex]
@@ -194,6 +183,42 @@ module Day15 =
                         plusXMinusYConstraint <- min plusXMinusYConstraint (-manhattan + sensor.X - sensor.Y - 1)
                     else
                         plusXPlusYConstraint <- min plusXPlusYConstraint (-manhattan + sensor.X + sensor.Y - 1)
+
+                let yMax =
+                    if
+                        plusXPlusYConstraint <> Int32.MaxValue
+                        && plusXMinusYConstraint <> Int32.MaxValue
+                    then
+                        min ((plusXPlusYConstraint - plusXMinusYConstraint) / 2) yMax
+                    else
+                        yMax
+
+                let xMax =
+                    if
+                        plusXPlusYConstraint <> Int32.MaxValue
+                        && minusXPlusYConstraint <> Int32.MaxValue
+                    then
+                        min ((plusXPlusYConstraint - minusXPlusYConstraint) / 2) xMax
+                    else
+                        xMax
+
+                let xMin =
+                    if
+                        minusXMinusYConstraint <> Int32.MaxValue
+                        && minusXPlusYConstraint <> Int32.MaxValue
+                    then
+                        max xMin (-(minusXMinusYConstraint + minusXPlusYConstraint) / 2)
+                    else
+                        xMin
+
+                let yMin =
+                    if
+                        minusXMinusYConstraint <> Int32.MaxValue
+                        && plusXMinusYConstraint <> Int32.MaxValue
+                    then
+                        max yMin (-(minusXMinusYConstraint + plusXMinusYConstraint) / 2)
+                    else
+                        yMin
 
                 // (fst constraints).{x, y} <= (snd constraints), and also xMin <= x <= xMax and
                 // yMin <= y <= yMax.
@@ -221,32 +246,6 @@ module Day15 =
                         falsified <- true
 
                 if not falsified then
-                    // The most likely way for there to be no slack is if equality holds throughout both conjugate pairs
-                    // of constraints.
-                    // (It's also possible for there to be no slack by having one of the "x <= 33" constraints binding.
-                    // See below for the treatment of this case.)
-                    if
-                        minusXMinusYConstraint = -plusXPlusYConstraint
-                        && plusXMinusYConstraint = -minusXPlusYConstraint
-                    then
-                        let y = (plusXPlusYConstraint - plusXMinusYConstraint) / 2
-                        let x = (plusXPlusYConstraint - minusXPlusYConstraint) / 2
-
-                        if xMin <= x && x <= xMax && yMin <= y && y <= yMax then
-                            answer <- int64 x * 4000000L + int64 y
-
-        if answer = -1L then
-            // In fact one of the xMax/xMin or yMax/yMin constraints binds.
-            let mutable xIndex = 0
-
-            while answer = -1 && xIndex < sensorXCoords.Length do
-                xIndex <- xIndex + 1
-                // Try with this x.
-                let _x = sensorXCoords.Length
-
-                for _sensor in sensors do
-                    // Construct the necessary inequalities, then solve them.
-                    failwith "I couldn't be bothered to implement this"
-
+                    answer <- int64 xMax * 4000000L + int64 yMax
 
         answer
