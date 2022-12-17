@@ -218,7 +218,8 @@ module Day17 =
             shapes
             |> Array.map Array.length // if each shape stacked perfectly on top
             |> Array.sum
-            |> fun i -> i * (100000000 / 5 + 1)
+            // Massive overkill but :shrug:
+            |> fun i -> i * (100000 / 5 + 1)
 
 #if DEBUG
         let startGrid = Arr2D.zeroCreate<int> 7 maxPossibleHeight
