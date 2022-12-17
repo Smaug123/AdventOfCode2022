@@ -95,10 +95,9 @@ module Program =
         let time = Stopwatch.StartNew ()
         time.Restart ()
 
-        //for day in 1 .. Run.allRuns.Length do
-        //    Run.allRuns.[day - 1] false (Inputs.day day)
-        //    Run.allRuns.[day - 1] true (Inputs.day day)
-        Run.allRuns.[16 - 1] false (Inputs.day 16)
+        for day in 1 .. Run.allRuns.Length do
+            Run.allRuns.[day - 1] false (Inputs.day day)
+            Run.allRuns.[day - 1] true (Inputs.day day)
 
         time.Stop ()
         printfn $"Took %i{time.ElapsedMilliseconds}ms"
