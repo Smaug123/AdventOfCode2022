@@ -219,7 +219,7 @@ module Run =
                 printfn "%i" output
 
     let day16 (partTwo : bool) (input : string) =
-        let day16 = StringSplitEnumerator.make '\n' input
+        let day16 = input.Split '\n'
 
         if not partTwo then
             let output = Day16.part1 day16
