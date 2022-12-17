@@ -7,8 +7,7 @@ open AdventOfCode2022
 [<TestFixture>]
 module TestDay17 =
 
-    let input =
-        ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
+    let input = ">>><<><>><<<>><>>><<<>>><<<><<<>><>><<>>"
 
     [<Test>]
     let ``Part 1, given`` () =
@@ -23,10 +22,10 @@ module TestDay17 =
 
     [<Test>]
     let ``Part 2, given`` () =
-        Day17.part2 (input.TrimEnd ()) |> shouldEqual 1707
+        Day17.part2 (input.TrimEnd ()) |> shouldEqual 1514285714288L
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day17.txt"
 
-        Day17.part2 (input.TrimEnd ()) |> shouldEqual 2207
+        Day17.part2 (input.TrimEnd ()) |> shouldEqual 1542941176480L
