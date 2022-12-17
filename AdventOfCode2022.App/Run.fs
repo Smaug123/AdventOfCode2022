@@ -236,7 +236,7 @@ module Run =
         let day17 = input.Split '\n'
 
         if not partTwo then
-            let output = Day17.part2 day16
+            let output = Day17.part2 day17
 
             if shouldWrite then
                 printfn "%i" output
