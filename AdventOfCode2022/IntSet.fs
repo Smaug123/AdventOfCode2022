@@ -8,6 +8,7 @@ module IntSet =
     let inline set (set : IntSet) (nodeId : int) : IntSet = set ||| (1L <<< nodeId)
     let inline contains (set : IntSet) (nodeId : int) : bool = set &&& (1L <<< nodeId) <> 0
     let ofSeq (nodes : int seq) : IntSet = (0L, nodes) ||> Seq.fold set
+    let empty : IntSet = 0L
 
     let toSeq (nodes : IntSet) : int seq =
         seq {
