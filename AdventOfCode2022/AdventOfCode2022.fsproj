@@ -8,6 +8,7 @@
 
     <ItemGroup>
       <Compile Include="EfficientString.fs" />
+      <Compile Include="IntSet.fs" />
       <Compile Include="Arr2D.fs" />
       <Compile Include="Day1.fs" />
       <Compile Include="Day2.fs" />
@@ -26,6 +27,7 @@
       <Compile Include="Day14.fs" />
       <Compile Include="Day15.fs" />
       <Compile Include="Day16.fs" />
+      <Compile Include="Day17.fs" />
     </ItemGroup>
 
     <ItemGroup>

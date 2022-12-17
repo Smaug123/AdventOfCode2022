@@ -232,6 +232,20 @@ module Run =
             if shouldWrite then
                 printfn "%i" output
 
+    let day17 (partTwo : bool) (input : string) =
+        let day17 = input.TrimEnd ()
+
+        if not partTwo then
+            let output = Day17.part1 day17
+
+            if shouldWrite then
+                printfn "%i" output
+        else
+            let output = Day17.part2 day17
+
+            if shouldWrite then
+                printfn "%i" output
+
     let allRuns =
         [|
             day1
@@ -250,4 +264,5 @@ module Run =
             day14
             day15
             day16
+            day17
         |]

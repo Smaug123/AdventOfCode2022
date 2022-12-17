@@ -22,8 +22,8 @@ Valve JJ has flow rate=21; tunnel leads to valve II
 
     [<Test>]
     let ``seq behaviour`` () =
-        Day16.ofSeq [ 1 ; 2 ; 3 ; 16 ]
-        |> Day16.toSeq
+        IntSet.ofSeq [ 1 ; 2 ; 3 ; 16 ]
+        |> IntSet.toSeq
         |> List.ofSeq
         |> shouldEqual [ 1 ; 2 ; 3 ; 16 ]
 

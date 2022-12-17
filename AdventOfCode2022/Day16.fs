@@ -82,57 +82,11 @@ module Day16 =
         fun v1 v2 -> go Set.empty v1 v2 |> Option.get
 
 
-    type NodeSet = int64
-
-    let inline setNode (set : NodeSet) (nodeId : int) : NodeSet = set ||| (1L <<< nodeId)
-    let inline getNode (set : NodeSet) (nodeId : int) : bool = set &&& (1L <<< nodeId) <> 0
-    let ofSeq (nodes : Node seq) : NodeSet = (0L, nodes) ||> Seq.fold setNode
-
-    let toSeq (nodes : NodeSet) : Node seq =
-        seq {
-            let mutable nodes = nodes
-            let mutable count = 0
-
-            while nodes > 0 do
-                if nodes % 2L = 1L then
-                    yield count
-
-                nodes <- nodes >>> 1
-                count <- count + 1
-        }
-
-    let count (nodes : NodeSet) : int =
-        let mutable nodes = nodes
-        let mutable ans = 0
-
-        while nodes > 0 do
-            if nodes % 2L = 1L then
-                ans <- ans + 1
-
-            nodes <- nodes >>> 1
-
-        ans
-
-
-    let first (nodes : NodeSet) : int =
-        let mutable nodes = nodes
-        let mutable count = 0
-        let mutable ans = 0
-        let mutable keepGoing = true
-
-        while keepGoing && nodes > 0 do
-            if nodes % 2L = 1L then
-                ans <- count
-                keepGoing <- false
-
-            nodes <- nodes >>> 1
-            count <- count + 1
-
-        ans
-
     let part1 (lines : string seq) : int =
         let valves, aaNode = parse lines
-        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> ofSeq
+
+        let allTaps =
+            valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> IntSet.ofSeq
 
         let getShortestPathLength = getShortestPathLength valves
 
@@ -143,15 +97,15 @@ module Day16 =
         use ptr = fixed pathWeightsStorage
         let pathWeights = Arr2D.zeroCreate<int> ptr valves.Count valves.Count
 #endif
-        for v1 in toSeq allTaps do
-            for v2 in toSeq allTaps do
+        for v1 in IntSet.toSeq allTaps do
+            for v2 in IntSet.toSeq allTaps do
                 let length = getShortestPathLength v1 v2
                 Arr2D.set pathWeights v1 v2 length
 
         let rec go
             (timeRemainingOnCurrentPath : int)
             (headingTo : Node)
-            (alreadyOn : NodeSet)
+            (alreadyOn : IntSet)
             (currentWeight : int)
             (remaining : int)
             =
@@ -161,7 +115,7 @@ module Day16 =
                 go (timeRemainingOnCurrentPath - 1) headingTo alreadyOn currentWeight (remaining - 1)
             else
 
-            let alreadyOn = setNode alreadyOn headingTo
+            let alreadyOn = IntSet.set alreadyOn headingTo
 
             let mutable allTaps = allTaps &&& (~~~alreadyOn)
             let mutable count = 0
@@ -216,7 +170,8 @@ module Day16 =
         let valves, aaNode = parse lines
         let valvesIndexed = valves |> Map.values |> Array.ofSeq
 
-        let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> ofSeq
+        let allTaps =
+            valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> IntSet.ofSeq
 
         let getShortestPathLength = getShortestPathLength valves
 
@@ -228,8 +183,8 @@ module Day16 =
         let pathWeights = Arr2D.zeroCreate<int> ptr valves.Count valves.Count
 #endif
 
-        for v1 in toSeq allTaps do
-            for v2 in toSeq allTaps do
+        for v1 in IntSet.toSeq allTaps do
+            for v2 in IntSet.toSeq allTaps do
                 let length = getShortestPathLength v1 v2
                 Arr2D.set pathWeights v1 v2 length
 
@@ -238,7 +193,7 @@ module Day16 =
             (journey2 : int)
             (headingTo1 : Node)
             (headingTo2 : Node)
-            (alreadyOn : NodeSet)
+            (alreadyOn : IntSet)
             (currentWeight : int)
             (remaining : int)
             =
@@ -249,14 +204,14 @@ module Day16 =
             elif journey1 = 0 && journey2 > 0 then
 
                 let addToWeight =
-                    if getNode alreadyOn headingTo1 then
+                    if IntSet.contains alreadyOn headingTo1 then
                         0
                     else
                         (remaining - 1) * (fst valvesIndexed.[headingTo1])
 
                 let newWeight = addToWeight + currentWeight
 
-                let alreadyOn = setNode alreadyOn headingTo1
+                let alreadyOn = IntSet.set alreadyOn headingTo1
 
                 let mutable allTaps = allTaps &&& ~~~alreadyOn
                 let mutable node = 0
@@ -292,14 +247,14 @@ module Day16 =
 
             elif journey2 = 0 && journey1 > 0 then
                 let addToWeight =
-                    if getNode alreadyOn headingTo2 then
+                    if IntSet.contains alreadyOn headingTo2 then
                         0
                     else
                         fst valvesIndexed.[headingTo2] * (remaining - 1)
 
                 let newWeight = addToWeight + currentWeight
 
-                let alreadyOn = setNode alreadyOn headingTo2
+                let alreadyOn = IntSet.set alreadyOn headingTo2
 
                 let mutable allTaps = allTaps &&& ~~~alreadyOn
                 let mutable node = 0
@@ -336,13 +291,13 @@ module Day16 =
             else
                 // Both reached destination at same time
                 let addToWeight1 =
-                    if getNode alreadyOn headingTo1 then
+                    if IntSet.contains alreadyOn headingTo1 then
                         0
                     else
                         (remaining - 1) * fst valvesIndexed.[headingTo1]
 
                 let addToWeight2 =
-                    if getNode alreadyOn headingTo2 then
+                    if IntSet.contains alreadyOn headingTo2 then
                         0
                     else
                         (remaining - 1) * fst valvesIndexed.[headingTo2]
@@ -353,11 +308,11 @@ module Day16 =
                     else
                         addToWeight1 + currentWeight
 
-                let alreadyOn = setNode (setNode alreadyOn headingTo1) headingTo2
+                let alreadyOn = IntSet.set (IntSet.set alreadyOn headingTo1) headingTo2
 
                 let nextChoices = allTaps &&& ~~~alreadyOn
 
-                if count nextChoices >= 2 then
+                if IntSet.count nextChoices >= 2 then
                     let mutable maxVal = Int32.MinValue
 
                     let mutable next1 = nextChoices
@@ -395,12 +350,12 @@ module Day16 =
                     0
                 else
                     // nextChoices.Count = 1
-                    let next = first nextChoices
+                    let next = IntSet.first nextChoices
                     go 100000 (Arr2D.get pathWeights next headingTo2) next next alreadyOn newWeight (remaining - 1)
 
         let startChoices =
             allTaps
-            |> toSeq
+            |> IntSet.toSeq
             |> Seq.map (fun startNode -> startNode, getShortestPathLength aaNode startNode)
             |> Map.ofSeq
 
