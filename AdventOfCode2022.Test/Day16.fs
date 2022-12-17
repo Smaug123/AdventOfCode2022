@@ -45,7 +45,6 @@ Valve JJ has flow rate=21; tunnel leads to valve II
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day16.txt"
-        // 2126 is too low
 
         Day16.part2 (input.Split '\n')
-        |> shouldEqual -1
+        |> shouldEqual 2207
