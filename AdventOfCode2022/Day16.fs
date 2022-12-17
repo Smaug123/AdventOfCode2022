@@ -400,9 +400,6 @@ module Day16 =
                 (fun () ->
                     if s > maxVal.Value then
                         maxVal.Value <- s
-                        Console.WriteLine (sprintf "%i" s)
-                    else
-                        Console.WriteLine "(did not win)"
                 )
         )
 
