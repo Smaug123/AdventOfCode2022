@@ -384,7 +384,13 @@ module Day16 =
         let maxVal = ref Int32.MinValue
 
         Seq.allPairs startChoices startChoices
-        |> Seq.filter (fun (KeyValue (n1, _), KeyValue (n2, _)) -> n1 < n2)
+        |> Seq.filter (fun (KeyValue (n1, distance1), KeyValue (n2, distance2)) ->
+            // By inspecting the graph, I can see that AA is screened off from the rest
+            // of the graph by the set of valves with distance at most 3 from it.
+            // Assume that we're going to turn them on when we pass through - this isn't
+            // actually fully general, but it is enough.
+            n1 < n2 && distance1 <= 3 && distance2 <= 3
+        )
         |> PSeq.map (fun (KeyValue (start1, distance1), KeyValue (start2, distance2)) ->
             go distance1 distance2 start1 start2 0 0 26
         )
