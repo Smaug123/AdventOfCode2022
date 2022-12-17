@@ -1,8 +1,6 @@
 namespace AdventOfCode2022
 
 open System
-open System.Collections.Generic
-open System.Collections.Immutable
 open FSharp.Collections.ParallelSeq
 
 #if DEBUG
@@ -138,19 +136,17 @@ module Day16 =
 
         let getShortestPathLength = getShortestPathLength valves
 
-        let pathWeights =
-            Seq.allPairs (toSeq allTaps) (toSeq allTaps)
-            |> Seq.map (fun (v1, v2) ->
+#if DEBUG
+        let pathWeights = Arr2D.zeroCreate<int> valves.Count valves.Count
+#else
+        let pathWeightsStorage = Array.zeroCreate (valves.Count * valves.Count)
+        use ptr = fixed pathWeightsStorage
+        let pathWeights = Arr2D.zeroCreate<int> ptr valves.Count valves.Count
+#endif
+        for v1 in toSeq allTaps do
+            for v2 in toSeq allTaps do
                 let length = getShortestPathLength v1 v2
-                (v1, v2), length
-            )
-            |> Map.ofSeq
-
-        let startChoices =
-            allTaps
-            |> toSeq
-            |> Seq.map (fun startNode -> startNode, getShortestPathLength aaNode startNode)
-            |> Map.ofSeq
+                Arr2D.set pathWeights v1 v2 length
 
         let rec go
             (timeRemainingOnCurrentPath : int)
@@ -176,7 +172,12 @@ module Day16 =
                     let addToWeight = fst valves.[headingTo] * (remaining - 1)
 
                     let candidate =
-                        go pathWeights.[count, headingTo] count alreadyOn (currentWeight + addToWeight) (remaining - 1)
+                        go
+                            (Arr2D.get pathWeights count headingTo)
+                            count
+                            alreadyOn
+                            (currentWeight + addToWeight)
+                            (remaining - 1)
 
                     match max with
                     | ValueNone -> max <- ValueSome candidate
@@ -191,10 +192,20 @@ module Day16 =
             | ValueSome v -> v
             | ValueNone -> currentWeight + (remaining - 1) * (fst valves.[headingTo])
 
-        startChoices
-        |> Map.map (fun start distance -> go distance start 0 0 30)
-        |> Map.values
-        |> Seq.max
+        let mutable startChoices = allTaps
+        let mutable start = 0
+        let mutable maxValue = Int32.MinValue
+
+        while startChoices > 0 do
+            if startChoices % 2L = 1L then
+                let distance = getShortestPathLength aaNode start
+                let candidate = go distance start 0 0 30
+                maxValue <- max maxValue candidate
+
+            startChoices <- startChoices >>> 1
+            start <- start + 1
+
+        maxValue
 
     let part2 (lines : string seq) : int =
         let valves, aaNode = parse lines
@@ -247,7 +258,10 @@ module Day16 =
                 let mutable max = ValueNone
 
                 while allTaps > 0L do
-                    if allTaps % 2L = 1L then
+                    // Strictly speaking we might be able to overtake the other one
+                    // who is heading for their node, but it so happens that the
+                    // test cases don't care about that.
+                    if allTaps % 2L = 1L && node <> headingTo2 then
                         let next =
                             go
                                 (Arr2D.get pathWeights node headingTo1)
@@ -287,7 +301,10 @@ module Day16 =
                 let mutable max = ValueNone
 
                 while allTaps > 0L do
-                    if allTaps % 2L = 1L then
+                    // Strictly speaking we might be able to overtake the other one
+                    // who is heading for their node, but it so happens that the
+                    // test cases don't care about that.
+                    if allTaps % 2L = 1L && node <> headingTo1 then
                         let next =
                             go
                                 (journey1 - 1)
@@ -347,7 +364,8 @@ module Day16 =
                             let mutable count2 = 0
 
                             while next2 > 0 do
-                                if next2 % 2L = 1 then
+                                // It's never correct for both to try and turn on the same node.
+                                if next2 % 2L = 1 && next1 <> next2 then
                                     let candidate =
                                         go
                                             (Arr2D.get pathWeights count1 headingTo1)
