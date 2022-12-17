@@ -7,6 +7,8 @@ open FSharp.Collections.ParallelSeq
 
 #if DEBUG
 open Checked
+#else
+#nowarn "9"
 #endif
 
 
@@ -168,28 +170,26 @@ module Day16 =
             let mutable allTaps = allTaps &&& (~~~alreadyOn)
             let mutable count = 0
             let mutable max = ValueNone
+
             while allTaps > 0 do
                 if allTaps % 2L = 1 then
                     let addToWeight = fst valves.[headingTo] * (remaining - 1)
 
                     let candidate =
-                        go
-                            pathWeights.[count, headingTo]
-                            count
-                            alreadyOn
-                            (currentWeight + addToWeight)
-                            (remaining - 1)
+                        go pathWeights.[count, headingTo] count alreadyOn (currentWeight + addToWeight) (remaining - 1)
+
                     match max with
                     | ValueNone -> max <- ValueSome candidate
                     | ValueSome existingMax ->
                         if existingMax < candidate then
                             max <- ValueSome candidate
+
                 allTaps <- allTaps >>> 1
                 count <- count + 1
+
             match max with
             | ValueSome v -> v
-            | ValueNone ->
-                currentWeight + (remaining - 1) * (fst valves.[headingTo])
+            | ValueNone -> currentWeight + (remaining - 1) * (fst valves.[headingTo])
 
         startChoices
         |> Map.map (fun start distance -> go distance start 0 0 30)
@@ -198,18 +198,20 @@ module Day16 =
 
     let part2 (lines : string seq) : int =
         let valves, aaNode = parse lines
+        let valvesIndexed = valves |> Map.values |> Array.ofSeq
 
         let allTaps = valves |> Map.filter (fun _ (x, _) -> x > 0) |> Map.keys |> ofSeq
 
         let getShortestPathLength = getShortestPathLength valves
 
-        let pathWeights =
-            Seq.allPairs (toSeq allTaps) (toSeq allTaps)
-            |> Seq.map (fun (v1, v2) ->
+        let pathWeightsStorage = Array.zeroCreate (valves.Count * valves.Count)
+        use ptr = fixed pathWeightsStorage
+        let pathWeights = Arr2D.zeroCreate<int> ptr valves.Count valves.Count
+
+        for v1 in toSeq allTaps do
+            for v2 in toSeq allTaps do
                 let length = getShortestPathLength v1 v2
-                (v1, v2), length
-            )
-            |> readOnlyDict
+                Arr2D.set pathWeights v1 v2 length
 
         let rec go
             (journey1 : int)
@@ -230,7 +232,9 @@ module Day16 =
                     if getNode alreadyOn headingTo1 then
                         0
                     else
-                        (remaining - 1) * (fst valves.[headingTo1])
+                        (remaining - 1) * (fst valvesIndexed.[headingTo1])
+
+                let newWeight = addToWeight + currentWeight
 
                 let alreadyOn = setNode alreadyOn headingTo1
 
@@ -243,12 +247,12 @@ module Day16 =
                         if not (getNode alreadyOn node) then
                             let next =
                                 go
-                                    pathWeights.[node, headingTo1]
+                                    (Arr2D.get pathWeights node headingTo1)
                                     (journey2 - 1)
                                     node
                                     headingTo2
                                     alreadyOn
-                                    (currentWeight + addToWeight)
+                                    newWeight
                                     (remaining - 1)
 
                             match max with
@@ -262,22 +266,16 @@ module Day16 =
 
                 match max with
                 | ValueSome v -> v
-                | ValueNone ->
-                    go
-                        1000000
-                        (journey2 - 1)
-                        headingTo1
-                        headingTo2
-                        alreadyOn
-                        (currentWeight + addToWeight)
-                        (remaining - 1)
+                | ValueNone -> go 1000000 (journey2 - 1) headingTo1 headingTo2 alreadyOn newWeight (remaining - 1)
 
             elif journey2 = 0 && journey1 > 0 then
                 let addToWeight =
                     if getNode alreadyOn headingTo2 then
                         0
                     else
-                        fst valves.[headingTo2] * (remaining - 1)
+                        fst valvesIndexed.[headingTo2] * (remaining - 1)
+
+                let newWeight = addToWeight + currentWeight
 
                 let alreadyOn = setNode alreadyOn headingTo2
 
@@ -291,11 +289,11 @@ module Day16 =
                             let next =
                                 go
                                     (journey1 - 1)
-                                    pathWeights.[node, headingTo2]
+                                    (Arr2D.get pathWeights node headingTo2)
                                     headingTo1
                                     node
                                     alreadyOn
-                                    (currentWeight + addToWeight)
+                                    newWeight
                                     (remaining - 1)
 
                             match max with
@@ -309,15 +307,7 @@ module Day16 =
 
                 match max with
                 | ValueSome v -> v
-                | ValueNone ->
-                    go
-                        (journey1 - 1)
-                        1000000
-                        headingTo1
-                        headingTo2
-                        alreadyOn
-                        (currentWeight + addToWeight)
-                        (remaining - 1)
+                | ValueNone -> go (journey1 - 1) 1000000 headingTo1 headingTo2 alreadyOn newWeight (remaining - 1)
 
             else
                 // Both reached destination at same time
@@ -325,50 +315,60 @@ module Day16 =
                     if getNode alreadyOn headingTo1 then
                         0
                     else
-                        (remaining - 1) * fst valves.[headingTo1]
+                        (remaining - 1) * fst valvesIndexed.[headingTo1]
 
                 let addToWeight2 =
                     if getNode alreadyOn headingTo2 then
                         0
                     else
-                        (remaining - 1) * fst valves.[headingTo2]
+                        (remaining - 1) * fst valvesIndexed.[headingTo2]
 
-                let addToWeight =
+                let newWeight =
                     if headingTo1 <> headingTo2 then
-                        addToWeight1 + addToWeight2
+                        addToWeight1 + addToWeight2 + currentWeight
                     else
-                        addToWeight1
+                        addToWeight1 + currentWeight
 
                 let alreadyOn = setNode (setNode alreadyOn headingTo1) headingTo2
 
                 let nextChoices = allTaps &&& ~~~alreadyOn
 
                 if count nextChoices >= 2 then
-                    Seq.allPairs (toSeq nextChoices) (toSeq nextChoices)
-                    |> Seq.map (fun (next1, next2) ->
-                        go
-                            pathWeights.[next1, headingTo1]
-                            pathWeights.[next2, headingTo2]
-                            next1
-                            next2
-                            alreadyOn
-                            (currentWeight + addToWeight)
-                            (remaining - 1)
-                    )
-                    |> Seq.max
+                    let mutable maxVal = Int32.MinValue
+
+                    let mutable next1 = nextChoices
+                    let mutable count1 = 0
+
+                    while next1 > 0 do
+                        if next1 % 2L = 1 then
+                            let mutable next2 = nextChoices
+                            let mutable count2 = 0
+                            while next2 > 0 do
+                                if next2 % 2L = 1 then
+                                    let candidate =
+                                        go
+                                            (Arr2D.get pathWeights count1 headingTo1)
+                                            (Arr2D.get pathWeights count2 headingTo2)
+                                            count1
+                                            count2
+                                            alreadyOn
+                                            newWeight
+                                            (remaining - 1)
+                                    maxVal <- max maxVal candidate
+                                next2 <- next2 >>> 1
+                                count2 <- count2 + 1
+
+                        next1 <- next1 >>> 1
+                        count1 <- count1 + 1
+
+                    maxVal
+
                 elif nextChoices = 0 then
                     0
                 else
-                    let next = first nextChoices
                     // nextChoices.Count = 1
-                    go
-                        100000
-                        pathWeights.[next, headingTo2]
-                        next
-                        next
-                        alreadyOn
-                        (currentWeight + addToWeight)
-                        (remaining - 1)
+                    let next = first nextChoices
+                    go 100000 (Arr2D.get pathWeights next headingTo2) next next alreadyOn newWeight (remaining - 1)
 
         let startChoices =
             allTaps
@@ -378,22 +378,21 @@ module Day16 =
 
         let maxVal = ref Int32.MinValue
 
-        let s =
-            Seq.allPairs startChoices startChoices
-            |> Seq.filter (fun (KeyValue (n1, _), KeyValue (n2, _)) -> n1 < n2)
-            |> PSeq.map (fun (KeyValue (start1, distance1), KeyValue (start2, distance2)) ->
-                go distance1 distance2 start1 start2 0 0 26
-            )
-            |> PSeq.iter (fun s ->
-                lock
-                    maxVal
-                    (fun () ->
-                        if s > maxVal.Value then
-                            maxVal.Value <- s
-                            Console.WriteLine (sprintf "%i" s)
-                        else
-                            Console.WriteLine "(did not win)"
-                    )
-            )
+        Seq.allPairs startChoices startChoices
+        |> Seq.filter (fun (KeyValue (n1, _), KeyValue (n2, _)) -> n1 < n2)
+        |> PSeq.map (fun (KeyValue (start1, distance1), KeyValue (start2, distance2)) ->
+            go distance1 distance2 start1 start2 0 0 26
+        )
+        |> PSeq.iter (fun s ->
+            lock
+                maxVal
+                (fun () ->
+                    if s > maxVal.Value then
+                        maxVal.Value <- s
+                        Console.WriteLine (sprintf "%i" s)
+                    else
+                        Console.WriteLine "(did not win)"
+                )
+        )
 
         maxVal.Value
