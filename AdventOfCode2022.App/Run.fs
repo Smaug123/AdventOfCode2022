@@ -236,7 +236,7 @@ module Run =
         let day17 = input.TrimEnd ()
 
         if not partTwo then
-            let output = Day17.part2 day17
+            let output = Day17.part1 day17
 
             if shouldWrite then
                 printfn "%i" output

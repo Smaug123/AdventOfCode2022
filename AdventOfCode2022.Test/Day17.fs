@@ -18,7 +18,7 @@ module TestDay17 =
     let ``Part 1`` () =
         let input = Assembly.readResource "Day17.txt"
 
-        Day17.part1 (input.TrimEnd ()) |> shouldEqual 1751
+        Day17.part1 (input.TrimEnd ()) |> shouldEqual 3127
 
 
     [<Test>]
