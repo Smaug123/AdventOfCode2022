@@ -78,7 +78,7 @@ module Day9 =
                 let newHead = newHead (fst knots.[0]) (snd knots.[0]) direction
                 knots.[0] <- newHead
 
-                for knot in 1 .. knots.Length - 2 do
+                for knot = 1 to knots.Length - 2 do
                     knots.[knot] <- bringTailTogether knots.[knot - 1] knots.[knot]
 
                 let newTail = bringTailTogether knots.[knots.Length - 2] knots.[knots.Length - 1]

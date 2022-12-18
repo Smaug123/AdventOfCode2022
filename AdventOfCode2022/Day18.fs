@@ -1,8 +1,6 @@
 namespace AdventOfCode2022
 
 open System
-open System.Collections.Generic
-open FSharp.Collections.ParallelSeq
 
 #if DEBUG
 open Checked
@@ -76,7 +74,7 @@ module Day18 =
         let maxY = maxY - minY
         let maxZ = maxZ - minZ
 
-        for i in 0 .. cubes.Count - 1 do
+        for i = 0 to cubes.Count - 1 do
             let struct (x, y, z) = cubes.[i]
             let x = x - minX
             let y = y - minY
@@ -117,7 +115,7 @@ module Day18 =
         let arr = Arr3D.zeroCreate<int> ptr xSpan ySpan zSpan
 #endif
 
-        for i in 0 .. cubes.Count - 1 do
+        for i = 0 to cubes.Count - 1 do
             let struct (x, y, z) = cubes.[i]
             Arr3D.set arr (x - minX) (y - minY) (z - minZ) 1
 
@@ -155,16 +153,16 @@ module Day18 =
 
         if go x y z then
             // Convert all our "in progress" to "flood fills to outside".
-            for x in 0..maxX do
-                for y in 0..maxY do
-                    for z in 0..maxZ do
+            for z = 0 to maxZ do
+                for y = 0 to maxY do
+                    for x = 0 to maxX do
                         if Arr3D.get arr x y z = 3 then
                             Arr3D.set arr x y z 2
         else
             // Convert all our "in progress" to "does not flood fill to outside".
-            for x in 0..maxX do
-                for y in 0..maxY do
-                    for z in 0..maxZ do
+            for z = 0 to maxZ do
+                for y = 0 to maxY do
+                    for x = 0 to maxX do
                         if Arr3D.get arr x y z = 3 then
                             Arr3D.set arr x y z 1
 
@@ -183,14 +181,14 @@ module Day18 =
         let arr = Arr3D.zeroCreate<int> ptr xSpan ySpan zSpan
 #endif
 
-        for i in 0 .. cubes.Count - 1 do
+        for i = 0 to cubes.Count - 1 do
             let struct (x, y, z) = cubes.[i]
             Arr3D.set arr (x - minX) (y - minY) (z - minZ) 1
 
         // Flood-fill the internals.
-        for x in 0 .. maxX - minX do
-            for y in 0 .. maxY - minY do
-                for z in 0 .. maxZ - minZ do
+        for z = 0 to maxZ - minZ do
+            for y = 0 to maxY - minY do
+                for x = 0 to maxX - minX do
                     floodFill arr (maxX - minX) (maxY - minY) (maxZ - minZ) x y z
 
         doPart1 cubes arr minX minY minZ maxX maxY maxZ

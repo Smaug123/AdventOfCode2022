@@ -88,8 +88,8 @@ module Arr2D =
         let result = zeroCreate<'a> arr width height
 #endif
 
-        for y in 0 .. height - 1 do
-            for x in 0 .. width - 1 do
+        for y = 0 to height - 1 do
+            for x = 0 to width - 1 do
                 set result x y (f x y)
 
         result

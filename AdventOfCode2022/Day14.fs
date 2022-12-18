@@ -47,12 +47,12 @@ module Day14 =
 
     let setLine (point1 : Coordinate) (point2 : Coordinate) (arr : Arr2D<bool>) : unit =
         if point1.X = point2.X then
-            for y in min point1.Y point2.Y .. max point1.Y point2.Y do
+            for y = min point1.Y point2.Y to max point1.Y point2.Y do
                 Arr2D.set arr point1.X y true
         else
             assert (point1.Y = point2.Y)
 
-            for x in min point1.X point2.X .. max point1.X point2.X do
+            for x = min point1.X point2.X to max point1.X point2.X do
                 Arr2D.set arr x point1.Y true
 
     type MutableCoordinate =
@@ -91,7 +91,7 @@ module Day14 =
         let arr = Arr2D.zeroCreate<bool> ptr (maxX + 1) (maxY + 1)
 #endif
         for line in data do
-            for i in 0 .. line.Count - 2 do
+            for i = 0 to line.Count - 2 do
                 setLine line.[i] line.[i + 1] arr
 
         let mutable sand = 0
@@ -133,7 +133,7 @@ module Day14 =
         let arr = Arr2D.zeroCreate<bool> ptr (maxX + 1001) (maxY + 1)
 #endif
         for line in data do
-            for i in 0 .. line.Count - 2 do
+            for i = 0 to line.Count - 2 do
                 let point1 =
                     {
                         Coordinate.X = line.[i].X + 500

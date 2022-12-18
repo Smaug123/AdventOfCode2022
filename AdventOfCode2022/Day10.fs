@@ -85,6 +85,6 @@ module Day10 =
     let inline render ([<InlineIfLambda>] print : string -> unit) (arr : char[]) : unit =
         let arr = arr.AsSpan ()
 
-        for i in 0..5 do
+        for i = 0 to 5 do
             let toPrint = arr.Slice (i * 40, 40)
             print (toPrint.ToString ())
