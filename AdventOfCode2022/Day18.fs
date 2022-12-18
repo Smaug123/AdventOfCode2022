@@ -62,7 +62,7 @@ module Day18 =
 
     let inline private doPart1
         (cubes : ResizeArray<_>)
-        (arr : int[,,])
+        (arr : Arr3D<int>)
         (minX : int)
         (minY : int)
         (minZ : int)
@@ -82,22 +82,22 @@ module Day18 =
             let y = y - minY
             let z = z - minZ
 
-            if not (x > 0 && Array3D.get arr (x - 1) y z = 1) then
+            if not (x > 0 && Arr3D.get arr (x - 1) y z = 1) then
                 exposedFaces <- exposedFaces + 1
 
-            if not (x < maxX && Array3D.get arr (x + 1) y z = 1) then
+            if not (x < maxX && Arr3D.get arr (x + 1) y z = 1) then
                 exposedFaces <- exposedFaces + 1
 
-            if not (y > 0 && Array3D.get arr x (y - 1) z = 1) then
+            if not (y > 0 && Arr3D.get arr x (y - 1) z = 1) then
                 exposedFaces <- exposedFaces + 1
 
-            if not (y < maxY && Array3D.get arr x (y + 1) z = 1) then
+            if not (y < maxY && Arr3D.get arr x (y + 1) z = 1) then
                 exposedFaces <- exposedFaces + 1
 
-            if not (z > 0 && Array3D.get arr x y (z - 1) = 1) then
+            if not (z > 0 && Arr3D.get arr x y (z - 1) = 1) then
                 exposedFaces <- exposedFaces + 1
 
-            if not (z < maxZ && Array3D.get arr x y (z + 1) = 1) then
+            if not (z < maxZ && Arr3D.get arr x y (z + 1) = 1) then
                 exposedFaces <- exposedFaces + 1
 
         exposedFaces
@@ -109,11 +109,17 @@ module Day18 =
         let ySpan = maxY - minY + 1
         let zSpan = maxZ - minZ + 1
 
-        let arr = Array3D.zeroCreate<int> xSpan ySpan zSpan
+#if DEBUG
+        let arr = Arr3D.zeroCreate<int> xSpan ySpan zSpan
+#else
+        let backing = Array.zeroCreate<int> (xSpan * ySpan * zSpan)
+        use ptr = fixed backing
+        let arr = Arr3D.zeroCreate<int> ptr xSpan ySpan zSpan
+#endif
 
         for i in 0 .. cubes.Count - 1 do
             let struct (x, y, z) = cubes.[i]
-            Array3D.set arr (x - minX) (y - minY) (z - minZ) 1
+            Arr3D.set arr (x - minX) (y - minY) (z - minZ) 1
 
         doPart1 cubes arr minX minY minZ maxX maxY maxZ
 
@@ -122,14 +128,14 @@ module Day18 =
     // 2 means "this definitely flood fills to the outside",
     // 1 means "definitely full",
     // 0 means "initially empty",
-    let floodFill (arr : int[,,]) maxX maxY maxZ (x : int) (y : int) (z : int) : unit =
+    let floodFill (arr : Arr3D<int>) maxX maxY maxZ (x : int) (y : int) (z : int) : unit =
         /// Returns true if it hits the outside.
         let rec go (x : int) (y : int) (z : int) : bool =
             let mutable hitsOutside = false
 
-            match Array3D.get arr x y z with
+            match Arr3D.get arr x y z with
             | 0 ->
-                Array3D.set arr x y z 3
+                Arr3D.set arr x y z 3
 
                 hitsOutside <- hitsOutside || (if x > 0 then go (x - 1) y z else true)
 
@@ -152,15 +158,15 @@ module Day18 =
             for x in 0..maxX do
                 for y in 0..maxY do
                     for z in 0..maxZ do
-                        if Array3D.get arr x y z = 3 then
-                            Array3D.set arr x y z 2
+                        if Arr3D.get arr x y z = 3 then
+                            Arr3D.set arr x y z 2
         else
             // Convert all our "in progress" to "does not flood fill to outside".
             for x in 0..maxX do
                 for y in 0..maxY do
                     for z in 0..maxZ do
-                        if Array3D.get arr x y z = 3 then
-                            Array3D.set arr x y z 1
+                        if Arr3D.get arr x y z = 3 then
+                            Arr3D.set arr x y z 1
 
     let part2 (line : StringSplitEnumerator) : int =
         let cubes, minX, minY, minZ, maxX, maxY, maxZ = parse line
@@ -169,11 +175,17 @@ module Day18 =
         let ySpan = maxY - minY + 1
         let zSpan = maxZ - minZ + 1
 
-        let arr = Array3D.zeroCreate<int> xSpan ySpan zSpan
+#if DEBUG
+        let arr = Arr3D.zeroCreate<int> xSpan ySpan zSpan
+#else
+        let backing = Array.zeroCreate<int> (xSpan * ySpan * zSpan)
+        use ptr = fixed backing
+        let arr = Arr3D.zeroCreate<int> ptr xSpan ySpan zSpan
+#endif
 
         for i in 0 .. cubes.Count - 1 do
             let struct (x, y, z) = cubes.[i]
-            Array3D.set arr (x - minX) (y - minY) (z - minZ) 1
+            Arr3D.set arr (x - minX) (y - minY) (z - minZ) 1
 
         // Flood-fill the internals.
         for x in 0 .. maxX - minX do

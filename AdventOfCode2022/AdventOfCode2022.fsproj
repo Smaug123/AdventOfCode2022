@@ -10,6 +10,7 @@
       <Compile Include="EfficientString.fs" />
       <Compile Include="IntSet.fs" />
       <Compile Include="Arr2D.fs" />
+      <Compile Include="Arr3D.fs" />
       <Compile Include="Day1.fs" />
       <Compile Include="Day2.fs" />
       <Compile Include="Day3.fs" />
