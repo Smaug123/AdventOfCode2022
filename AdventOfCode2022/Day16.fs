@@ -16,7 +16,7 @@ module Day16 =
     type Node = int
 
     /// Returns the nodes, and also the "AA" node.
-    let parse (lines : string seq) : Map<Node, int * Node Set> * Node =
+    let parse (lines : string seq) : Map<Node, int * IntSet> * Node =
         let allNodes =
             lines
             |> Seq.filter (not << String.IsNullOrEmpty)
@@ -31,7 +31,10 @@ module Day16 =
             allNodes
             |> Map.toSeq
             |> Seq.map (fun (key, (node, (weight, outbound))) ->
-                node, (weight, (Set.map (fun x -> fst (Map.find x allNodes)) outbound))
+                let outbound =
+                    outbound |> Seq.map (fun x -> Map.find x allNodes |> fst) |> IntSet.ofSeq
+
+                node, (weight, outbound)
             )
             |> Map.ofSeq
 
@@ -50,36 +53,48 @@ module Day16 =
 
             Some answer
 
-    let tryMin (s : seq<'a>) : 'a option =
+    let tryMin (s : seq<'a>) : 'a ValueOption =
         use enum = s.GetEnumerator ()
 
         if not (enum.MoveNext ()) then
-            None
+            ValueNone
         else
             let mutable answer = enum.Current
 
             while enum.MoveNext () do
                 answer <- min answer enum.Current
 
-            Some answer
+            ValueSome answer
 
     let getShortestPathLength (valves : Map<_, _>) : Node -> Node -> int =
-        let rec go (seenSoFar : Node Set) (v1 : Node) (v2 : Node) =
+        let rec go (seenSoFar : IntSet) (v1 : Node) (v2 : Node) : int =
             let v2Neighbours = snd valves.[v2]
 
             if v1 = v2 then
-                Some 0
-            elif Set.contains v1 v2Neighbours then
-                Some 1
-            elif Set.contains v2 seenSoFar then
-                None
+                0
+            elif IntSet.contains v2Neighbours v1 then
+                1
+            elif IntSet.contains seenSoFar v2 then
+                -1
             else
-                v2Neighbours
-                |> Seq.choose (go (Set.add v2 seenSoFar) v1)
-                |> tryMin
-                |> Option.map ((+) 1)
+                let mutable best = Int32.MaxValue
+                let mutable neighbours = v2Neighbours
+                let mutable neighbour = 0
 
-        fun v1 v2 -> go Set.empty v1 v2 |> Option.get
+                while neighbours > 0 do
+                    if neighbours % 2L = 1L then
+                        match go (IntSet.set seenSoFar v2) v1 neighbour with
+                        | -1 -> ()
+                        | next ->
+                            if next < best then
+                                best <- next
+
+                    neighbours <- neighbours >>> 1
+                    neighbour <- neighbour + 1
+
+                if best = Int32.MaxValue then -1 else best + 1
+
+        fun v1 v2 -> go IntSet.empty v1 v2
 
 
     let part1 (lines : string seq) : int =

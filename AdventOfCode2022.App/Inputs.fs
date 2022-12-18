@@ -2,5 +2,5 @@ namespace AdventOfCode2022.App
 
 [<RequireQualifiedAccess>]
 module Inputs =
-    let days = Array.init 17 (fun day -> Assembly.readResource $"Day%i{day + 1}.txt")
+    let days = Array.init 18 (fun day -> Assembly.readResource $"Day%i{day + 1}.txt")
     let inline day (i : int) = days.[i - 1]
