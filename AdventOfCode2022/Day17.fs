@@ -27,7 +27,7 @@ module Day17 =
 
     let printGrid (arr : Arr2D<int>) (currentTop : int) =
         for row in currentTop - 4 .. arr.Height - 1 do
-            for col in 0..6 do
+            for col = 0 to 6 do
                 match Arr2D.get arr col row with
                 | 0 -> printf "."
                 | 1 -> printf "@"
@@ -46,7 +46,7 @@ module Day17 =
             let row = maxPossibleHeight - towerHeight - 1
             let mutable anyOn = false
 
-            for col in 0..6 do
+            for col = 0 to 6 do
                 if Arr2D.get grid col row <> 0 then
                     anyOn <- true
 
@@ -58,8 +58,8 @@ module Day17 =
         towerHeight
 
     let introduceRock (shape : bool[][]) startGrid currentBase =
-        for row in shape.Length - 1 .. -1 .. 0 do
-            for col in 0 .. shape.[0].Length - 1 do
+        for row = shape.Length - 1 downto 0 do
+            for col = 0 to shape.[0].Length - 1 do
                 if shape.[row].[col] then
                     let x = 2 + col
                     let y = currentBase + row - shape.Length + 1
@@ -75,15 +75,15 @@ module Day17 =
                 if Arr2D.get startGrid 0 row = 1 then
                     canMove <- false
                 else
-                    for col in 1..6 do
+                    for col = 1 to 6 do
                         if Arr2D.get startGrid col row = 1 && Arr2D.get startGrid (col - 1) row = 2 then
                             canMove <- false
 
                 row <- row - 1
 
             if canMove then
-                for row in currentBase .. -1 .. currentBase - 3 do
-                    for col in 0..5 do
+                for row = currentBase downto currentBase - 3 do
+                    for col = 0 to 5 do
                         if Arr2D.get startGrid (col + 1) row = 1 then
                             Arr2D.set startGrid col row 1
                             Arr2D.set startGrid (col + 1) row 0
@@ -98,15 +98,15 @@ module Day17 =
                 if Arr2D.get startGrid 6 row = 1 then
                     canMove <- false
                 else
-                    for col in 0..5 do
+                    for col = 0 to 5 do
                         if Arr2D.get startGrid col row = 1 && Arr2D.get startGrid (col + 1) row = 2 then
                             canMove <- false
 
                 row <- row - 1
 
             if canMove then
-                for row in currentBase .. -1 .. currentBase - 3 do
-                    for col in 6..-1..1 do
+                for row = currentBase downto currentBase - 3 do
+                    for col = 6 downto 1 do
                         if Arr2D.get startGrid (col - 1) row = 1 then
                             Arr2D.set startGrid col row 1
                             Arr2D.set startGrid (col - 1) row 0
@@ -124,22 +124,22 @@ module Day17 =
         if currentBase = startGrid.Height - 1 then
             isFalling <- false
         else
-            for row in currentBase .. -1 .. currentBase - 3 do
-                for col in 0..6 do
+            for row = currentBase downto currentBase - 3 do
+                for col = 0 to 6 do
                     if Arr2D.get startGrid col row = 1 && Arr2D.get startGrid col (row + 1) = 2 then
                         isFalling <- false
 
         if isFalling then
-            for row in currentBase .. -1 .. currentBase - 3 do
-                for col in 0..6 do
+            for row = currentBase downto currentBase - 3 do
+                for col = 0 to 6 do
                     if Arr2D.get startGrid col row = 1 then
                         Arr2D.set startGrid col (row + 1) 1
                         Arr2D.set startGrid col row 0
 
             currentBase + 1
         else
-            for row in currentBase .. -1 .. currentBase - 3 do
-                for col in 0..6 do
+            for row = currentBase downto currentBase - 3 do
+                for col = 0 to 6 do
                     if Arr2D.get startGrid col row = 1 then
                         // Freeze in place
                         Arr2D.set startGrid col row 2
@@ -149,8 +149,8 @@ module Day17 =
     let findCurrentTop (currentTop : int) (startGrid : Arr2D<int>) : int =
         let mutable currentTop = currentTop
 
-        for row in currentTop - 1 .. -1 .. currentTop - 4 do
-            for col in 0..6 do
+        for row = currentTop - 1 downto currentTop - 4 do
+            for col = 0 to 6 do
                 if Arr2D.get startGrid col row = 2 then
                     currentTop <- row
 
@@ -193,7 +193,7 @@ module Day17 =
         let mutable currentTop = maxPossibleHeight
         let mutable jetCount = 0
 
-        for count in 0 .. 2022 - 1 do
+        for count = 0 to 2022 - 1 do
             let shape = shapes.[count % shapes.Length]
 
             let mutable currentBase = currentTop - 4
@@ -247,7 +247,7 @@ module Day17 =
         let mutable remainingStones = limit
 
         while remainingStones > 0 do
-            for count in 0 .. shapes.Length - 1 do
+            for count = 0 to shapes.Length - 1 do
                 shapeCount <- shapeCount + 1
                 remainingStones <- remainingStones - 1L
                 let shape = shapes.[count]

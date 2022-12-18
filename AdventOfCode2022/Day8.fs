@@ -85,8 +85,8 @@ module Day8 =
 
         let mutable visibleCount = 0
 
-        for y in 0 .. board.GetLength 0 - 1 do
-            for x in 0 .. board.GetLength 1 - 1 do
+        for y = 0 to board.GetLength 0 - 1 do
+            for x = 0 to board.GetLength 1 - 1 do
                 if isVisible board x y then
                     visibleCount <- visibleCount + 1
 
@@ -159,8 +159,8 @@ module Day8 =
         let board = parse lines
         let mutable scenicMax = 0
 
-        for y in 0 .. board.GetLength 0 - 1 do
-            for x in 0 .. board.GetLength 1 - 1 do
+        for y = 0 to board.GetLength 0 - 1 do
+            for x = 0 to board.GetLength 1 - 1 do
                 scenicMax <- max scenicMax (scenicScore board x y)
 
         scenicMax

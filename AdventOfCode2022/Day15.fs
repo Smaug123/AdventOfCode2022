@@ -106,7 +106,7 @@ module Day15 =
 
         let mutable count = 0
 
-        for x in minX..maxX do
+        for x = minX to maxX do
             let point =
                 {
                     X = x
@@ -131,7 +131,7 @@ module Day15 =
         let sensorXCoords =
             let arr = Array.zeroCreate (sensors.Count + 2)
 
-            for i in 0 .. sensors.Count - 1 do
+            for i = 0 to sensors.Count - 1 do
                 arr.[i] <- sensors.[i].X
 
             arr.[sensors.Count] <- maxSearch
@@ -141,7 +141,7 @@ module Day15 =
         let sensorYCoords =
             let arr = Array.zeroCreate (sensors.Count + 2)
 
-            for i in 0 .. sensors.Count - 1 do
+            for i = 0 to sensors.Count - 1 do
                 arr.[i] <- sensors.[i].Y
 
             arr.[sensors.Count] <- maxSearch
@@ -169,7 +169,7 @@ module Day15 =
                 let mutable plusXMinusYConstraint = Int32.MaxValue
                 let mutable plusXPlusYConstraint = Int32.MaxValue
 
-                for i in 0 .. sensors.Count - 1 do
+                for i = 0 to sensors.Count - 1 do
                     let sensor = sensors.[i]
                     let beacon = beacons.[i]
                     let manhattan = abs (sensor.X - beacon.X) + abs (sensor.Y - beacon.Y)

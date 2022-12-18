@@ -34,7 +34,7 @@ module Day12 =
                 let current = enum.Current.TrimEnd ()
                 let arr = Array.zeroCreate current.Length
 
-                for i in 0 .. arr.Length - 1 do
+                for i = 0 to arr.Length - 1 do
                     if current.[i] = 'S' then
                         startPos <-
                             {
@@ -59,8 +59,8 @@ module Day12 =
 
         let arr = Array.zeroCreate<byte> (output.Count * output.[0].Length)
 
-        for x in 0 .. output.[0].Length - 1 do
-            for y in 0 .. output.Count - 1 do
+        for x = 0 to output.[0].Length - 1 do
+            for y = 0 to output.Count - 1 do
                 arr.[y * output.[0].Length + x] <- output.[y].[x]
 
         arr, output.[0].Length, startPos, endPos
@@ -148,8 +148,8 @@ module Day12 =
             | _ ->
                 let mutable smallestDistance = Int32.MaxValue
 
-                for nextX in 0 .. isVisited.Width - 1 do
-                    for nextY in 0 .. isVisited.Height - 1 do
+                for nextX = 0 to isVisited.Width - 1 do
+                    for nextY = 0 to isVisited.Height - 1 do
                         if not (Arr2D.get isVisited nextX nextY) then
                             let distance = Arr2D.get distances nextX nextY
 
@@ -166,8 +166,8 @@ module Day12 =
 
         let mutable minValue = Int32.MaxValue
 
-        for y in 0 .. nodes.Height - 1 do
-            for x in 0 .. nodes.Width - 1 do
+        for y = 0 to nodes.Height - 1 do
+            for x = 0 to nodes.Width - 1 do
                 if Arr2D.get nodes x y = 0uy then
                     let distance = Arr2D.get distances x y
 

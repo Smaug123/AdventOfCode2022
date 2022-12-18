@@ -181,7 +181,7 @@ module Day11 =
             Array.init
                 startingItems.Count
                 (fun i ->
-                    for j in 0 .. startingItems.[i].Count - 1 do
+                    for j = 0 to startingItems.[i].Count - 1 do
                         NativePtr.write (NativePtr.add memory (totalItemCount * i + j)) startingItems.[i].[j]
 
                     NativePtr.add memory (totalItemCount * i)
@@ -197,12 +197,12 @@ module Day11 =
         (counts : nativeptr<int>)
         (inspections : int array)
         =
-        for i in 0 .. monkeys.Count - 1 do
+        for i = 0 to monkeys.Count - 1 do
             let monkey = monkeys.[i]
             let countsI = NativePtr.get counts i
             inspections.[i] <- inspections.[i] + countsI
 
-            for worryIndex in 0 .. countsI - 1 do
+            for worryIndex = 0 to countsI - 1 do
                 let worry = NativePtr.get items.[i] worryIndex
 
                 let newWorry =
@@ -232,7 +232,7 @@ module Day11 =
         let mutable best = max arr.[1] arr.[0]
         let mutable secondBest = min arr.[1] arr.[0]
 
-        for i in 2 .. arr.Length - 1 do
+        for i = 2 to arr.Length - 1 do
             if arr.[i] > best then
                 secondBest <- best
                 best <- arr.[i]
@@ -248,7 +248,7 @@ module Day11 =
 
         let mutable inspections = Array.zeroCreate<int> monkeys.Length
 
-        for _round in 1..20 do
+        for _round = 1 to 20 do
             oneRoundDivThree monkeys items counts inspections
 
         let struct (a, b) = maxTwo inspections
@@ -262,13 +262,13 @@ module Day11 =
         (counts : nativeptr<int>)
         (inspections : nativeptr<int>)
         =
-        for i in 0 .. monkeys.Length - 1 do
+        for i = 0 to monkeys.Length - 1 do
             let monkey = monkeys.[i]
             let entry = NativePtr.add inspections i
             let countI = NativePtr.get counts i
             NativePtr.write entry (NativePtr.read entry + countI)
 
-            for worryIndex in 0 .. countI - 1 do
+            for worryIndex = 0 to countI - 1 do
                 let worry = NativePtr.get (NativePtr.get items i) worryIndex
 
                 let newWorry =
@@ -303,7 +303,7 @@ module Day11 =
         let mutable best = LanguagePrimitives.GenericMaximum arr0 arr1
         let mutable secondBest = min arr0 arr1
 
-        for i in 2 .. len - 1 do
+        for i = 2 to len - 1 do
             let arrI = NativePtr.get arr i
 
             if arrI > best then
@@ -325,7 +325,7 @@ module Day11 =
         let modulus =
             (1L, monkeys) ||> Seq.fold (fun i monkey -> i * monkey.TestDivisibleBy)
 
-        for _round in 1..10000 do
+        for _round = 1 to 10000 do
             oneRound modulus monkeys items counts inspections
 
         let struct (a, b) = unsafeMaxTwo monkeys.Length inspections
