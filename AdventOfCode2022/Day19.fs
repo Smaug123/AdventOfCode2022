@@ -99,19 +99,35 @@ module Day19 =
         (oreRobotCount : int)
         (clayRobotCount : int)
         (obsidianRobotCount : int)
-        (geodeRobotCount : int)
         =
         if timeRemaining = 1 then
-            max bestSoFar (geodeCount + geodeRobotCount)
-        elif bestSoFar > geodeCount + geodeRobotCount * timeRemaining + bestPossible timeRemaining
-        then
+            max bestSoFar geodeCount
+        else
+
+        // A weak overestimate at how many more geodes we'd get if we started building geode
+        // producers and nothing else, right now.
+        let bestPossible =
+            let neededBeforeGeodeBuild = blueprint.GeodeObsidian - obsidianCount
+
+            if neededBeforeGeodeBuild <= 0 then
+                timeRemaining
+            elif neededBeforeGeodeBuild <= obsidianRobotCount then
+                // Wait one timestep, then build
+                timeRemaining - 1
+            elif neededBeforeGeodeBuild <= 2 * obsidianRobotCount + 1 then
+                // Build an obsidian robot, then wait one timestep, then build geodes
+                timeRemaining - 2
+            else
+                timeRemaining - 3
+            |> bestPossible
+
+        if bestSoFar > geodeCount + bestPossible then
             bestSoFar
         else
 
         let newOreCount = oreCount + oreRobotCount
         let newClayCount = clayCount + clayRobotCount
         let newObsidianCount = obsidianCount + obsidianRobotCount
-        let newGeodeCount = geodeCount + geodeRobotCount
 
         let mutable best = bestSoFar
 
@@ -133,11 +149,10 @@ module Day19 =
                 (newOreCount - blueprint.GeodeOre)
                 newClayCount
                 (newObsidianCount - blueprint.GeodeObsidian)
-                newGeodeCount
+                (geodeCount + timeRemaining - 1)
                 oreRobotCount
                 clayRobotCount
                 obsidianRobotCount
-                (geodeRobotCount + 1)
 
         else
 
@@ -150,11 +165,10 @@ module Day19 =
                     (newOreCount - blueprint.GeodeOre)
                     newClayCount
                     (newObsidianCount - blueprint.GeodeObsidian)
-                    newGeodeCount
+                    (geodeCount + timeRemaining - 1)
                     oreRobotCount
                     clayRobotCount
                     obsidianRobotCount
-                    (geodeRobotCount + 1)
 
         // Can we build an obsidian robot?
         // Note that if we have enough obsidian robots, then we're producing it as fast as we can consume it.
@@ -171,11 +185,10 @@ module Day19 =
                     (newOreCount - blueprint.ObsidianOre)
                     (newClayCount - blueprint.ObsidianClay)
                     newObsidianCount
-                    newGeodeCount
+                    geodeCount
                     oreRobotCount
                     clayRobotCount
                     (obsidianRobotCount + 1)
-                    geodeRobotCount
 
         // Can we build an ore robot?
         // Note that the biggest ore cost of anything is 4 ore, so if we have 4 ore-collecting robots then we
@@ -189,11 +202,10 @@ module Day19 =
                     (newOreCount - blueprint.Ore)
                     newClayCount
                     newObsidianCount
-                    newGeodeCount
+                    geodeCount
                     (oreRobotCount + 1)
                     clayRobotCount
                     obsidianRobotCount
-                    geodeRobotCount
 
         // Can we build a clay robot?
         if clayRobotCount < blueprint.ObsidianClay && oreCount >= blueprint.Clay then
@@ -205,11 +217,10 @@ module Day19 =
                     (newOreCount - blueprint.Clay)
                     newClayCount
                     newObsidianCount
-                    newGeodeCount
+                    geodeCount
                     oreRobotCount
                     (clayRobotCount + 1)
                     obsidianRobotCount
-                    geodeRobotCount
 
         go
             blueprint
@@ -218,14 +229,14 @@ module Day19 =
             newOreCount
             newClayCount
             newObsidianCount
-            newGeodeCount
+            geodeCount
             oreRobotCount
             clayRobotCount
             obsidianRobotCount
-            geodeRobotCount
 
     let doPart1 (blueprint : Day19Blueprint) : int =
-        go blueprint 0 24 0 0 0 0 1 0 0 0
+        let minOreCost = min blueprint.Ore blueprint.Clay
+        go blueprint 0 (24 - minOreCost) minOreCost 0 0 0 1 0 0
 
     let part1 (line : StringSplitEnumerator) : int =
         let blueprints = parse line
@@ -235,7 +246,8 @@ module Day19 =
         |> Seq.sum
 
     let doPart2 (blueprint : Day19Blueprint) : int =
-        go blueprint 0 32 0 0 0 0 1 0 0 0
+        let minOreCost = min blueprint.Ore blueprint.Clay
+        go blueprint 0 (32 - minOreCost) minOreCost 0 0 0 1 0 0
 
     let part2 (line : StringSplitEnumerator) : int =
         let blueprints = parse line

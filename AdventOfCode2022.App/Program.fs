@@ -85,9 +85,9 @@ module Program =
                     .Create(DefaultConfig.Instance)
                     .WithOptions ConfigOptions.DisableOptimizationsValidator
 
-            let _summary = BenchmarkRunner.Run<Benchmark1To5> config
-            let _summary = BenchmarkRunner.Run<Benchmark6To10> config
-            let _summary = BenchmarkRunner.Run<Benchmark11To15> config
+            //let _summary = BenchmarkRunner.Run<Benchmark1To5> config
+            //let _summary = BenchmarkRunner.Run<Benchmark6To10> config
+            //let _summary = BenchmarkRunner.Run<Benchmark11To15> config
             let _summary = BenchmarkRunner.Run<Benchmark16To20> config
             0
         | _ ->
@@ -95,8 +95,8 @@ module Program =
         let time = Stopwatch.StartNew ()
         time.Restart ()
 
-        for day = 19 to Run.allRuns.Length do
-            //Run.allRuns.[day - 1] false (Inputs.day day)
+        for day = 1 to Run.allRuns.Length do
+            Run.allRuns.[day - 1] false (Inputs.day day)
             Run.allRuns.[day - 1] true (Inputs.day day)
 
         time.Stop ()
