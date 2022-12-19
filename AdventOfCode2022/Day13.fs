@@ -3,12 +3,14 @@ namespace AdventOfCode2022
 open System
 open System.Collections.Generic
 open System.Globalization
+open System.Runtime.CompilerServices
 
 #if DEBUG
 open Checked
 #endif
 
 [<Struct>]
+[<IsReadOnly>]
 type Day13Packet =
     | PacketList of leaf : Day13Packet[]
     | Int of int : int

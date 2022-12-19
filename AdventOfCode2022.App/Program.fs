@@ -61,7 +61,7 @@ type Benchmark16To20 () =
     [<GlobalSetup>]
     member _.Setup () = Run.shouldWrite <- false
 
-    [<Params(16, 17, 18)>]
+    [<Params(16, 17, 18, 19)>]
     member val Day = 0 with get, set
 
     [<Params(false, true)>]
@@ -95,8 +95,8 @@ module Program =
         let time = Stopwatch.StartNew ()
         time.Restart ()
 
-        for day = 1 to Run.allRuns.Length do
-            Run.allRuns.[day - 1] false (Inputs.day day)
+        for day = 19 to Run.allRuns.Length do
+            //Run.allRuns.[day - 1] false (Inputs.day day)
             Run.allRuns.[day - 1] true (Inputs.day day)
 
         time.Stop ()
