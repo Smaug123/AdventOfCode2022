@@ -31,7 +31,7 @@ module Day19 =
 
         while enum.MoveNext () do
             if not (enum.Current.IsWhiteSpace ()) then
-                let mutable lineEnum = StringSplitEnumerator.make' ' ' enum.Current
+                let mutable lineEnum = StringSplitEnumerator.make' ' ' (enum.Current.TrimEnd ())
                 StringSplitEnumerator.chomp "Blueprint" &lineEnum
 
                 if not (lineEnum.MoveNext ()) then
