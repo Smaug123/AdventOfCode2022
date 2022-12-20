@@ -1,7 +1,6 @@
 namespace AdventOfCode2022
 
 open System
-open FSharp.Collections.ParallelSeq
 
 #if DEBUG
 open Checked
@@ -34,18 +33,13 @@ module Day20 =
         arr.[p1] <- arr.[p2]
         arr.[p2] <- tmp
 
-    let inline performPart1Round< ^T>
-        (modulo : 'T -> int -> int)
-        (original : 'T[])
-        (currentValues : 'T[])
-        (currentLayout : int[])
-        =
+    let inline performPart1Round (original : int[]) (currentValues : int[]) (currentLayout : int[]) =
         for i in 0 .. original.Length - 1 do
-            let currentLocation = Array.IndexOf<_> (currentLayout, i)
+            let currentLocation = Array.IndexOf<_> (currentLayout, i, 0, currentLayout.Length)
 
             let modulus : int = currentLayout.Length - 1
 
-            let moveBy = ((modulo original.[i] modulus) + modulus) % modulus
+            let moveBy = ((original.[i] % modulus) + modulus) % modulus
 
             let newPos = (currentLocation + moveBy) % modulus
 
@@ -64,7 +58,7 @@ module Day20 =
         let currentValues = Array.init original.Length (fun i -> original.[i])
         let currentLayout = Array.init original.Length id
 
-        performPart1Round (%) original currentValues currentLayout
+        performPart1Round original currentValues currentLayout
 
         let zeroIndex = Array.IndexOf<_> (currentValues, 0)
 
@@ -73,16 +67,23 @@ module Day20 =
         + currentValues.[(zeroIndex + 3000) % currentValues.Length]
 
     let part2 (lines : StringSplitEnumerator) : int64 =
-        let original = parse lines |> Array.map (fun i -> 811589153L * int64 i)
+        let key = 811589153
+        let original = parse lines
+        let modded = original |> Array.map (fun i -> (key % (original.Length - 1)) * i)
 
-        let currentValues = Array.init original.Length (fun i -> original.[i])
-        let currentLayout = Array.init original.Length id
+        let currentValues = Array.init modded.Length (fun i -> modded.[i])
+        let currentLayout = Array.init modded.Length id
 
         for _ = 1 to 10 do
-            performPart1Round (fun i m -> int (i % int64 m)) original currentValues currentLayout
+            performPart1Round modded currentValues currentLayout
 
         let zeroIndex = Array.IndexOf<_> (currentValues, 0)
 
-        currentValues.[(zeroIndex + 1000) % currentValues.Length]
-        + currentValues.[(zeroIndex + 2000) % currentValues.Length]
-        + currentValues.[(zeroIndex + 3000) % currentValues.Length]
+        let result =
+            let first = currentLayout.[(zeroIndex + 1000) % currentLayout.Length]
+            let second = currentLayout.[(zeroIndex + 2000) % currentLayout.Length]
+            let third = currentLayout.[(zeroIndex + 3000) % currentLayout.Length]
+
+            original.[first] + original.[second] + original.[third]
+
+        int64 result * int64 key
