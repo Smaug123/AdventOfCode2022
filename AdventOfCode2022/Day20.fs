@@ -28,6 +28,11 @@ module Day20 =
             Value : int
         }
 
+    let inline clone< ^T when ^T : struct> (arr : ^T[]) : ^T[] =
+        let newArr = Array.zeroCreate arr.Length
+        Buffer.BlockCopy (arr, 0, newArr, 0, arr.Length * sizeof< ^T>)
+        newArr
+
     let inline swapDown< ^T> (arr : 'T[]) (smaller : int) (bigger : int) : unit =
         let tmp = arr.[smaller]
 
@@ -64,7 +69,7 @@ module Day20 =
 
     let part1 (lines : StringSplitEnumerator) : int =
         let original = parse lines
-        let currentValues = Array.init original.Length (fun i -> original.[i])
+        let currentValues = clone original
         let currentLayout = Array.init original.Length id
 
         performPart1Round original currentValues currentLayout
@@ -80,7 +85,7 @@ module Day20 =
         let original = parse lines
         let modded = original |> Array.map (fun i -> (key % (original.Length - 1)) * i)
 
-        let currentValues = Array.init modded.Length (fun i -> modded.[i])
+        let currentValues = clone modded
         let currentLayout = Array.init modded.Length id
 
         for _ = 1 to 10 do
