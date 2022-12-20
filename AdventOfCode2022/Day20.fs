@@ -44,14 +44,26 @@ module Day20 =
             let newPos = (currentLocation + moveBy) % modulus
 
             if newPos > currentLocation then
+                let tmp1 = currentValues.[currentLocation]
+                let tmp2 = currentLayout.[currentLocation]
+
                 for j = currentLocation to newPos - 1 do
-                    swap currentValues j (j + 1)
-                    swap currentLayout j (j + 1)
+                    currentValues.[j] <- currentValues.[j + 1]
+                    currentLayout.[j] <- currentLayout.[j + 1]
+
+                currentValues.[newPos] <- tmp1
+                currentLayout.[newPos] <- tmp2
 
             elif newPos <> currentLocation then
+                let tmp1 = currentValues.[currentLocation]
+                let tmp2 = currentLayout.[currentLocation]
+
                 for j = currentLocation downto newPos + 1 do
-                    swap currentValues j (j - 1)
-                    swap currentLayout j (j - 1)
+                    currentValues.[j] <- currentValues.[j - 1]
+                    currentLayout.[j] <- currentLayout.[j - 1]
+
+                currentValues.[newPos] <- tmp1
+                currentLayout.[newPos] <- tmp2
 
     let part1 (lines : StringSplitEnumerator) : int =
         let original = parse lines
