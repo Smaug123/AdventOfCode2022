@@ -288,6 +288,21 @@ module Run =
             if shouldWrite then
                 printfn "%i" output
 
+
+    let day21 (partTwo : bool) (input : string) =
+        let day21 = StringSplitEnumerator.make '\n' input
+
+        if not partTwo then
+            let output = Day21.part1 day21
+
+            if shouldWrite then
+                printfn "%i" output
+        else
+            let output = Day21.part2 day21
+
+            if shouldWrite then
+                printfn "%i" output
+
     let allRuns =
         [|
             day1
@@ -310,4 +325,5 @@ module Run =
             day18
             day19
             day20
+            day21
         |]
