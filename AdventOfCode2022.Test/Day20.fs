@@ -7,7 +7,8 @@ open AdventOfCode2022
 [<TestFixture>]
 module TestDay20 =
 
-    let input = """1
+    let input =
+        """1
 2
 -3
 3
@@ -33,6 +34,6 @@ module TestDay20 =
 
     [<Test>]
     let ``Part 2`` () =
-        let input = Assembly.readResource "Day19.txt"
+        let input = Assembly.readResource "Day20.txt"
 
         Day20.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 548634267428L
