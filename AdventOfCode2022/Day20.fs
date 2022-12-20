@@ -28,42 +28,39 @@ module Day20 =
             Value : int
         }
 
-    let inline swap< ^T> (arr : 'T[]) (p1 : int) (p2 : int) =
-        let tmp = arr.[p1]
-        arr.[p1] <- arr.[p2]
-        arr.[p2] <- tmp
+    let inline swapDown< ^T> (arr : 'T[]) (smaller : int) (bigger : int) : unit =
+        let tmp = arr.[smaller]
+
+        for j = smaller to bigger - 1 do
+            arr.[j] <- arr.[j + 1]
+
+        arr.[bigger] <- tmp
+
+    let inline swapUp< ^T> (arr : 'T[]) (bigger : int) (smaller : int) : unit =
+        let tmp = arr.[bigger]
+
+        for j = bigger downto smaller + 1 do
+            arr.[j] <- arr.[j - 1]
+
+        arr.[smaller] <- tmp
 
     let inline performPart1Round (original : int[]) (currentValues : int[]) (currentLayout : int[]) =
         for i in 0 .. original.Length - 1 do
             let currentLocation = Array.IndexOf<_> (currentLayout, i, 0, currentLayout.Length)
 
-            let modulus : int = currentLayout.Length - 1
+            let modulus = currentLayout.Length - 1
 
             let moveBy = ((original.[i] % modulus) + modulus) % modulus
 
             let newPos = (currentLocation + moveBy) % modulus
 
             if newPos > currentLocation then
-                let tmp1 = currentValues.[currentLocation]
-                let tmp2 = currentLayout.[currentLocation]
-
-                for j = currentLocation to newPos - 1 do
-                    currentValues.[j] <- currentValues.[j + 1]
-                    currentLayout.[j] <- currentLayout.[j + 1]
-
-                currentValues.[newPos] <- tmp1
-                currentLayout.[newPos] <- tmp2
+                swapDown currentValues currentLocation newPos
+                swapDown currentLayout currentLocation newPos
 
             elif newPos <> currentLocation then
-                let tmp1 = currentValues.[currentLocation]
-                let tmp2 = currentLayout.[currentLocation]
-
-                for j = currentLocation downto newPos + 1 do
-                    currentValues.[j] <- currentValues.[j - 1]
-                    currentLayout.[j] <- currentLayout.[j - 1]
-
-                currentValues.[newPos] <- tmp1
-                currentLayout.[newPos] <- tmp2
+                swapUp currentValues currentLocation newPos
+                swapUp currentLayout currentLocation newPos
 
     let part1 (lines : StringSplitEnumerator) : int =
         let original = parse lines
