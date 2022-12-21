@@ -1,37 +1,38 @@
 namespace AdventOfCode2022
 
-open System.Collections.Generic
 open System
+
+#if DEBUG
+#else
+#nowarn "9"
+#endif
 
 [<RequireQualifiedAccess>]
 module Day8 =
 
-    let parse (lines : StringSplitEnumerator) : byte[,] =
+    let parse (lines : StringSplitEnumerator) : byte array * int =
         use mutable enum = lines
         let output = ResizeArray ()
+        let mutable lineCount = 0
 
         for line in enum do
             let line = line.TrimEnd ()
 
             if not (line.IsWhiteSpace ()) then
-                let arr = Array.zeroCreate line.Length
-                let mutable i = 0
+                lineCount <- lineCount + 1
 
                 for c in line do
-                    arr.[i] <- byte c - byte '0'
-                    i <- i + 1
+                    output.Add (byte c - byte '0')
 
-                output.Add arr
+        output.ToArray (), lineCount
 
-        Array2D.init output.Count output.[0].Length (fun x y -> output.[x].[y])
-
-    let isVisible (board : byte[,]) (x : int) (y : int) : bool =
+    let isVisible (board : Arr2D<byte>) (x : int) (y : int) : bool =
         // From the left?
         let mutable isVisible = true
         let mutable i = 0
 
         while i < x && isVisible do
-            if board.[y, i] >= board.[y, x] then
+            if Arr2D.get board i y >= Arr2D.get board x y then
                 isVisible <- false
 
             i <- i + 1
@@ -42,10 +43,10 @@ module Day8 =
 
         // From the right?
         let mutable isVisible = true
-        let mutable i = board.GetLength 1 - 1
+        let mutable i = board.Height - 1
 
         while i > x && isVisible do
-            if board.[y, i] >= board.[y, x] then
+            if Arr2D.get board i y >= Arr2D.get board x y then
                 isVisible <- false
 
             i <- i - 1
@@ -59,7 +60,7 @@ module Day8 =
         let mutable i = 0
 
         while i < y && isVisible do
-            if board.[i, x] >= board.[y, x] then
+            if Arr2D.get board x i >= Arr2D.get board x y then
                 isVisible <- false
 
             i <- i + 1
@@ -70,10 +71,10 @@ module Day8 =
 
         // From the bottom?
         let mutable isVisible = true
-        let mutable i = board.GetLength 0 - 1
+        let mutable i = board.Width - 1
 
         while i > y && isVisible do
-            if board.[i, x] >= board.[y, x] then
+            if Arr2D.get board x i >= Arr2D.get board x y then
                 isVisible <- false
 
             i <- i - 1
@@ -81,18 +82,34 @@ module Day8 =
         isVisible
 
     let part1 (lines : StringSplitEnumerator) : int =
-        let board = parse lines
+        let board, height = parse lines
+#if DEBUG
+        let board =
+            {
+                Arr2D.Elements = board
+                Width = board.Length / height
+            }
+#else
+        use p = fixed board
+
+        let board =
+            {
+                Arr2D.Elements = p
+                Length = board.Length
+                Width = board.Length / height
+            }
+#endif
 
         let mutable visibleCount = 0
 
-        for y = 0 to board.GetLength 0 - 1 do
-            for x = 0 to board.GetLength 1 - 1 do
+        for y = 0 to board.Height - 1 do
+            for x = 0 to board.Width - 1 do
                 if isVisible board x y then
                     visibleCount <- visibleCount + 1
 
         visibleCount
 
-    let scenicScore (board : byte[,]) (x : int) (y : int) : int =
+    let scenicScore (board : Arr2D<byte>) (x : int) (y : int) : int =
         let mutable scenicCount = 0
 
         do
@@ -100,7 +117,7 @@ module Day8 =
             let mutable i = y - 1
 
             while i >= 0 && isVisible do
-                if board.[i, x] >= board.[y, x] then
+                if Arr2D.get board x i >= Arr2D.get board x y then
                     isVisible <- false
 
                 scenicCount <- scenicCount + 1
@@ -112,8 +129,8 @@ module Day8 =
             let mutable i = y + 1
             let mutable subCount = 0
 
-            while i < board.GetLength 0 && isVisible do
-                if board.[i, x] >= board.[y, x] then
+            while i < board.Height && isVisible do
+                if Arr2D.get board x i >= Arr2D.get board x y then
                     isVisible <- false
 
                 subCount <- subCount + 1
@@ -128,7 +145,7 @@ module Day8 =
             let mutable subCount = 0
 
             while i >= 0 && isVisible do
-                if board.[y, i] >= board.[y, x] then
+                if Arr2D.get board i y >= Arr2D.get board x y then
                     isVisible <- false
 
                 subCount <- subCount + 1
@@ -142,8 +159,8 @@ module Day8 =
             let mutable i = x + 1
             let mutable subCount = 0
 
-            while i < board.GetLength 1 && isVisible do
-                if board.[y, i] >= board.[y, x] then
+            while i < board.Width && isVisible do
+                if Arr2D.get board i y >= Arr2D.get board x y then
                     isVisible <- false
 
                 subCount <- subCount + 1
@@ -156,11 +173,28 @@ module Day8 =
 
 
     let part2 (lines : StringSplitEnumerator) : int =
-        let board = parse lines
+        let board, height = parse lines
+#if DEBUG
+        let board =
+            {
+                Arr2D.Elements = board
+                Width = board.Length / height
+            }
+#else
+        use p = fixed board
+
+        let board =
+            {
+                Arr2D.Elements = p
+                Length = board.Length
+                Width = board.Length / height
+            }
+#endif
+
         let mutable scenicMax = 0
 
-        for y = 0 to board.GetLength 0 - 1 do
-            for x = 0 to board.GetLength 1 - 1 do
+        for y = 0 to board.Height - 1 do
+            for x = 0 to board.Width - 1 do
                 scenicMax <- max scenicMax (scenicScore board x y)
 
         scenicMax
