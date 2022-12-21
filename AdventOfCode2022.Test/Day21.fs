@@ -8,18 +8,32 @@ open AdventOfCode2022
 module TestDay21 =
 
     let input =
-        """
+        """root: pppw + sjmn
+dbpl: 5
+cczh: sllz + lgvd
+zczc: 2
+ptdq: humn - dvpt
+dvpt: 3
+lfqf: 4
+humn: 5
+ljgn: 2
+sjmn: drzm * dbpl
+sllz: 4
+pppw: cczh / lfqf
+lgvd: ljgn * ptdq
+drzm: hmdt - zczc
+hmdt: 32
 """
 
     [<Test>]
     let ``Part 1, given`` () =
-        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 152
 
     [<Test>]
     let ``Part 1`` () =
         let input = Assembly.readResource "Day21.txt"
 
-        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 54703080378102L
 
 
     [<Test>]
