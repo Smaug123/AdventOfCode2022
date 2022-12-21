@@ -74,7 +74,7 @@ module Day9 =
         tailVisits.Add (struct (0, 0)) |> ignore
 
         for direction, distance in directions do
-            for _ in 1uy .. distance do
+            for _ = 1 to int distance do
                 let newHead = newHead (fst knots.[0]) (snd knots.[0]) direction
                 knots.[0] <- newHead
 
