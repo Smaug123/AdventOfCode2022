@@ -10,5 +10,5 @@ Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
 ```
 |    Method | Day | IsPartOne |     Mean |    Error |   StdDev |
 |---------- |---- |---------- |---------:|---------:|---------:|
-| **Benchmark** |  **21** |     **False** | **678.3 μs** | **13.00 μs** | **15.48 μs** |
-| **Benchmark** |  **21** |      **True** | **612.3 μs** |  **9.40 μs** |  **8.79 μs** |
+| **Benchmark** |  **21** |     **False** | **654.8 μs** | **12.87 μs** | **13.22 μs** |
+| **Benchmark** |  **21** |      **True** | **577.8 μs** |  **6.50 μs** |  **6.08 μs** |
