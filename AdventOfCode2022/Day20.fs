@@ -21,13 +21,6 @@ module Day20 =
 
         output.ToArray ()
 
-    [<Struct>]
-    type Day20Entry =
-        {
-            OriginalPos : int
-            Value : int
-        }
-
     let inline clone< ^T when ^T : struct> (arr : ^T[]) : ^T[] =
         let newArr = Array.zeroCreate arr.Length
         Buffer.BlockCopy (arr, 0, newArr, 0, arr.Length * sizeof< ^T>)
