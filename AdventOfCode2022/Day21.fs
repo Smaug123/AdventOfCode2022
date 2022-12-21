@@ -26,61 +26,79 @@ module Day21 =
         | '-' -> Day21Operation.Minus
         | _ -> failwithf "bad op char: %c" c
 
+    type Day21Name = int
+
     type Day21Input =
         | Literal of int
-        | Operation of string * string * Day21Operation
+        | Operation of Day21Name * Day21Name * Day21Operation
         | Calculated of float
 
-    let parse (line : StringSplitEnumerator) : Dictionary<string, Day21Input> =
+    /// Returns the name of the root node and human node, too.
+    let parse (line : StringSplitEnumerator) : Day21Input[] * Day21Name * Day21Name =
         use mutable enum = line.GetEnumerator ()
         let output = Dictionary ()
+        let mutable nodeCount = 0
+        let nodeMapping = Dictionary<string, int> ()
 
         while enum.MoveNext () do
             if not (enum.Current.IsWhiteSpace ()) then
-                let mutable line = StringSplitEnumerator.make' ':' enum.Current
+                let colon = enum.Current.IndexOf ':'
+                let name = enum.Current.Slice(0, colon).ToString ()
 
-                if not (line.MoveNext ()) then
-                    failwith "expected nonempty"
-
-                let name = line.Current.ToString ()
-
-                if not (line.MoveNext ()) then
-                    failwith "expected a RHS"
-
-                let rhs = line.Current.Trim ()
-                let mutable rhs = StringSplitEnumerator.make' ' ' rhs
-
-                if not (rhs.MoveNext ()) then
-                    failwith "expected space on RHS"
+                let rhs = enum.Current.Slice(colon + 2).TrimEnd ()
 
                 let expr =
-                    match Int32.TryParse rhs.Current with
-                    | true, v ->
-                        if rhs.MoveNext () then
-                            failwithf "bad assumption: number %i followed by more text" v
-
-                        Day21Input.Literal v
+                    match Int32.TryParse rhs with
+                    | true, v -> Day21Input.Literal v
                     | false, _ ->
-                        let s1 = rhs.Current.ToString ()
+                        let space1 = rhs.IndexOf ' '
+                        let space2 = rhs.LastIndexOf ' '
+                        let s1 = rhs.Slice(0, space1).ToString ()
 
-                        if not (rhs.MoveNext ()) then
-                            failwith "bad assumption: no operation"
+                        let op =
+                            let op = rhs.Slice (space1 + 1, space2 - space1 - 1)
 
-                        let op = parseOp rhs.Current.[0]
+                            if op.Length <> 1 then
+                                failwithf "Expected exactly one char for op, got %i" op.Length
 
-                        if not (rhs.MoveNext ()) then
-                            failwith "bad assumption: no second operand"
+                            parseOp op.[0]
 
-                        let s2 = rhs.Current.ToString ()
+                        let s2 = rhs.Slice(space2 + 1).ToString ()
 
-                        if rhs.MoveNext () then
-                            failwith "bad assumption: stuff came after second operand"
+                        let s1 =
+                            match nodeMapping.TryGetValue s1 with
+                            | false, _ ->
+                                nodeMapping.Add (s1, nodeCount)
+                                nodeCount <- nodeCount + 1
+                                nodeCount - 1
+                            | true, v -> v
+
+                        let s2 =
+                            match nodeMapping.TryGetValue s2 with
+                            | false, _ ->
+                                nodeMapping.Add (s2, nodeCount)
+                                nodeCount <- nodeCount + 1
+                                nodeCount - 1
+                            | true, v -> v
 
                         Day21Input.Operation (s1, s2, op)
 
+                let name =
+                    match nodeMapping.TryGetValue name with
+                    | false, _ ->
+                        nodeMapping.Add (name, nodeCount)
+                        nodeCount <- nodeCount + 1
+                        nodeCount - 1
+                    | true, v -> v
+
                 output.Add (name, expr)
 
-        output
+        let outputArr = Array.zeroCreate nodeCount
+
+        for KeyValue (name, value) in output do
+            outputArr.[name] <- value
+
+        outputArr, nodeMapping.["root"], nodeMapping.["humn"]
 
     let inline compute (v1 : float) (v2 : float) (op : Day21Operation) : float =
         match op with
@@ -90,7 +108,7 @@ module Day21 =
         | Day21Operation.Divide -> v1 / v2
         | _ -> failwith "bad enum"
 
-    let rec evaluate (d : Dictionary<string, Day21Input>) (s : string) : float =
+    let rec evaluate (d : Day21Input[]) (s : Day21Name) : float =
         match d.[s] with
         | Day21Input.Literal v ->
             let result = float v
@@ -115,9 +133,9 @@ module Day21 =
         rounded
 
     let part1 (lines : StringSplitEnumerator) : int64 =
-        let original = parse lines
+        let original, root, _ = parse lines
 
-        let result = evaluate original "root"
+        let result = evaluate original root
 
         round result
 
@@ -127,51 +145,52 @@ module Day21 =
         | Calc of Day21Expr * Day21Expr * Day21Operation
 
     let rec convert
-        (key : string)
-        (d : Dictionary<string, Day21Input>)
-        (result : Dictionary<string, Day21Expr>)
+        (human : Day21Name)
+        (key : Day21Name)
+        (d : Day21Input[])
+        (result : Day21Expr ValueOption[])
         : Day21Expr
         =
-        match result.TryGetValue key with
-        | true, v -> v
-        | false, _ ->
+        match result.[key] with
+        | ValueSome v -> v
+        | ValueNone ->
 
-        if key = "humn" then
+        if key = human then
             let answer = Day21Expr.Variable
-            result.["humn"] <- answer
+            result.[human] <- ValueSome answer
             answer
         else
 
         match d.[key] with
         | Day21Input.Literal v ->
             let answer = Day21Expr.Literal (float v)
-            result.[key] <- answer
+            result.[key] <- ValueSome answer
             answer
         | Day21Input.Calculated _ -> failwith "no never"
         | Day21Input.Operation (s1, s2, op) ->
-            let v1 = convert s1 d result
-            let v2 = convert s2 d result
+            let v1 = convert human s1 d result
+            let v2 = convert human s2 d result
             // One wave of simplification
             let answer =
                 match v1, v2 with
                 | Day21Expr.Literal l1, Day21Expr.Literal l2 -> Day21Expr.Literal (compute l1 l2 op)
                 | _, _ -> Day21Expr.Calc (v1, v2, op)
 
-            result.[key] <- answer
+            result.[key] <- ValueSome answer
             answer
 
     let part2 (lines : StringSplitEnumerator) : int64 =
-        let original = parse lines
+        let original, root, human = parse lines
 
         let lhs, rhs =
-            match original.["root"] with
+            match original.[root] with
             | Day21Input.Literal _
             | Day21Input.Calculated _ -> failwith "expected operation"
             | Day21Input.Operation (s1, s2, _) -> s1, s2
 
-        let converted = Dictionary ()
-        let mutable lhs = convert lhs original converted
-        let mutable rhs = convert rhs original converted
+        let converted = Array.zeroCreate original.Length
+        let mutable lhs = convert human lhs original converted
+        let mutable rhs = convert human rhs original converted
 
         let mutable answer = nan
 
