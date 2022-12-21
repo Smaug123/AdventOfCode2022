@@ -27,7 +27,7 @@ hmdt: 32
 
     [<Test>]
     let ``Part 1, given`` () =
-        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 152
+        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 152L
 
     [<Test>]
     let ``Part 1`` () =
@@ -38,10 +38,10 @@ hmdt: 32
 
     [<Test>]
     let ``Part 2, given`` () =
-        Day21.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day21.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 301L
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day21.txt"
 
-        Day21.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day21.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 3952673930912L

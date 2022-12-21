@@ -26,12 +26,12 @@ module Day21 =
         | '-' -> Day21Operation.Minus
         | _ -> failwithf "bad op char: %c" c
 
-    type Day21Expression =
+    type Day21Input =
         | Literal of int
         | Operation of string * string * Day21Operation
         | Calculated of float
 
-    let parse (line : StringSplitEnumerator) : Dictionary<string, Day21Expression> =
+    let parse (line : StringSplitEnumerator) : Dictionary<string, Day21Input> =
         use mutable enum = line.GetEnumerator ()
         let output = Dictionary ()
 
@@ -59,7 +59,7 @@ module Day21 =
                         if rhs.MoveNext () then
                             failwithf "bad assumption: number %i followed by more text" v
 
-                        Day21Expression.Literal v
+                        Day21Input.Literal v
                     | false, _ ->
                         let s1 = rhs.Current.ToString ()
 
@@ -76,43 +76,141 @@ module Day21 =
                         if rhs.MoveNext () then
                             failwith "bad assumption: stuff came after second operand"
 
-                        Day21Expression.Operation (s1, s2, op)
+                        Day21Input.Operation (s1, s2, op)
 
                 output.Add (name, expr)
 
         output
 
-    let rec evaluate (d : Dictionary<string, Day21Expression>) (s : string) : float =
+    let compute (v1 : float) (v2 : float) (op : Day21Operation) : float =
+        match op with
+        | Day21Operation.Add -> v1 + v2
+        | Day21Operation.Times -> v1 * v2
+        | Day21Operation.Minus -> v1 - v2
+        | Day21Operation.Divide -> v1 / v2
+        | _ -> failwith "bad enum"
+
+    let rec evaluate (d : Dictionary<string, Day21Input>) (s : string) : float =
         match d.[s] with
-        | Day21Expression.Literal v ->
+        | Day21Input.Literal v ->
             let result = float v
-            d.[s] <- Day21Expression.Calculated result
+            d.[s] <- Day21Input.Calculated result
             result
-        | Day21Expression.Calculated f -> f
-        | Day21Expression.Operation (s1, s2, op) ->
+        | Day21Input.Calculated f -> f
+        | Day21Input.Operation (s1, s2, op) ->
             let v1 = evaluate d s1
             let v2 = evaluate d s2
-            let result =
-                match op with
-                | Day21Operation.Add -> v1 + v2
-                | Day21Operation.Times -> v1 * v2
-                | Day21Operation.Minus -> v1 - v2
-                | Day21Operation.Divide ->
-                    v1 / v2
-                | _ -> failwith "bad enum"
-            d.[s] <- Day21Expression.Calculated result
+
+            let result = compute v1 v2 op
+
+            d.[s] <- Day21Input.Calculated result
             result
+
+    let round (v : float) : int64 =
+        let rounded = int64 v
+
+        if abs (float rounded - v) > 0.00000001 then
+            failwith "not an int"
+
+        rounded
 
     let part1 (lines : StringSplitEnumerator) : int64 =
         let original = parse lines
 
         let result = evaluate original "root"
-        let rounded = int64 result
-        if abs (float rounded - result) > 0.00000001 then
-            failwith "not an int"
-        rounded
 
-    let part2 (lines : StringSplitEnumerator) : int =
+        round result
+
+    type Day21Expr =
+        | Literal of float
+        | Variable
+        | Calc of Day21Expr * Day21Expr * Day21Operation
+
+    let rec convert
+        (key : string)
+        (d : Dictionary<string, Day21Input>)
+        (result : Dictionary<string, Day21Expr>)
+        : Day21Expr
+        =
+        match result.TryGetValue key with
+        | true, v -> v
+        | false, _ ->
+
+        if key = "humn" then
+            let answer = Day21Expr.Variable
+            result.["humn"] <- answer
+            answer
+        else
+
+        match d.[key] with
+        | Day21Input.Literal v ->
+            let answer = Day21Expr.Literal (float v)
+            result.[key] <- answer
+            answer
+        | Day21Input.Calculated _ -> failwith "no never"
+        | Day21Input.Operation (s1, s2, op) ->
+            let v1 = convert s1 d result
+            let v2 = convert s2 d result
+            // One wave of simplification
+            let answer =
+                match v1, v2 with
+                | Day21Expr.Literal l1, Day21Expr.Literal l2 -> Day21Expr.Literal (compute l1 l2 op)
+                | _, _ -> Day21Expr.Calc (v1, v2, op)
+
+            result.[key] <- answer
+            answer
+
+    let reduceConstraint (lhs : Day21Expr) (rhs : Day21Expr) : Choice<float, Day21Expr * Day21Expr> =
+        match lhs, rhs with
+        | Day21Expr.Literal l, Day21Expr.Variable
+        | Day21Expr.Variable, Day21Expr.Literal l -> Choice1Of2 l
+        | Day21Expr.Literal l, Day21Expr.Calc (v1, v2, op)
+        | Day21Expr.Calc (v1, v2, op), Day21Expr.Literal l ->
+            match v1, v2 with
+            | v1, Day21Expr.Literal v2 ->
+                match op with
+                | Day21Operation.Add -> Choice2Of2 (v1, Day21Expr.Literal (l - v2))
+                | Day21Operation.Times -> Choice2Of2 (v1, Day21Expr.Literal (l / v2))
+                | Day21Operation.Divide -> Choice2Of2 (v1, Day21Expr.Literal (l * v2))
+                | Day21Operation.Minus -> Choice2Of2 (v1, Day21Expr.Literal (l + v2))
+                | _ -> failwith "bad op"
+            | Day21Expr.Literal v1, v2 ->
+                match op with
+                | Day21Operation.Add -> Choice2Of2 (v2, Day21Expr.Literal (l - v1))
+                | Day21Operation.Times -> Choice2Of2 (v2, Day21Expr.Literal (l / v1))
+                | Day21Operation.Divide -> Choice2Of2 (v2, Day21Expr.Literal (v1 / l))
+                | Day21Operation.Minus -> Choice2Of2 (v2, Day21Expr.Literal (v1 - l))
+                | _ -> failwith "bad op"
+            | _, _ -> Choice2Of2 (lhs, rhs)
+        | Day21Expr.Variable, Day21Expr.Variable
+        | Day21Expr.Variable, Day21Expr.Calc _
+        | Day21Expr.Calc _, Day21Expr.Calc _
+        | Day21Expr.Calc _, Day21Expr.Variable -> failwith "one side is always a literal"
+        | Day21Expr.Literal _, Day21Expr.Literal _ -> failwith "can't both be literals"
+
+    let part2 (lines : StringSplitEnumerator) : int64 =
         let original = parse lines
 
-        -1
+        let lhs, rhs =
+            match original.["root"] with
+            | Day21Input.Literal _
+            | Day21Input.Calculated _ -> failwith "expected operation"
+            | Day21Input.Operation (s1, s2, _) -> s1, s2
+
+        let converted = Dictionary ()
+        let mutable lhs = convert lhs original converted
+        let mutable rhs = convert rhs original converted
+
+        let mutable answer = nan
+
+        while Double.IsNaN answer do
+            match reduceConstraint lhs rhs with
+            | Choice1Of2 result -> answer <- result
+            | Choice2Of2 (r1, r2) ->
+                if lhs = r1 && rhs = r2 then
+                    failwithf "unable to transform: %+A\n\n%+A" lhs rhs
+
+                lhs <- r1
+                rhs <- r2
+
+        round answer
