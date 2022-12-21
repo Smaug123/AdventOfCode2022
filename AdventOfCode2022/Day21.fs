@@ -18,7 +18,7 @@ module Day21 =
         | Divide = 2
         | Minus = 3
 
-    let parseOp (c : char) =
+    let inline parseOp (c : char) =
         match c with
         | '+' -> Day21Operation.Add
         | '*' -> Day21Operation.Times
@@ -82,7 +82,7 @@ module Day21 =
 
         output
 
-    let compute (v1 : float) (v2 : float) (op : Day21Operation) : float =
+    let inline compute (v1 : float) (v2 : float) (op : Day21Operation) : float =
         match op with
         | Day21Operation.Add -> v1 + v2
         | Day21Operation.Times -> v1 * v2
@@ -106,7 +106,7 @@ module Day21 =
             d.[s] <- Day21Input.Calculated result
             result
 
-    let round (v : float) : int64 =
+    let inline round (v : float) : int64 =
         let rounded = int64 v
 
         if abs (float rounded - v) > 0.00000001 then
@@ -160,34 +160,6 @@ module Day21 =
             result.[key] <- answer
             answer
 
-    let reduceConstraint (lhs : Day21Expr) (rhs : Day21Expr) : Choice<float, Day21Expr * Day21Expr> =
-        match lhs, rhs with
-        | Day21Expr.Literal l, Day21Expr.Variable
-        | Day21Expr.Variable, Day21Expr.Literal l -> Choice1Of2 l
-        | Day21Expr.Literal l, Day21Expr.Calc (v1, v2, op)
-        | Day21Expr.Calc (v1, v2, op), Day21Expr.Literal l ->
-            match v1, v2 with
-            | v1, Day21Expr.Literal v2 ->
-                match op with
-                | Day21Operation.Add -> Choice2Of2 (v1, Day21Expr.Literal (l - v2))
-                | Day21Operation.Times -> Choice2Of2 (v1, Day21Expr.Literal (l / v2))
-                | Day21Operation.Divide -> Choice2Of2 (v1, Day21Expr.Literal (l * v2))
-                | Day21Operation.Minus -> Choice2Of2 (v1, Day21Expr.Literal (l + v2))
-                | _ -> failwith "bad op"
-            | Day21Expr.Literal v1, v2 ->
-                match op with
-                | Day21Operation.Add -> Choice2Of2 (v2, Day21Expr.Literal (l - v1))
-                | Day21Operation.Times -> Choice2Of2 (v2, Day21Expr.Literal (l / v1))
-                | Day21Operation.Divide -> Choice2Of2 (v2, Day21Expr.Literal (v1 / l))
-                | Day21Operation.Minus -> Choice2Of2 (v2, Day21Expr.Literal (v1 - l))
-                | _ -> failwith "bad op"
-            | _, _ -> Choice2Of2 (lhs, rhs)
-        | Day21Expr.Variable, Day21Expr.Variable
-        | Day21Expr.Variable, Day21Expr.Calc _
-        | Day21Expr.Calc _, Day21Expr.Calc _
-        | Day21Expr.Calc _, Day21Expr.Variable -> failwith "one side is always a literal"
-        | Day21Expr.Literal _, Day21Expr.Literal _ -> failwith "can't both be literals"
-
     let part2 (lines : StringSplitEnumerator) : int64 =
         let original = parse lines
 
@@ -204,13 +176,37 @@ module Day21 =
         let mutable answer = nan
 
         while Double.IsNaN answer do
-            match reduceConstraint lhs rhs with
-            | Choice1Of2 result -> answer <- result
-            | Choice2Of2 (r1, r2) ->
-                if lhs = r1 && rhs = r2 then
-                    failwithf "unable to transform: %+A\n\n%+A" lhs rhs
+            match lhs, rhs with
+            | Day21Expr.Literal l, Day21Expr.Variable
+            | Day21Expr.Variable, Day21Expr.Literal l -> answer <- l
+            | Day21Expr.Literal l, Day21Expr.Calc (v1, v2, op)
+            | Day21Expr.Calc (v1, v2, op), Day21Expr.Literal l ->
+                match v1, v2 with
+                | v1, Day21Expr.Literal v2 ->
+                    lhs <- v1
 
-                lhs <- r1
-                rhs <- r2
+                    rhs <-
+                        match op with
+                        | Day21Operation.Add -> Day21Expr.Literal (l - v2)
+                        | Day21Operation.Times -> Day21Expr.Literal (l / v2)
+                        | Day21Operation.Divide -> Day21Expr.Literal (l * v2)
+                        | Day21Operation.Minus -> Day21Expr.Literal (l + v2)
+                        | _ -> failwith "bad op"
+                | Day21Expr.Literal v1, v2 ->
+                    lhs <- v2
+
+                    rhs <-
+                        match op with
+                        | Day21Operation.Add -> Day21Expr.Literal (l - v1)
+                        | Day21Operation.Times -> Day21Expr.Literal (l / v1)
+                        | Day21Operation.Divide -> Day21Expr.Literal (v1 / l)
+                        | Day21Operation.Minus -> Day21Expr.Literal (v1 - l)
+                        | _ -> failwith "bad op"
+                | _, _ -> failwith "problem is too hard: had variables on both sides"
+            | Day21Expr.Variable, Day21Expr.Variable
+            | Day21Expr.Variable, Day21Expr.Calc _
+            | Day21Expr.Calc _, Day21Expr.Calc _
+            | Day21Expr.Calc _, Day21Expr.Variable -> failwith "one side is always a literal"
+            | Day21Expr.Literal _, Day21Expr.Literal _ -> failwith "can't both be literals"
 
         round answer

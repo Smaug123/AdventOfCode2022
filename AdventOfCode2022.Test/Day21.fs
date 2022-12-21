@@ -33,7 +33,8 @@ hmdt: 32
     let ``Part 1`` () =
         let input = Assembly.readResource "Day21.txt"
 
-        Day21.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 54703080378102L
+        Day21.part1 (StringSplitEnumerator.make '\n' input)
+        |> shouldEqual 54703080378102L
 
 
     [<Test>]
@@ -44,4 +45,5 @@ hmdt: 32
     let ``Part 2`` () =
         let input = Assembly.readResource "Day21.txt"
 
-        Day21.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 3952673930912L
+        Day21.part2 (StringSplitEnumerator.make '\n' input)
+        |> shouldEqual 3952673930912L
