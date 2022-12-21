@@ -26,7 +26,7 @@ module Day21 =
         | '-' -> Day21Operation.Minus
         | _ -> failwithf "bad op char: %c" c
 
-    type Day21Name = int
+    type Day21Name = string
 
     type Day21Input =
         | Literal of int
@@ -34,11 +34,9 @@ module Day21 =
         | Calculated of float
 
     /// Returns the name of the root node and human node, too.
-    let parse (line : StringSplitEnumerator) : Day21Input[] * Day21Name * Day21Name =
+    let parse (line : StringSplitEnumerator) : Dictionary<Day21Name, Day21Input> * Day21Name * Day21Name =
         use mutable enum = line.GetEnumerator ()
         let output = Dictionary ()
-        let mutable nodeCount = 0
-        let nodeMapping = Dictionary<string, int> ()
 
         while enum.MoveNext () do
             if not (enum.Current.IsWhiteSpace ()) then
@@ -65,40 +63,11 @@ module Day21 =
 
                         let s2 = rhs.Slice(space2 + 1).ToString ()
 
-                        let s1 =
-                            match nodeMapping.TryGetValue s1 with
-                            | false, _ ->
-                                nodeMapping.Add (s1, nodeCount)
-                                nodeCount <- nodeCount + 1
-                                nodeCount - 1
-                            | true, v -> v
-
-                        let s2 =
-                            match nodeMapping.TryGetValue s2 with
-                            | false, _ ->
-                                nodeMapping.Add (s2, nodeCount)
-                                nodeCount <- nodeCount + 1
-                                nodeCount - 1
-                            | true, v -> v
-
                         Day21Input.Operation (s1, s2, op)
-
-                let name =
-                    match nodeMapping.TryGetValue name with
-                    | false, _ ->
-                        nodeMapping.Add (name, nodeCount)
-                        nodeCount <- nodeCount + 1
-                        nodeCount - 1
-                    | true, v -> v
 
                 output.Add (name, expr)
 
-        let outputArr = Array.zeroCreate nodeCount
-
-        for KeyValue (name, value) in output do
-            outputArr.[name] <- value
-
-        outputArr, nodeMapping.["root"], nodeMapping.["humn"]
+        output, "root", "humn"
 
     let inline compute (v1 : float) (v2 : float) (op : Day21Operation) : float =
         match op with
@@ -108,7 +77,7 @@ module Day21 =
         | Day21Operation.Divide -> v1 / v2
         | _ -> failwith "bad enum"
 
-    let rec evaluate (d : Day21Input[]) (s : Day21Name) : float =
+    let rec evaluate (d : Dictionary<Day21Name, Day21Input>) (s : Day21Name) : float =
         match d.[s] with
         | Day21Input.Literal v ->
             let result = float v
@@ -147,24 +116,24 @@ module Day21 =
     let rec convert
         (human : Day21Name)
         (key : Day21Name)
-        (d : Day21Input[])
-        (result : Day21Expr ValueOption[])
+        (d : Dictionary<Day21Name, Day21Input>)
+        (result : Dictionary<Day21Name, Day21Expr>)
         : Day21Expr
         =
-        match result.[key] with
-        | ValueSome v -> v
-        | ValueNone ->
+        match result.TryGetValue key with
+        | true, v -> v
+        | false, _ ->
 
         if key = human then
             let answer = Day21Expr.Variable
-            result.[human] <- ValueSome answer
+            result.[human] <- answer
             answer
         else
 
         match d.[key] with
         | Day21Input.Literal v ->
             let answer = Day21Expr.Literal (float v)
-            result.[key] <- ValueSome answer
+            result.[key] <- answer
             answer
         | Day21Input.Calculated _ -> failwith "no never"
         | Day21Input.Operation (s1, s2, op) ->
@@ -176,7 +145,7 @@ module Day21 =
                 | Day21Expr.Literal l1, Day21Expr.Literal l2 -> Day21Expr.Literal (compute l1 l2 op)
                 | _, _ -> Day21Expr.Calc (v1, v2, op)
 
-            result.[key] <- ValueSome answer
+            result.[key] <- answer
             answer
 
     let part2 (lines : StringSplitEnumerator) : int64 =
@@ -188,7 +157,7 @@ module Day21 =
             | Day21Input.Calculated _ -> failwith "expected operation"
             | Day21Input.Operation (s1, s2, _) -> s1, s2
 
-        let converted = Array.zeroCreate original.Length
+        let converted = Dictionary original.Count
         let mutable lhs = convert human lhs original converted
         let mutable rhs = convert human rhs original converted
 
