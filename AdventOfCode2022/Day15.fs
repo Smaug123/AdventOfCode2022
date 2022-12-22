@@ -79,13 +79,12 @@ module Day15 =
         keepGoing
 
     let toHashSet (arr : Coordinate ResizeArray) : Coordinate HashSet =
-        let output = HashSet ()
+        let output = HashSet arr.Count
 
         for beacon in arr do
             output.Add beacon |> ignore
 
         output
-
 
     let part1 (y : int) (lines : StringSplitEnumerator) : int =
         let sensors, beacons = parse lines

@@ -5,7 +5,7 @@ open System
 [<RequireQualifiedAccess>]
 module Day6 =
 
-    let findDuplicateSorted (a : 'a array) : int ValueOption =
+    let inline findDuplicateSorted< ^a when ^a : equality> (a : 'a array) : int ValueOption =
         let mutable i = 0
         let mutable result = ValueNone
 

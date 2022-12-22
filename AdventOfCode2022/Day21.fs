@@ -31,7 +31,6 @@ module Day21 =
     type Day21Input =
         | Literal of int
         | Operation of Day21Name * Day21Name * Day21Operation
-        | Calculated of float
 
     /// Returns the name of the root node and human node, too.
     let parse (line : StringSplitEnumerator) : Dictionary<Day21Name, Day21Input> * Day21Name * Day21Name =
@@ -77,20 +76,28 @@ module Day21 =
         | Day21Operation.Divide -> v1 / v2
         | _ -> failwith "bad enum"
 
-    let rec evaluate (d : Dictionary<Day21Name, Day21Input>) (s : Day21Name) : float =
+    let rec evaluate
+        (calculated : Dictionary<Day21Name, float>)
+        (d : Dictionary<Day21Name, Day21Input>)
+        (s : Day21Name)
+        : float
+        =
+        match calculated.TryGetValue s with
+        | true, v -> v
+        | false, _ ->
+
         match d.[s] with
         | Day21Input.Literal v ->
             let result = float v
-            d.[s] <- Day21Input.Calculated result
+            calculated.[s] <- result
             result
-        | Day21Input.Calculated f -> f
         | Day21Input.Operation (s1, s2, op) ->
-            let v1 = evaluate d s1
-            let v2 = evaluate d s2
+            let v1 = evaluate calculated d s1
+            let v2 = evaluate calculated d s2
 
             let result = compute v1 v2 op
 
-            d.[s] <- Day21Input.Calculated result
+            calculated.[s] <- result
             result
 
     let inline round (v : float) : int64 =
@@ -103,8 +110,9 @@ module Day21 =
 
     let part1 (lines : StringSplitEnumerator) : int64 =
         let original, root, _ = parse lines
+        let calculated = Dictionary original.Count
 
-        let result = evaluate original root
+        let result = evaluate calculated original root
 
         round result
 
@@ -135,7 +143,6 @@ module Day21 =
             let answer = Day21Expr.Literal (float v)
             result.[key] <- answer
             answer
-        | Day21Input.Calculated _ -> failwith "no never"
         | Day21Input.Operation (s1, s2, op) ->
             let v1 = convert human s1 d result
             let v2 = convert human s2 d result
@@ -153,8 +160,7 @@ module Day21 =
 
         let lhs, rhs =
             match original.[root] with
-            | Day21Input.Literal _
-            | Day21Input.Calculated _ -> failwith "expected operation"
+            | Day21Input.Literal _ -> failwith "expected operation"
             | Day21Input.Operation (s1, s2, _) -> s1, s2
 
         let converted = Dictionary original.Count

@@ -15,6 +15,13 @@ open Checked
 type Day14Shape = Coordinate ResizeArray
 
 [<RequireQualifiedAccess>]
+type MutableCoordinate =
+    {
+        mutable X : int
+        mutable Y : int
+    }
+
+[<RequireQualifiedAccess>]
 module Day14 =
 
     let parse (lines : StringSplitEnumerator) : Day14Shape ResizeArray =
@@ -33,7 +40,7 @@ module Day14 =
                     let y = StringSplitEnumerator.consumeInt &coords
 
                     {
-                        X = x
+                        Coordinate.X = x
                         Y = y
                     }
                     |> thisLine.Add
@@ -54,12 +61,6 @@ module Day14 =
 
             for x = min point1.X point2.X to max point1.X point2.X do
                 Arr2D.set arr x point1.Y true
-
-    type MutableCoordinate =
-        {
-            mutable X : int
-            mutable Y : int
-        }
 
     let inline fallOnce (sandPos : MutableCoordinate) (arr : Arr2D<bool>) : bool =
         if not (Arr2D.get arr sandPos.X (sandPos.Y + 1)) then
@@ -101,7 +102,7 @@ module Day14 =
             let sandPos =
                 {
                     MutableCoordinate.X = 500
-                    Y = 0
+                    MutableCoordinate.Y = 0
                 }
 
             let mutable stillFalling = true
@@ -166,7 +167,7 @@ module Day14 =
             let sandPos =
                 {
                     MutableCoordinate.X = 1000
-                    Y = 0
+                    MutableCoordinate.Y = 0
                 }
 
             let mutable stillFalling = true

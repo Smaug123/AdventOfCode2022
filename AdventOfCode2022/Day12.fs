@@ -11,6 +11,7 @@ open Checked
 #nowarn "9"
 #endif
 
+[<Struct>]
 type Coordinate =
     {
         X : int
