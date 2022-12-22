@@ -37,10 +37,10 @@ module TestDay22 =
 
     [<Test>]
     let ``Part 2, given`` () =
-        Day22.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day22.part2Example (StringSplitEnumerator.make '\n' input) |> shouldEqual 5031
 
     [<Test>]
     let ``Part 2`` () =
         let input = Assembly.readResource "Day22.txt"
 
-        Day22.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day22.part2 (StringSplitEnumerator.make '\n' input) |> shouldEqual 189097
