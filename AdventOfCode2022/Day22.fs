@@ -345,26 +345,14 @@ module Day22 =
 
         let pos = toArrayElement face intendedDest
 
-        try
-            if board.[pos.Y].[pos.X] <> 2 then
-                currPos.X <- intendedDest.X
-                currPos.Y <- intendedDest.Y
-                currFace <- face
-                direction <- newDirection
-                true
-            else
-                false
-        with e ->
-            printfn
-                "Tried pos %+A from current %+A on current face %i to face %i, original direction %+A, new direction %+A"
-                pos
-                currPos
-                currFace
-                face
-                direction
-                newDirection
-
-            reraise ()
+        if board.[pos.Y].[pos.X] <> 2 then
+            currPos.X <- intendedDest.X
+            currPos.Y <- intendedDest.Y
+            currFace <- face
+            direction <- newDirection
+            true
+        else
+            false
 
     let moveCubeDistance
         (cubeSize : int)
@@ -513,7 +501,6 @@ module Day22 =
     let part2 (lines : StringSplitEnumerator) : int =
         let board, instructions, finalDistance = parse lines
         let faceSize = board.[0].Length / 3
-        printfn "Face size %i" faceSize
 
         let position =
             {
@@ -534,8 +521,6 @@ module Day22 =
                 &direction
                 distance
                 board
-
-            printfn "Position: %+A, face %i, direction %+A" position face direction
 
             direction <-
                 match rotation with
