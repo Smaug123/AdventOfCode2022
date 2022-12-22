@@ -12,7 +12,7 @@
         pkgs = nixpkgs.legacyPackages.${system};
         projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
         pname = "AdventOfCode2022";
-        outputFiles = [ "AdventOfCode2022.App/bin/Release/net7.0/publish/*" ];
+        outputFiles = [ "" ];
             arrayToShell = (a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t") ) a));
       in {
         packages = { default = pkgs.buildDotnetPackage {
