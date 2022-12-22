@@ -257,10 +257,10 @@ module Day22 =
 
     /// Returns false if we got stuck due to a wall.
     /// The position is referring to the position within the given face.
-    let private moveOneStepCube
+    let inline private moveOneStepCube
         (cubeSize : int)
-        (toArrayElement : int -> Coordinate -> Coordinate)
-        (newFace : int -> Direction -> int * Direction * (struct (int * int) -> struct (int * int)))
+        ([<InlineIfLambda>] toArrayElement : int -> Coordinate -> Coordinate)
+        ([<InlineIfLambda>] newFace : int -> Direction -> int * Direction * (struct (int * int) -> struct (int * int)))
         (currFace : byref<int>)
         (currPos : MutableCoordinate)
         (direction : byref<Direction>)
@@ -354,10 +354,10 @@ module Day22 =
         else
             false
 
-    let moveCubeDistance
+    let inline moveCubeDistance
         (cubeSize : int)
-        (toArrayElement : int -> Coordinate -> Coordinate)
-        (newFace : int -> Direction -> int * Direction * (struct (int * int) -> struct (int * int)))
+        ([<InlineIfLambda>] toArrayElement : int -> Coordinate -> Coordinate)
+        ([<InlineIfLambda>] newFace : int -> Direction -> int * Direction * (struct (int * int) -> struct (int * int)))
         (currFace : byref<int>)
         (currPos : MutableCoordinate)
         (direction : byref<Direction>)
@@ -465,7 +465,7 @@ module Day22 =
             }
         | _ -> failwith "bad face"
 
-    let newFace
+    let inline newFace
         (cubeSize : int)
         (face : int)
         (direction : Direction)
