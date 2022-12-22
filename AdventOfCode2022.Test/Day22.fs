@@ -8,12 +8,25 @@ open AdventOfCode2022
 module TestDay22 =
 
     let input =
-        """
+        """        ...#
+        .#..
+        #...
+        ....
+...#.......#
+........#...
+..#....#....
+..........#.
+        ...#....
+        .....#..
+        .#......
+        ......#.
+
+10R5L5R10L4R5L5
 """
 
     [<Test>]
     let ``Part 1, given`` () =
-        Day22.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 0
+        Day22.part1 (StringSplitEnumerator.make '\n' input) |> shouldEqual 6032
 
     [<Test>]
     let ``Part 1`` () =
