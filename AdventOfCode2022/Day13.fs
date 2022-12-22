@@ -128,7 +128,7 @@ module Day13 =
 
         let mutable sum = 0
 
-        for i in 0 .. 2 .. data.Count - 1 do
+        for i in 0..2 .. data.Count - 1 do
             match cmp data.[i] data.[i + 1] with
             | ValueNone -> failwith "should have decided"
             | ValueSome false -> ()

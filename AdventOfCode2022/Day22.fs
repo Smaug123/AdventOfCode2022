@@ -525,7 +525,16 @@ module Day22 =
         let mutable face = 1
 
         for struct (distance, rotation) in instructions do
-            moveCubeDistance faceSize (toArrayElement faceSize) (newFace faceSize) &face position &direction distance board
+            moveCubeDistance
+                faceSize
+                (toArrayElement faceSize)
+                (newFace faceSize)
+                &face
+                position
+                &direction
+                distance
+                board
+
             printfn "Position: %+A, face %i, direction %+A" position face direction
 
             direction <-
@@ -534,7 +543,15 @@ module Day22 =
                 | Direction.Left -> rotateLeft direction
                 | _ -> failwith "bad rotation"
 
-        moveCubeDistance faceSize (toArrayElement faceSize) (newFace faceSize) &face position &direction finalDistance board
+        moveCubeDistance
+            faceSize
+            (toArrayElement faceSize)
+            (newFace faceSize)
+            &face
+            position
+            &direction
+            finalDistance
+            board
 
         let position =
             toArrayElement
