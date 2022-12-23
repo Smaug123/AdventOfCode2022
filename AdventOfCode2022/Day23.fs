@@ -48,11 +48,12 @@ module Day23 =
         proposedEndSteps.Clear ()
 
         for elf in board do
-            let mutable hasAdjacentElf = false
+            let mutable adjacentElfOffsetX = Int32.MinValue
+            let mutable adjacentElfOffsetY = Int32.MinValue
 
             for xOffset = -1 to 1 do
                 for yOffset = -1 to 1 do
-                    if not hasAdjacentElf && (xOffset <> 0 || yOffset <> 0) then
+                    if adjacentElfOffsetX = Int32.MinValue && (xOffset <> 0 || yOffset <> 0) then
                         let adjacentElf =
                             {
                                 X = elf.X + xOffset
@@ -60,12 +61,20 @@ module Day23 =
                             }
 
                         if board.Contains adjacentElf then
-                            hasAdjacentElf <- true
+                            adjacentElfOffsetX <- xOffset
 
-            if hasAdjacentElf then
+                            adjacentElfOffsetY <- yOffset
+
+            if adjacentElfOffsetX <> Int32.MinValue then
                 let mutable proposedEndPlace = ValueNone
 
                 for struct (proposedX, proposedY) in proposedDirections do
+                    if proposedX = 0 && proposedY = adjacentElfOffsetY then
+                        ()
+                    elif proposedY = 0 && proposedX = adjacentElfOffsetX then
+                        ()
+                    else
+
                     let mutable hasElfInDestination = false
 
                     if proposedEndPlace.IsNone then
