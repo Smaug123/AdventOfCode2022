@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Runtime.CompilerServices
 
 #if DEBUG
 open Checked
@@ -12,6 +13,7 @@ open Checked
 #endif
 
 [<Struct>]
+[<IsReadOnly>]
 type Coordinate =
     {
         X : int
