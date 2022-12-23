@@ -41,78 +41,69 @@ module Day23 =
     // Returns true if an elf moved.
     let inline oneRound
         (board : HashSet<Coordinate>)
-        (proposedEndSteps : Dictionary<_, _>)
+        (proposedEndSteps : Dictionary<Coordinate, Coordinate>)
         (proposedDirections : _ array)
         : bool
         =
         proposedEndSteps.Clear ()
 
         for elf in board do
-            let mutable hasAdjacentElf = false
+            let mutable proposedEndPlace = ValueNone
 
-            for xOffset = -1 to 1 do
-                for yOffset = -1 to 1 do
-                    if not hasAdjacentElf && (xOffset <> 0 || yOffset <> 0) then
-                        let adjacentElf =
-                            {
-                                X = elf.X + xOffset
-                                Y = elf.Y + yOffset
-                            }
+            let mutable hasElfAnywhere = false
 
-                        if board.Contains adjacentElf then
-                            hasAdjacentElf <- true
+            for struct (proposedX, proposedY) in proposedDirections do
+                let mutable hasElfInDestination = false
 
-            if hasAdjacentElf then
-                let mutable proposedEndPlace = ValueNone
-
-                for struct (proposedX, proposedY) in proposedDirections do
-                    let mutable hasElfInDestination = false
-
-                    if proposedEndPlace.IsNone then
-                        if proposedX = 0 then
-                            for proposedX' = -1 to 1 do
-                                if not hasElfInDestination then
-                                    let proposal =
-                                        {
-                                            X = elf.X + proposedX'
-                                            Y = elf.Y + proposedY
-                                        }
-
-                                    if board.Contains proposal then
-                                        hasElfInDestination <- true
-
-                        else
-                            for proposedY' = -1 to 1 do
-                                if not hasElfInDestination then
-                                    let proposal =
-                                        {
-                                            X = elf.X + proposedX
-                                            Y = elf.Y + proposedY'
-                                        }
-
-                                    if board.Contains proposal then
-                                        hasElfInDestination <- true
-
-                        if not hasElfInDestination then
-                            proposedEndPlace <-
-                                ValueSome
+                if proposedEndPlace.IsNone || not hasElfAnywhere then
+                    if proposedX = 0 then
+                        for proposedX' = -1 to 1 do
+                            if not hasElfInDestination then
+                                let proposal =
                                     {
-                                        X = elf.X + proposedX
+                                        X = elf.X + proposedX'
                                         Y = elf.Y + proposedY
                                     }
 
+                                if board.Contains proposal then
+                                    hasElfInDestination <- true
+                                    hasElfAnywhere <- true
+
+                    else
+                        for proposedY' = -1 to 1 do
+                            if not hasElfInDestination then
+                                let proposal =
+                                    {
+                                        X = elf.X + proposedX
+                                        Y = elf.Y + proposedY'
+                                    }
+
+                                if board.Contains proposal then
+                                    hasElfInDestination <- true
+                                    hasElfAnywhere <- true
+
+                    if not hasElfInDestination && proposedEndPlace.IsNone then
+                        proposedEndPlace <-
+                            ValueSome
+                                {
+                                    X = elf.X + proposedX
+                                    Y = elf.Y + proposedY
+                                }
+
+            if hasElfAnywhere then
                 match proposedEndPlace with
                 | ValueNone -> ()
                 | ValueSome loc ->
-                    if not (proposedEndSteps.TryAdd (loc, ValueSome elf)) then
-                        proposedEndSteps.[loc] <- ValueNone
+                    if not (proposedEndSteps.TryAdd (loc, elf)) then
+                        // It's not possible for more than two elves to want to move into the same position.
+                        // Indeed, otherwise that position would be surrounded by three elves orthogonally,
+                        // but then the two of those elves who oppose each other would not want to move in this
+                        // direction because of the third elf lying diagonal to them.
+                        proposedEndSteps.Remove loc |> ignore
 
         for KeyValue (dest, source) in proposedEndSteps do
-            match source with
-            | ValueNone -> ()
-            | ValueSome source ->
-                board.Remove source |> ignore
-                board.Add dest |> ignore
+            board.Remove source |> ignore
+            board.Add dest |> ignore
 
         let tmp = proposedDirections.[0]
 
