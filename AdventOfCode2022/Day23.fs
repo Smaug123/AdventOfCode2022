@@ -12,7 +12,7 @@ open Checked
 [<RequireQualifiedAccess>]
 module Day23 =
 
-    let parse (line : StringSplitEnumerator) : struct (int * int) HashSet =
+    let parse (line : StringSplitEnumerator) : Coordinate HashSet =
         use mutable enum = line.GetEnumerator ()
         let output = HashSet ()
         let mutable y = 0
@@ -23,7 +23,12 @@ module Day23 =
 
                 for c in enum.Current.TrimEnd () do
                     if c = '#' then
-                        output.Add (struct (x, y)) |> ignore
+                        output.Add
+                            {
+                                X = x
+                                Y = y
+                            }
+                        |> ignore
 
                     x <- x + 1
 
@@ -35,25 +40,29 @@ module Day23 =
     // All inputs will be mutated.
     // Returns true if an elf moved.
     let inline oneRound
-        (board : HashSet<_>)
+        (board : HashSet<Coordinate>)
         (proposedEndSteps : Dictionary<_, _>)
         (proposedDirections : _ array)
         : bool
         =
         proposedEndSteps.Clear ()
 
-        for struct (elfX, elfY) as elf in board do
-            let mutable adjacentElvesCount = 0
+        for elf in board do
+            let mutable hasAdjacentElf = false
 
             for xOffset = -1 to 1 do
                 for yOffset = -1 to 1 do
-                    if
-                        (xOffset <> 0 || yOffset <> 0)
-                        && board.Contains (struct (elfX + xOffset, elfY + yOffset))
-                    then
-                        adjacentElvesCount <- adjacentElvesCount + 1
+                    if not hasAdjacentElf && (xOffset <> 0 || yOffset <> 0) then
+                        let adjacentElf =
+                            {
+                                X = elf.X + xOffset
+                                Y = elf.Y + yOffset
+                            }
 
-            if adjacentElvesCount > 0 then
+                        if board.Contains adjacentElf then
+                            hasAdjacentElf <- true
+
+            if hasAdjacentElf then
                 let mutable proposedEndPlace = ValueNone
 
                 for struct (proposedX, proposedY) in proposedDirections do
@@ -62,18 +71,35 @@ module Day23 =
                     if proposedEndPlace.IsNone then
                         if proposedX = 0 then
                             for proposedX' = -1 to 1 do
-                                if board.Contains (struct (elfX + proposedX', elfY + proposedY)) then
-                                    hasElfInDestination <- true
+                                if not hasElfInDestination then
+                                    let proposal =
+                                        {
+                                            X = elf.X + proposedX'
+                                            Y = elf.Y + proposedY
+                                        }
 
-                            if not hasElfInDestination then
-                                proposedEndPlace <- ValueSome (struct (elfX + proposedX, elfY + proposedY))
+                                    if board.Contains proposal then
+                                        hasElfInDestination <- true
+
                         else
                             for proposedY' = -1 to 1 do
-                                if board.Contains (struct (elfX + proposedX, elfY + proposedY')) then
-                                    hasElfInDestination <- true
+                                if not hasElfInDestination then
+                                    let proposal =
+                                        {
+                                            X = elf.X + proposedX
+                                            Y = elf.Y + proposedY'
+                                        }
 
-                            if not hasElfInDestination then
-                                proposedEndPlace <- ValueSome (struct (elfX + proposedX, elfY + proposedY))
+                                    if board.Contains proposal then
+                                        hasElfInDestination <- true
+
+                        if not hasElfInDestination then
+                            proposedEndPlace <-
+                                ValueSome
+                                    {
+                                        X = elf.X + proposedX
+                                        Y = elf.Y + proposedY
+                                    }
 
                 match proposedEndPlace with
                 | ValueNone -> ()
@@ -113,18 +139,18 @@ module Day23 =
         let mutable maxY = Int32.MinValue
         let mutable count = 0
 
-        for struct (x, y) in board do
-            if x < minX then
-                minX <- x
+        for elf in board do
+            if elf.X < minX then
+                minX <- elf.X
 
-            if x > maxX then
-                maxX <- x
+            if elf.X > maxX then
+                maxX <- elf.X
 
-            if y < minY then
-                minY <- y
+            if elf.Y < minY then
+                minY <- elf.Y
 
-            if y > maxY then
-                maxY <- y
+            if elf.Y > maxY then
+                maxY <- elf.Y
 
             count <- count + 1
 
