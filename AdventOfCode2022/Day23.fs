@@ -41,7 +41,7 @@ module Day23 =
     // Returns true if an elf moved.
     let inline oneRound
         (board : HashSet<Coordinate>)
-        (proposedEndSteps : Dictionary<_, _>)
+        (proposedEndSteps : Dictionary<Coordinate, Coordinate>)
         (proposedDirections : _ array)
         : bool
         =
@@ -104,15 +104,16 @@ module Day23 =
                 match proposedEndPlace with
                 | ValueNone -> ()
                 | ValueSome loc ->
-                    if not (proposedEndSteps.TryAdd (loc, ValueSome elf)) then
-                        proposedEndSteps.[loc] <- ValueNone
+                    if not (proposedEndSteps.TryAdd (loc, elf)) then
+                        // It's not possible for more than two elves to want to move into the same position.
+                        // Indeed, otherwise that position would be surrounded by three elves orthogonally,
+                        // but then the two of those elves who oppose each other would not want to move in this
+                        // direction because of the third elf lying diagonal to them.
+                        proposedEndSteps.Remove loc |> ignore
 
         for KeyValue (dest, source) in proposedEndSteps do
-            match source with
-            | ValueNone -> ()
-            | ValueSome source ->
-                board.Remove source |> ignore
-                board.Add dest |> ignore
+            board.Remove source |> ignore
+            board.Add dest |> ignore
 
         let tmp = proposedDirections.[0]
 
