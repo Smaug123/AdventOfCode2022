@@ -198,21 +198,17 @@ module Day24 =
 
         availableIndividualMoves buffer width height currPos board
 
-    let inline goToEnd
+    let inline goFrom
+        (start : Coordinate)
+        (dest : Coordinate)
         (width : int)
-        (height : int)
         ([<InlineIfLambda>] populateAvailableMoves : int[] -> int -> Coordinate -> int)
         (timeStep : int)
         =
         let mutable buffer = ResizeArray ()
         let movesBuffer = Array.zeroCreate 5
 
-        let dest =
-            {
-                X = width - 2
-                Y = height - 2
-            }
-            |> coordToInt width
+        let dest = coordToInt width dest
 
         let rec go (timeStep : int) (toExplore : int ResizeArray) =
             if toExplore.Contains dest then
@@ -237,63 +233,33 @@ module Day24 =
 
         let set = ResizeArray ()
 
-        {
-            X = 1
-            Y = 0
-        }
-        |> coordToInt width
-        |> set.Add
+        coordToInt width start |> set.Add
 
         go timeStep set
 
-    let inline goToStart
-        (width : int)
-        (height : int)
-        ([<InlineIfLambda>] populateAvailableMoves : int[] -> int -> Coordinate -> int)
-        (timeStep : int)
-        =
-        let mutable buffer = ResizeArray ()
-        let availableMovesBuffer = Array.zeroCreate 5
+    let goToEnd width height =
+        goFrom
+            {
+                X = 1
+                Y = 0
+            }
+            {
+                X = width - 2
+                Y = height - 2
+            }
+            width
 
-        let dest =
+    let goToStart width height =
+        goFrom
+            {
+                X = width - 2
+                Y = height - 1
+            }
             {
                 X = 1
                 Y = 1
             }
-            |> coordToInt width
-
-        let rec go (timeStep : int) (toExplore : int ResizeArray) =
-            if toExplore.Contains dest then
-                timeStep + 1
-            else
-
-            buffer.Clear ()
-
-            for currPos in toExplore do
-                let bufLen =
-                    populateAvailableMoves availableMovesBuffer timeStep (intToCoord width currPos)
-
-                for move = 0 to bufLen - 1 do
-                    let move = availableMovesBuffer.[move]
-
-                    if not (buffer.Contains move) then
-                        buffer.Add move
-
-            let continueWith = buffer
-            buffer <- toExplore
-
-            go (timeStep + 1) continueWith
-
-        let arr = ResizeArray ()
-
-        {
-            X = width - 2
-            Y = height - 1
-        }
-        |> coordToInt width
-        |> arr.Add
-
-        go timeStep arr
+            width
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board, width, height = parse lines
