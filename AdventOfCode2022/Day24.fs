@@ -2,10 +2,8 @@ namespace AdventOfCode2022
 
 open System
 open System.Collections.Generic
-open System.Collections.Immutable
 
 #if DEBUG
-open System.Net.Security
 open Checked
 #else
 #nowarn "9"
@@ -33,12 +31,6 @@ module Day24 =
                 let mutable x = 0
 
                 for c in enum.Current.TrimEnd () do
-                    let coord =
-                        {
-                            X = x
-                            Y = y
-                        }
-
                     match c with
                     | '>' -> output.Add 8uy
                     | '^' -> output.Add 1uy
@@ -180,37 +172,30 @@ module Day24 =
         (width : int)
         (height : int)
         (boardAtTime : int -> Day24Board)
-        : int * Coordinate -> Coordinate list
+        (timeStep : int)
+        (currPos : Coordinate)
+        : Coordinate list
         =
-        let store = Dictionary ()
-
-        fun ((timeStep, currPos) as args) ->
-            match store.TryGetValue args with
-            | false, _ ->
-                let board = boardAtTime (timeStep + 1)
+        let board = boardAtTime (timeStep + 1)
 
 #if DEBUG
-                let board =
-                    {
-                        Elements = board
-                        Width = width
-                    }
+        let board =
+            {
+                Elements = board
+                Width = width
+            }
 #else
-                use ptr = fixed board
+        use ptr = fixed board
 
-                let board =
-                    {
-                        Elements = ptr
-                        Width = width
-                        Length = width * height
-                    }
+        let board =
+            {
+                Elements = ptr
+                Width = width
+                Length = width * height
+            }
 #endif
 
-                let afterMoving = availableIndividualMoves width height currPos board
-
-                store.[args] <- afterMoving
-                afterMoving
-            | true, v -> v
+        availableIndividualMoves width height currPos board
 
     let goToEnd (width : int) (height : int) availableMoves (timeStep : int) =
         let mutable buffer = HashSet ()
@@ -229,7 +214,7 @@ module Day24 =
             buffer.Clear ()
 
             for currPos in toExplore do
-                for move in availableMoves (timeStep, currPos) do
+                for move in availableMoves timeStep currPos do
                     buffer.Add move |> ignore
 
             let continueWith = buffer
@@ -265,7 +250,7 @@ module Day24 =
             buffer.Clear ()
 
             for currPos in toExplore do
-                for move in availableMoves (timeStep, currPos) do
+                for move in availableMoves timeStep currPos do
                     buffer.Add move |> ignore
 
             let continueWith = buffer
