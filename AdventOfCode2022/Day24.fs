@@ -14,7 +14,11 @@ open Checked
 [<RequireQualifiedAccess>]
 module Day24 =
 
-    type Day24Board = ImmutableDictionary<Coordinate, Direction list>
+    // byte % 2 is whether Up is in;
+    // byte % 4 is whether Down is in;
+    // byte % 8 is whether Left is in;
+    // byte % 16 is whether Right is in.
+    type Day24Board = ImmutableDictionary<Coordinate, byte>
 
     /// Returns the width and the height too.
     let parse (line : StringSplitEnumerator) : Day24Board * int * int =
@@ -35,10 +39,10 @@ module Day24 =
                         }
 
                     match c with
-                    | '>' -> output.Add (coord, [ Direction.Right ])
-                    | '^' -> output.Add (coord, [ Direction.Up ])
-                    | 'v' -> output.Add (coord, [ Direction.Down ])
-                    | '<' -> output.Add (coord, [ Direction.Left ])
+                    | '>' -> output.Add (coord, 8uy)
+                    | '^' -> output.Add (coord, 1uy)
+                    | 'v' -> output.Add (coord, 2uy)
+                    | '<' -> output.Add (coord, 4uy)
                     | '.'
                     | '#' -> ()
                     | _ -> failwithf "unexpected char: %c" c
@@ -54,33 +58,38 @@ module Day24 =
     let moveBlizzards (width : int) (height : int) (board : Day24Board) : Day24Board =
         board
         |> Seq.collect (fun (KeyValue (position, directions)) ->
-            directions
-            |> Seq.map (fun dir ->
-                let newPos =
-                    match dir with
-                    | Direction.Down ->
-                        { position with
-                            Y = if position.Y = height - 2 then 1 else position.Y + 1
-                        }
-                    | Direction.Up ->
+            seq {
+                if directions % 2uy = 1uy then
+                    yield
                         { position with
                             Y = if position.Y = 1 then height - 2 else position.Y - 1
-                        }
-                    | Direction.Left ->
+                        },
+                        1uy
+
+                if (directions / 2uy) % 2uy = 1uy then
+                    yield
+                        { position with
+                            Y = if position.Y = height - 2 then 1 else position.Y + 1
+                        },
+                        2uy
+
+                if (directions / 4uy) % 2uy = 1uy then
+                    yield
                         { position with
                             X = if position.X = 1 then width - 2 else position.X - 1
-                        }
-                    | Direction.Right ->
+                        },
+                        4uy
+
+                if (directions / 8uy) % 2uy = 1uy then
+                    yield
                         { position with
                             X = if position.X = width - 2 then 1 else position.X + 1
-                        }
-                    | _ -> failwith "unexpected direction"
-
-                newPos, dir
-            )
+                        },
+                        8uy
+            }
         )
         |> Seq.groupBy fst
-        |> Seq.map (fun (coord, directions) -> KeyValuePair (coord, List.ofSeq (Seq.map snd directions)))
+        |> Seq.map (fun (coord, directions) -> KeyValuePair (coord, Seq.sum (Seq.map snd directions)))
         |> ImmutableDictionary.CreateRange
 
     let boardAtTime (width : int) (height : int) (startBoard : Day24Board) : int -> Day24Board =
@@ -159,53 +168,10 @@ module Day24 =
                 afterMoving
             | true, v -> v
 
-    let printBoard (locations : Coordinate Set) (width : int) (height : int) (board : Day24Board) : unit =
-        do
-            let arr = Array.create width '#'
-            arr.[1] <- 'E'
-            printfn $"%s{String arr}"
-
-        for y = 1 to height - 2 do
-            printf "#"
-
-            for x = 1 to width - 2 do
-                match
-                    board.TryGetValue
-                        {
-                            X = x
-                            Y = y
-                        }
-                with
-                | false, _ ->
-                    if
-                        locations.Contains
-                            {
-                                X = x
-                                Y = y
-                            }
-                    then
-                        'E'
-                    else
-                        '.'
-                    |> printf "%c"
-                | true, [] -> failwith "bad"
-                | true, [ Direction.Down ] -> printf "v"
-                | true, [ Direction.Up ] -> printf "^"
-                | true, [ Direction.Left ] -> printf "<"
-                | true, [ Direction.Right ] -> printf ">"
-                | true, v -> printf $"%i{v.Length}"
-
-            printfn "#"
-
-        do
-            let arr = Array.create width '#'
-            arr.[width - 2] <- '.'
-            printfn $"%s{String arr}"
-
-        printfn ""
-
     let goToEnd (width : int) (height : int) availableMoves (timeStep : int) =
-        let rec go (timeStep : int) (toExplore : Coordinate Set) =
+        let mutable buffer = HashSet ()
+
+        let rec go (timeStep : int) (toExplore : Coordinate HashSet) =
             if
                 toExplore.Contains
                     {
@@ -216,23 +182,32 @@ module Day24 =
                 timeStep + 1
             else
 
-            let next =
-                toExplore
-                |> Seq.collect (fun currPos -> availableMoves (timeStep, currPos))
-                |> Set.ofSeq
+            buffer.Clear ()
 
-            go (timeStep + 1) next
+            for currPos in toExplore do
+                for move in availableMoves (timeStep, currPos) do
+                    buffer.Add move |> ignore
 
-        go
-            timeStep
-            (Set.singleton
-                {
-                    X = 1
-                    Y = 0
-                })
+            let continueWith = buffer
+            buffer <- toExplore
+
+            go (timeStep + 1) continueWith
+
+        let set = HashSet ()
+
+        {
+            X = 1
+            Y = 0
+        }
+        |> set.Add
+        |> ignore
+
+        go timeStep set
 
     let goToStart (width : int) (height : int) availableMoves (timeStep : int) =
-        let rec go (timeStep : int) (toExplore : Coordinate Set) =
+        let mutable buffer = HashSet ()
+
+        let rec go (timeStep : int) (toExplore : Coordinate HashSet) =
             if
                 toExplore.Contains
                     {
@@ -243,20 +218,27 @@ module Day24 =
                 timeStep + 1
             else
 
-            let next =
-                toExplore
-                |> Seq.collect (fun currPos -> availableMoves (timeStep, currPos))
-                |> Set.ofSeq
+            buffer.Clear ()
 
-            go (timeStep + 1) next
+            for currPos in toExplore do
+                for move in availableMoves (timeStep, currPos) do
+                    buffer.Add move |> ignore
 
-        go
-            timeStep
-            (Set.singleton
-                {
-                    X = width - 2
-                    Y = height - 1
-                })
+            let continueWith = buffer
+            buffer <- toExplore
+
+            go (timeStep + 1) continueWith
+
+        let arr = HashSet ()
+
+        {
+            X = width - 2
+            Y = height - 1
+        }
+        |> arr.Add
+        |> ignore
+
+        go timeStep arr
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board, width, height = parse lines
