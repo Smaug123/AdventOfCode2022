@@ -110,7 +110,7 @@ module Day24 =
 
         resultArr
 
-    let boardAtTime (width : int) (height : int) (startBoard : Day24Board) : int -> Day24Board =
+    let inline boardAtTime (width : int) (height : int) (startBoard : Day24Board) : int -> Day24Board =
         let store = ResizeArray ()
         store.Add startBoard
 
@@ -180,10 +180,10 @@ module Day24 =
 
         bufLen
 
-    let populateAvailableMoves
+    let inline populateAvailableMoves
         (width : int)
         (height : int)
-        (boardAtTime : int -> Day24Board)
+        ([<InlineIfLambda>] boardAtTime : int -> Day24Board)
         (buffer : Coordinate[])
         (timeStep : int)
         (currPos : Coordinate)
@@ -220,10 +220,10 @@ module Day24 =
             Y = (coord - x) / width
         }
 
-    let goToEnd
+    let inline goToEnd
         (width : int)
         (height : int)
-        (populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
+        ([<InlineIfLambda>] populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
         (timeStep : int)
         =
         let mutable buffer = ResizeArray ()
@@ -268,10 +268,10 @@ module Day24 =
 
         go timeStep set
 
-    let goToStart
+    let inline goToStart
         (width : int)
         (height : int)
-        (populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
+        ([<InlineIfLambda>] populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
         (timeStep : int)
         =
         let mutable buffer = ResizeArray ()
