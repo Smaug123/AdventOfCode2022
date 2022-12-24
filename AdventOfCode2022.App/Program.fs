@@ -79,7 +79,7 @@ type Benchmark21To25 () =
     [<GlobalSetup>]
     member _.Setup () = Run.shouldWrite <- false
 
-    [<Params(21, 22, 23)>]
+    [<Params(21, 22, 23, 24)>]
     member val Day = 0 with get, set
 
     [<Params(false, true)>]
