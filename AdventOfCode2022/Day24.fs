@@ -49,54 +49,34 @@ module Day24 =
         output.ToArray (), width, y
 
     let moveBlizzards (width : int) (height : int) (board : Arr2D<Byte>) : unit =
-        let resultArr = Array.zeroCreate<byte> (width * height)
-#if DEBUG
-        let result =
-            {
-                Elements = resultArr
-                Width = width
-            }
-#else
-        use ptr = fixed resultArr
-
-        let result =
-            {
-                Elements = ptr
-                Width = width
-                Length = resultArr.Length
-            }
-#endif
-
         for y = 1 to height - 2 do
             for x = 1 to width - 2 do
                 let directions = Arr2D.get board x y
 
                 if directions % 2uy = 1uy then
                     let y = if y = 1 then height - 2 else y - 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 1uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 16uy)
 
                 if (directions / 2uy) % 2uy = 1uy then
                     let y = if y = height - 2 then 1 else y + 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 2uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 32uy)
 
                 if (directions / 4uy) % 2uy = 1uy then
                     let x = if x = 1 then width - 2 else x - 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 4uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 64uy)
 
                 if (directions / 8uy) % 2uy = 1uy then
                     let x = if x = width - 2 then 1 else x + 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 8uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 128uy)
 
-        // TODO do this by modifying in place without allocation instead
-#if DEBUG
-        Array.Copy (resultArr, board.Elements)
-#else
-        NativePtr.copyBlock board.Elements ptr board.Length
-#endif
+        for y = 1 to height - 2 do
+            for x = 1 to width - 2 do
+                let prev = Arr2D.get board x y
+                Arr2D.set board x y (prev >>> 4)
 
     let inline coordToInt' (width : int) (x : int) (y : int) : int = x + y * width
     let inline coordToInt (width : int) (coord : Coordinate) : int = coordToInt' width coord.X coord.Y
@@ -163,22 +143,32 @@ module Day24 =
         let rec go (timeStep : int) (toExplore : int ResizeArray) =
             moveBlizzards width height board
 
-            if toExplore.Contains dest then
+            if toExplore.BinarySearch dest >= 0 then
                 timeStep + 1
             else
 
             buffer.Clear ()
 
-            for currPos in toExplore do
+            do
                 let bufLen =
-                    populateAvailableMoves movesBuffer width height (intToCoord width currPos) board
+                    populateAvailableMoves movesBuffer width height (intToCoord width toExplore.[0]) board
 
                 for move = 0 to bufLen - 1 do
                     let move = movesBuffer.[move]
+                    buffer.Add move
 
-                    if not (buffer.Contains move) then
+            for currPosIndex = 1 to toExplore.Count - 1 do
+                let currPos = toExplore.[currPosIndex]
+
+                if toExplore.[currPosIndex - 1] <> currPos then
+                    let bufLen =
+                        populateAvailableMoves movesBuffer width height (intToCoord width currPos) board
+
+                    for move = 0 to bufLen - 1 do
+                        let move = movesBuffer.[move]
                         buffer.Add move
 
+            buffer.Sort ()
             let continueWith = buffer
             buffer <- toExplore
 
