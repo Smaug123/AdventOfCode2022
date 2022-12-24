@@ -124,57 +124,70 @@ module Day24 =
                 store.[day]
 
     let availableIndividualMoves
+        (buffer : Coordinate[])
         (width : int)
         (height : int)
         (current : Coordinate)
         (board : Arr2D<byte>)
-        : Coordinate list
+        : int
         =
-        [
-            if current.X > 1 && current.Y <> 0 && current.Y <> height - 1 then
-                if Arr2D.get board (current.X - 1) current.Y = 0uy then
-                    let trial =
-                        { current with
-                            X = current.X - 1
-                        }
+        let mutable bufLen = 0
 
-                    yield trial
-            if Arr2D.get board current.X current.Y = 0uy then
-                yield current
-            if current.X < width - 2 && current.Y <> 0 then
-                if Arr2D.get board (current.X + 1) current.Y = 0uy then
-                    let trial =
-                        { current with
-                            X = current.X + 1
-                        }
+        if current.X > 1 && current.Y <> 0 && current.Y <> height - 1 then
+            if Arr2D.get board (current.X - 1) current.Y = 0uy then
+                let trial =
+                    { current with
+                        X = current.X - 1
+                    }
 
-                    yield trial
-            if current.Y > 1 && current.X <> 0 then
+                buffer.[bufLen] <- trial
+                bufLen <- bufLen + 1
 
-                if Arr2D.get board current.X (current.Y - 1) = 0uy then
-                    let trial =
-                        { current with
-                            Y = current.Y - 1
-                        }
+        if Arr2D.get board current.X current.Y = 0uy then
+            buffer.[bufLen] <- current
+            bufLen <- bufLen + 1
 
-                    yield trial
-            if current.Y < height - 2 && current.X <> 0 then
-                if Arr2D.get board current.X (current.Y + 1) = 0uy then
-                    let trial =
-                        { current with
-                            Y = current.Y + 1
-                        }
+        if current.X < width - 2 && current.Y <> 0 then
+            if Arr2D.get board (current.X + 1) current.Y = 0uy then
+                let trial =
+                    { current with
+                        X = current.X + 1
+                    }
 
-                    yield trial
-        ]
+                buffer.[bufLen] <- trial
+                bufLen <- bufLen + 1
 
-    let availableMoves
+        if current.Y > 1 && current.X <> 0 then
+
+            if Arr2D.get board current.X (current.Y - 1) = 0uy then
+                let trial =
+                    { current with
+                        Y = current.Y - 1
+                    }
+
+                buffer.[bufLen] <- trial
+                bufLen <- bufLen + 1
+
+        if current.Y < height - 2 && current.X <> 0 then
+            if Arr2D.get board current.X (current.Y + 1) = 0uy then
+                let trial =
+                    { current with
+                        Y = current.Y + 1
+                    }
+
+                buffer.[bufLen] <- trial
+                bufLen <- bufLen + 1
+
+        bufLen
+
+    let populateAvailableMoves
         (width : int)
         (height : int)
         (boardAtTime : int -> Day24Board)
+        (buffer : Coordinate[])
         (timeStep : int)
         (currPos : Coordinate)
-        : Coordinate list
+        : int
         =
         let board = boardAtTime (timeStep + 1)
 
@@ -195,77 +208,112 @@ module Day24 =
             }
 #endif
 
-        availableIndividualMoves width height currPos board
+        availableIndividualMoves buffer width height currPos board
 
-    let goToEnd (width : int) (height : int) availableMoves (timeStep : int) =
-        let mutable buffer = HashSet ()
+    let inline coordToInt (width : int) (coord : Coordinate) : int = coord.X + coord.Y * width
 
-        let rec go (timeStep : int) (toExplore : Coordinate HashSet) =
-            if
-                toExplore.Contains
-                    {
-                        X = width - 2
-                        Y = height - 2
-                    }
-            then
+    let inline intToCoord (width : int) (coord : int) : Coordinate =
+        let x = coord % width
+
+        {
+            X = x
+            Y = (coord - x) / width
+        }
+
+    let goToEnd
+        (width : int)
+        (height : int)
+        (populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
+        (timeStep : int)
+        =
+        let mutable buffer = ResizeArray ()
+        let movesBuffer = Array.zeroCreate<Coordinate> 5
+
+        let dest =
+            {
+                X = width - 2
+                Y = height - 2
+            }
+            |> coordToInt width
+
+        let rec go (timeStep : int) (toExplore : int ResizeArray) =
+            if toExplore.Contains dest then
                 timeStep + 1
             else
 
             buffer.Clear ()
 
             for currPos in toExplore do
-                for move in availableMoves timeStep currPos do
-                    buffer.Add move |> ignore
+                let bufLen = populateAvailableMoves movesBuffer timeStep (intToCoord width currPos)
+
+                for move = 0 to bufLen - 1 do
+                    let move = coordToInt width movesBuffer.[move]
+
+                    if not (buffer.Contains move) then
+                        buffer.Add move
 
             let continueWith = buffer
             buffer <- toExplore
 
             go (timeStep + 1) continueWith
 
-        let set = HashSet ()
+        let set = ResizeArray ()
 
         {
             X = 1
             Y = 0
         }
+        |> coordToInt width
         |> set.Add
-        |> ignore
 
         go timeStep set
 
-    let goToStart (width : int) (height : int) availableMoves (timeStep : int) =
-        let mutable buffer = HashSet ()
+    let goToStart
+        (width : int)
+        (height : int)
+        (populateAvailableMoves : Coordinate[] -> int -> Coordinate -> int)
+        (timeStep : int)
+        =
+        let mutable buffer = ResizeArray ()
+        let availableMovesBuffer = Array.zeroCreate<Coordinate> 5
 
-        let rec go (timeStep : int) (toExplore : Coordinate HashSet) =
-            if
-                toExplore.Contains
-                    {
-                        X = 1
-                        Y = 1
-                    }
-            then
+        let dest =
+            {
+                X = 1
+                Y = 1
+            }
+            |> coordToInt width
+
+        let rec go (timeStep : int) (toExplore : int ResizeArray) =
+            if toExplore.Contains dest then
                 timeStep + 1
             else
 
             buffer.Clear ()
 
             for currPos in toExplore do
-                for move in availableMoves timeStep currPos do
-                    buffer.Add move |> ignore
+                let bufLen =
+                    populateAvailableMoves availableMovesBuffer timeStep (intToCoord width currPos)
+
+                for move = 0 to bufLen - 1 do
+                    let move = coordToInt width availableMovesBuffer.[move]
+
+                    if not (buffer.Contains move) then
+                        buffer.Add move
 
             let continueWith = buffer
             buffer <- toExplore
 
             go (timeStep + 1) continueWith
 
-        let arr = HashSet ()
+        let arr = ResizeArray ()
 
         {
             X = width - 2
             Y = height - 1
         }
+        |> coordToInt width
         |> arr.Add
-        |> ignore
 
         go timeStep arr
 
@@ -273,7 +321,7 @@ module Day24 =
         let board, width, height = parse lines
 
         let boardAtTime = boardAtTime width height board
-        let availableMoves = availableMoves width height boardAtTime
+        let availableMoves = populateAvailableMoves width height boardAtTime
 
         goToEnd width height availableMoves 0
 
@@ -281,7 +329,7 @@ module Day24 =
         let board, width, height = parse lines
 
         let boardAtTime = boardAtTime width height board
-        let availableMoves = availableMoves width height boardAtTime
+        let availableMoves = populateAvailableMoves width height boardAtTime
 
         let toEnd = goToEnd width height availableMoves 0
         let backToStart = goToStart width height availableMoves toEnd
