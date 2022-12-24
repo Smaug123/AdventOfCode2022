@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open Microsoft.FSharp.NativeInterop
 
 #if DEBUG
 open Checked
@@ -47,76 +48,35 @@ module Day24 =
 
         output.ToArray (), width, y
 
-    let moveBlizzards (width : int) (height : int) (board : Day24Board) : Day24Board =
-#if DEBUG
-        let board =
-            {
-                Elements = board
-                Width = width
-            }
-#else
-        use boardPtr = fixed board
-
-        let board =
-            {
-                Elements = boardPtr
-                Width = width
-                Length = width * height
-            }
-#endif
-
-        let resultArr = Array.zeroCreate<byte> (width * height)
-#if DEBUG
-        let result =
-            {
-                Elements = resultArr
-                Width = width
-            }
-#else
-        use ptr = fixed resultArr
-
-        let result =
-            {
-                Elements = ptr
-                Width = width
-                Length = resultArr.Length
-            }
-#endif
-
+    let moveBlizzards (width : int) (height : int) (board : Arr2D<Byte>) : unit =
         for y = 1 to height - 2 do
             for x = 1 to width - 2 do
                 let directions = Arr2D.get board x y
 
                 if directions % 2uy = 1uy then
                     let y = if y = 1 then height - 2 else y - 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 1uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 16uy)
 
                 if (directions / 2uy) % 2uy = 1uy then
                     let y = if y = height - 2 then 1 else y + 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 2uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 32uy)
 
                 if (directions / 4uy) % 2uy = 1uy then
                     let x = if x = 1 then width - 2 else x - 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 4uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 64uy)
 
                 if (directions / 8uy) % 2uy = 1uy then
                     let x = if x = width - 2 then 1 else x + 1
-                    let prev = Arr2D.get result x y
-                    Arr2D.set result x y (prev + 8uy)
+                    let prev = Arr2D.get board x y
+                    Arr2D.set board x y (prev + 128uy)
 
-        resultArr
-
-    let boardAtTimeInner (store : Day24Board ResizeArray) (width : int) (height : int) (day : int) =
-        if store.Count > day then
-            store.[day]
-        else
-            for i = store.Count to day do
-                store.Add (moveBlizzards width height store.[i - 1])
-
-            store.[day]
+        for y = 1 to height - 2 do
+            for x = 1 to width - 2 do
+                let prev = Arr2D.get board x y
+                Arr2D.set board x y (prev >>> 4)
 
     let inline coordToInt' (width : int) (x : int) (y : int) : int = x + y * width
     let inline coordToInt (width : int) (coord : Coordinate) : int = coordToInt' width coord.X coord.Y
@@ -130,7 +90,7 @@ module Day24 =
         }
 
     /// The buffer is an array of at least 5 Coordinates, except it's had coordToInt called on it.
-    let availableIndividualMoves
+    let inline populateAvailableMoves
         (buffer : int[])
         (width : int)
         (height : int)
@@ -167,42 +127,12 @@ module Day24 =
 
         bufLen
 
-    /// The buffer is an array of at least 5 Coordinates, except it's had coordToInt called on it.
-    let inline populateAvailableMoves
-        (width : int)
-        (height : int)
-        (boardsStore : Day24Board ResizeArray)
-        (buffer : int[])
-        (timeStep : int)
-        (currPos : Coordinate)
-        : int
-        =
-        let board = boardAtTimeInner boardsStore width height (timeStep + 1)
-
-#if DEBUG
-        let board =
-            {
-                Elements = board
-                Width = width
-            }
-#else
-        use ptr = fixed board
-
-        let board =
-            {
-                Elements = ptr
-                Width = width
-                Length = width * height
-            }
-#endif
-
-        availableIndividualMoves buffer width height currPos board
-
     let inline goFrom
         (start : Coordinate)
         (dest : Coordinate)
         (width : int)
-        ([<InlineIfLambda>] populateAvailableMoves : int[] -> int -> Coordinate -> int)
+        (height : int)
+        (board : Arr2D<byte>)
         (timeStep : int)
         =
         let mutable buffer = ResizeArray ()
@@ -211,21 +141,34 @@ module Day24 =
         let dest = coordToInt width dest
 
         let rec go (timeStep : int) (toExplore : int ResizeArray) =
-            if toExplore.Contains dest then
+            moveBlizzards width height board
+
+            if toExplore.BinarySearch dest >= 0 then
                 timeStep + 1
             else
 
             buffer.Clear ()
 
-            for currPos in toExplore do
-                let bufLen = populateAvailableMoves movesBuffer timeStep (intToCoord width currPos)
+            do
+                let bufLen =
+                    populateAvailableMoves movesBuffer width height (intToCoord width toExplore.[0]) board
 
                 for move = 0 to bufLen - 1 do
                     let move = movesBuffer.[move]
+                    buffer.Add move
 
-                    if not (buffer.Contains move) then
+            for currPosIndex = 1 to toExplore.Count - 1 do
+                let currPos = toExplore.[currPosIndex]
+
+                if toExplore.[currPosIndex - 1] <> currPos then
+                    let bufLen =
+                        populateAvailableMoves movesBuffer width height (intToCoord width currPos) board
+
+                    for move = 0 to bufLen - 1 do
+                        let move = movesBuffer.[move]
                         buffer.Add move
 
+            buffer.Sort ()
             let continueWith = buffer
             buffer <- toExplore
 
@@ -248,6 +191,7 @@ module Day24 =
                 Y = height - 2
             }
             width
+            height
 
     let goToStart width height =
         goFrom
@@ -260,25 +204,48 @@ module Day24 =
                 Y = 1
             }
             width
+            height
 
     let part1 (lines : StringSplitEnumerator) : int =
         let board, width, height = parse lines
+#if DEBUG
+        let board =
+            {
+                Elements = board
+                Width = width
+            }
+#else
+        use ptr = fixed board
 
-        let store = ResizeArray ()
-        store.Add board
+        let board =
+            {
+                Elements = ptr
+                Width = width
+                Length = width * height
+            }
+#endif
 
-        let availableMoves = populateAvailableMoves width height store
-
-        goToEnd width height availableMoves 0
+        goToEnd width height board 0
 
     let part2 (lines : StringSplitEnumerator) : int =
         let board, width, height = parse lines
+#if DEBUG
+        let board =
+            {
+                Elements = board
+                Width = width
+            }
+#else
+        use ptr = fixed board
 
-        let store = ResizeArray ()
-        store.Add board
+        let board =
+            {
+                Elements = ptr
+                Width = width
+                Length = width * height
+            }
+#endif
 
-        let availableMoves = populateAvailableMoves width height store
-
-        let toEnd = goToEnd width height availableMoves 0
-        let backToStart = goToStart width height availableMoves toEnd
-        goToEnd width height availableMoves backToStart
+        let toEnd = goToEnd width height board 0
+        let backToStart = goToStart width height board toEnd
+        goToEnd width height board backToStart
