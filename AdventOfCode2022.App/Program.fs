@@ -103,10 +103,10 @@ module Program =
                     .Create(DefaultConfig.Instance)
                     .WithOptions ConfigOptions.DisableOptimizationsValidator
 
-            //let _summary = BenchmarkRunner.Run<Benchmark1To5> config
-            //let _summary = BenchmarkRunner.Run<Benchmark6To10> config
-            //let _summary = BenchmarkRunner.Run<Benchmark11To15> config
-            //let _summary = BenchmarkRunner.Run<Benchmark16To20> config
+            let _summary = BenchmarkRunner.Run<Benchmark1To5> config
+            let _summary = BenchmarkRunner.Run<Benchmark6To10> config
+            let _summary = BenchmarkRunner.Run<Benchmark11To15> config
+            let _summary = BenchmarkRunner.Run<Benchmark16To20> config
             let _summary = BenchmarkRunner.Run<Benchmark21To25> config
             0
         | _ ->
