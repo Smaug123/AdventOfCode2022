@@ -75,16 +75,25 @@ module Benchmarks =
         [<GlobalCleanup>]
         member _.Cleanup () = Run.shouldWrite <- true
 
-    let finalBenchmarkArgs = (25, false) :: List.allPairs [ 21..24 ] [ false ; true ]
 
     type Benchmark21To25 () =
+        static member finalBenchmarkArgs =
+            (25, true) :: List.allPairs [ 21..24 ] [ false ; true ]
+            |> Seq.ofList
+            |> Seq.map box
+
         [<GlobalSetup>]
         member _.Setup () = Run.shouldWrite <- false
 
         [<Benchmark>]
-        [<ArgumentsSource(nameof (finalBenchmarkArgs))>]
-        member this.Benchmark (day : int, isPartOne : bool) : unit =
-            Run.allRuns.[day - 1] (not isPartOne) (Inputs.day day)
+        [<ArgumentsSource "finalBenchmarkArgs">]
+        member this.Benchmark (args : obj) : unit =
+            let day, isPartOne = unbox<int * bool> args
+            if day <= 24 then
+                Run.allRuns.[day - 1] (not isPartOne) (Inputs.day day)
+            else
+                if not isPartOne || day <> 25 then failwithf "Unexpected args: %+A" args else
+                Run.day25 (Inputs.day 25)
 
         [<GlobalCleanup>]
         member _.Cleanup () = Run.shouldWrite <- true
