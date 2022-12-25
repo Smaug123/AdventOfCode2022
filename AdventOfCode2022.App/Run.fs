@@ -352,7 +352,7 @@ module Run =
         let output = Day25.part1 day25
 
         if shouldWrite then
-            printfn "%i" output
+            printfn "%s" output
 
     let allRuns =
         [|
