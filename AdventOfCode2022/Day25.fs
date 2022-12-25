@@ -1,6 +1,7 @@
 namespace AdventOfCode2022
 
 open System
+open System.Text
 open Microsoft.FSharp.NativeInterop
 
 #if DEBUG
@@ -29,17 +30,38 @@ module Day25 =
 
         i
 
-    let rec ofInt (i : int64) : string =
-        if i <= 2L then
-            sprintf "%i" i
-        else
+    let ofInt (i : int64) : string =
+        let rec go (i : int64) (sb : ResizeArray<char>) =
+            if i = 0 then
+                sb.Add '0'
+            elif i = 1 then
+                sb.Add '1'
+            elif i = 2 then
+                sb.Add '2'
+            else
+
             match i % 5L with
-            | 0L -> sprintf "%s0" (ofInt (i / 5L))
-            | 1L -> sprintf "%s1" (ofInt (i / 5L))
-            | 2L -> sprintf "%s2" (ofInt (i / 5L))
-            | 3L -> sprintf "%s=" (ofInt (i / 5L + 1L))
-            | 4L -> sprintf "%s-" (ofInt (i / 5L + 1L))
+            | 0L ->
+                sb.Add '0'
+                go (i / 5L) sb
+            | 1L ->
+                sb.Add '1'
+                go (i / 5L) sb
+            | 2L ->
+                sb.Add '2'
+                go (i / 5L) sb
+            | 3L ->
+                sb.Add '='
+                go (i / 5L + 1L) sb
+            | 4L ->
+                sb.Add '-'
+                go (i / 5L + 1L) sb
             | _ -> failwith "maths doesn't work"
+
+        let sb = ResizeArray 27
+        go i sb
+        sb.Reverse ()
+        String (sb.ToArray ())
 
     /// Returns the width and the height too. The resulting array is suitable to become an Arr2D.
     let parse (line : StringSplitEnumerator) : int64 ResizeArray =
