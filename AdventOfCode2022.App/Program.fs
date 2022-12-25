@@ -89,10 +89,12 @@ module Benchmarks =
         [<ArgumentsSource "finalBenchmarkArgs">]
         member this.Benchmark (args : obj) : unit =
             let day, isPartOne = unbox<int * bool> args
+
             if day <= 24 then
                 Run.allRuns.[day - 1] (not isPartOne) (Inputs.day day)
+            else if not isPartOne || day <> 25 then
+                failwithf "Unexpected args: %+A" args
             else
-                if not isPartOne || day <> 25 then failwithf "Unexpected args: %+A" args else
                 Run.day25 (Inputs.day 25)
 
         [<GlobalCleanup>]
