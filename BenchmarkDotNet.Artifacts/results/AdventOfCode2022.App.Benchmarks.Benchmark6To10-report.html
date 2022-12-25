@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>AdventOfCode2022.App.Benchmarks.Benchmark6To10-20221225-093119</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=macOS 13.1 (22C65) [Darwin 22.2.0]
+Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=7.0.100
+  [Host]     : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD DEBUG
+  DefaultJob : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Day</th><th>IsPartOne</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>Benchmark</td><td>6</td><td>False</td><td>53.708 &mu;s</td><td>1.0291 &mu;s</td><td>1.3015 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>6</td><td>True</td><td>16.920 &mu;s</td><td>0.1420 &mu;s</td><td>0.1108 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>7</td><td>False</td><td>442.469 &mu;s</td><td>1.3215 &mu;s</td><td>1.2362 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>7</td><td>True</td><td>442.077 &mu;s</td><td>1.1099 &mu;s</td><td>1.0382 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>8</td><td>False</td><td>278.609 &mu;s</td><td>1.9329 &mu;s</td><td>1.8080 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>8</td><td>True</td><td>552.077 &mu;s</td><td>4.2246 &mu;s</td><td>3.9517 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>9</td><td>False</td><td>877.123 &mu;s</td><td>3.1055 &mu;s</td><td>2.9049 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>9</td><td>True</td><td>453.615 &mu;s</td><td>1.6385 &mu;s</td><td>1.5327 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>10</td><td>False</td><td>8.216 &mu;s</td><td>0.0179 &mu;s</td><td>0.0150 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>10</td><td>True</td><td>7.433 &mu;s</td><td>0.0146 &mu;s</td><td>0.0129 &mu;s</td>
+</tr></tbody></table>
+</body>
+</html>
