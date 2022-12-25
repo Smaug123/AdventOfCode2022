@@ -81,16 +81,10 @@ module Benchmarks =
         [<GlobalSetup>]
         member _.Setup () = Run.shouldWrite <- false
 
-        [<Params(21, 22, 23, 24)>]
-        member val Day = 0 with get, set
-
-        [<Params(false, true)>]
-        member val IsPartOne = false with get, set
-
         [<Benchmark>]
         [<ArgumentsSource(nameof (finalBenchmarkArgs))>]
-        member this.Benchmark () : unit =
-            Run.allRuns.[this.Day - 1] (not this.IsPartOne) (Inputs.day this.Day)
+        member this.Benchmark (day : int, isPartOne : bool) : unit =
+            Run.allRuns.[day - 1] (not isPartOne) (Inputs.day day)
 
         [<GlobalCleanup>]
         member _.Cleanup () = Run.shouldWrite <- true
