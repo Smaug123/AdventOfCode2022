@@ -1,0 +1,11 @@
+source https://api.nuget.org/v3/index.json
+
+nuget FSharp.Collections.ParallelSeq
+
+nuget BenchmarkDotNet
+nuget NUnit
+nuget NUnit.Analyzers
+nuget Microsoft.NET.Test.Sdk
+nuget NUnit3TestAdapter
+nuget coverlet.collector
+nuget FsUnit
