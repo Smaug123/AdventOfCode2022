@@ -1,3 +1,4 @@
+#!/bin/bash
 runHook preInstall
 target="${out:?}/lib/dotnet/@pname@"
 mkdir -p "$target"
