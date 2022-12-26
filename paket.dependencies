@@ -2,6 +2,7 @@ source https://api.nuget.org/v3/index.json
 
 nuget FSharp.Collections.ParallelSeq
 
+nuget FSharp.Core == 6.0.0
 nuget BenchmarkDotNet
 nuget NUnit
 nuget NUnit.Analyzers

@@ -21,7 +21,7 @@ NUGET
     coverlet.collector (3.2)
     FSharp.Collections.ParallelSeq (1.2)
       FSharp.Core (>= 5.0) - restriction: >= netstandard2.0
-    FSharp.Core (7.0)
+    FSharp.Core (6.0)
     FsUnit (5.1)
       FSharp.Core (>= 5.0.2)
       NUnit (>= 3.13.3 < 3.14)
