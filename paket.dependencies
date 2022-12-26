@@ -1,5 +1,6 @@
 source https://api.nuget.org/v3/index.json
 
+nuget DotNet.ReproducibleBuilds 1.1.1
 nuget FSharp.Collections.ParallelSeq
 
 nuget FSharp.Core == 6.0.0
