@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang='en'>
+<head>
+<meta charset='utf-8' />
+<title>AdventOfCode2022.App.Benchmarks.Benchmark1To5-20221225-092842</title>
+
+<style type="text/css">
+	table { border-collapse: collapse; display: block; width: 100%; overflow: auto; }
+	td, th { padding: 6px 13px; border: 1px solid #ddd; text-align: right; }
+	tr { background-color: #fff; border-top: 1px solid #ccc; }
+	tr:nth-child(even) { background: #f8f8f8; }
+</style>
+</head>
+<body>
+<pre><code>
+BenchmarkDotNet=v0.13.2, OS=macOS 13.1 (22C65) [Darwin 22.2.0]
+Apple M1 Max, 1 CPU, 10 logical and 10 physical cores
+.NET SDK=7.0.100
+  [Host]     : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD DEBUG
+  DefaultJob : .NET 7.0.0 (7.0.22.51805), Arm64 RyuJIT AdvSIMD
+</code></pre>
+<pre><code></code></pre>
+
+<table>
+<thead><tr><th>Method</th><th>Day</th><th>IsPartOne</th><th>Mean</th><th>Error</th><th>StdDev</th>
+</tr>
+</thead><tbody><tr><td>Benchmark</td><td>1</td><td>False</td><td>31.92 &mu;s</td><td>0.103 &mu;s</td><td>0.091 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>1</td><td>True</td><td>31.86 &mu;s</td><td>0.049 &mu;s</td><td>0.044 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>False</td><td>79.57 &mu;s</td><td>0.094 &mu;s</td><td>0.078 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>2</td><td>True</td><td>81.06 &mu;s</td><td>0.315 &mu;s</td><td>0.295 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>False</td><td>65.75 &mu;s</td><td>0.546 &mu;s</td><td>0.510 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>3</td><td>True</td><td>31.96 &mu;s</td><td>0.439 &mu;s</td><td>0.411 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>False</td><td>52.70 &mu;s</td><td>0.155 &mu;s</td><td>0.130 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>4</td><td>True</td><td>63.71 &mu;s</td><td>0.230 &mu;s</td><td>0.204 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>False</td><td>78.74 &mu;s</td><td>0.781 &mu;s</td><td>0.692 &mu;s</td>
+</tr><tr><td>Benchmark</td><td>5</td><td>True</td><td>91.26 &mu;s</td><td>0.278 &mu;s</td><td>0.247 &mu;s</td>
+</tr></tbody></table>
+</body>
+</html>
