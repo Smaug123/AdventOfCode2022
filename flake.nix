@@ -40,6 +40,8 @@
             pkgs.pkg-config
           ];
           buildPhase = ''runHook preBuild && dotnet publish --configuration Release ${projectFile} && runHook postBuild'';
+          doCheck = true;
+          checkPhase = ''runHook preCheck && dotnet test --configuration Debug && dotnet test --configuration Release && runHook postCheck'';
           installPhase = builtins.readFile (pkgs.substituteAll {
             src = ./install.sh;
             outputFiles = arrayToShell outputFiles;
