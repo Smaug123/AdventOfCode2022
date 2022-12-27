@@ -67,7 +67,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Run ShellCheck
-        run: nix develop --command shellcheck **/*.sh
+        run: nix shell 'nixpkgs#shellcheck' -c shellcheck **/*.sh
 
   linkcheck:
     name: Check links
