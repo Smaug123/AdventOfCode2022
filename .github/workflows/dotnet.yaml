@@ -68,7 +68,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Run Alejandra
-        run: nix develop --command "alejandra --check ."
+        run: nix develop --command alejandra --check .
 
   shellcheck:
     name: Shellcheck
@@ -78,7 +78,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Run ShellCheck
-        run: nix shell 'nixpkgs#shellcheck' -c "find . -type f -name '*.sh' | xargs shellcheck"
+        run: nix shell 'nixpkgs#shellcheck' --command bash -c "find . -type f -name '*.sh' | xargs shellcheck"
 
   linkcheck:
     name: Check links
