@@ -4,52 +4,52 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
-    alejandra.url = "github:kamadorueda/alejandra/3.0.0";
-    alejandra.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
-    alejandra,
     flake-utils,
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
       pkgs = nixpkgs.legacyPackages.${system};
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
+      testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
       outputFiles = [""];
       arrayToShell = a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t")) a);
+      dotnet-sdk = pkgs.dotnet-sdk_7;
+      version = "0.0.1";
     in {
       packages = {
-        default = pkgs.buildDotnetPackage {
+        fetchDeps = let
+          flags = [];
+          runtimeIds = map (system: pkgs.dotnetCorePackages.systemToDotnetRid system) dotnet-sdk.meta.platforms;
+        in
+          pkgs.writeShellScript "fetch-${pname}-deps" (builtins.readFile (pkgs.substituteAll {
+            src = ./fetchDeps.sh;
+            pname = pname;
+            binPath = pkgs.lib.makeBinPath [pkgs.coreutils dotnet-sdk (pkgs.nuget-to-nix.override {inherit dotnet-sdk;})];
+            projectFiles = toString (pkgs.lib.toList projectFile);
+            testProjectFiles = toString (pkgs.lib.toList testProjectFile);
+            rids = pkgs.lib.concatStringsSep "\" \"" runtimeIds;
+            packages = dotnet-sdk.packages;
+            storeSrc = pkgs.srcOnly {
+              src = ./.;
+              pname = pname;
+              version = version;
+            };
+          }));
+        default = pkgs.buildDotnetModule {
           pname = pname;
-          version = "0.0.1";
+          version = version;
           src = ./.;
           projectFile = projectFile;
-          buildInputs = [
-            pkgs.dotnet-sdk_7
-            # unit tests
-            pkgs.dotnetPackages.NUnit
-            pkgs.dotnetPackages.NUnitRunners
-          ];
-          outputFiles = outputFiles;
-          exeFiles = ["AdventOfCode2022.App"];
-          nativeBuildInputs = [
-            pkgs.pkg-config
-          ];
-          buildPhase = ''runHook preBuild && dotnet publish --configuration Release ${projectFile} && runHook postBuild'';
+          nugetDeps = ./deps.nix;
           doCheck = true;
-          checkPhase = ''runHook preCheck && dotnet test --configuration Debug && dotnet test --configuration Release && runHook postCheck'';
-          installPhase = builtins.readFile (pkgs.substituteAll {
-            src = ./install.sh;
-            outputFiles = arrayToShell outputFiles;
-            pname = pname;
-            dllPatterns = arrayToShell ["*.dll"];
-            dotnet = pkgs.dotnet-sdk_7;
-            exePattern = arrayToShell ["AdventOfCode2022.App"];
-          });
+          dotnet-sdk = pkgs.dotnet-sdk_7;
+          dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
         };
       };
       devShell = pkgs.mkShell {
@@ -61,7 +61,7 @@
             ])
         ];
         packages = [
-          alejandra.defaultPackage.${system}
+          pkgs.alejandra
         ];
       };
     });
