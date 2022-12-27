@@ -38,12 +38,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v3
-        with:
-          dotnet-version: 7.0.x
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+      - name: Build
+        run: nix build
       - name: Run app
-        run: dotnet run --project AdventOfCode2022.App/AdventOfCode2022.App.fsproj --configuration Release
+        run: ./result/bin/AdventOfCode2022.App
 
   check-format:
     runs-on: ubuntu-latest
@@ -64,8 +64,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
       - name: Run ShellCheck
-        uses: ludeeus/action-shellcheck@master
+        run: nix develop --command shellcheck **/*.sh
 
   linkcheck:
     name: Check links
