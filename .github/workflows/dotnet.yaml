@@ -64,7 +64,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - uses: actions/checkout@v3
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Run Alejandra
@@ -85,7 +84,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@master
-      - uses: gaurav-nelson/github-action-markdown-link-check@v1
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+      - uses: nix shell 'nixpkgs#nodePackages.markdown-link-check' --command markdown-link-check README.md
         name: Run link checker
 
   all-required-checks-complete:
