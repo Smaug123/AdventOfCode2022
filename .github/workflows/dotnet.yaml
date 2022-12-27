@@ -45,7 +45,7 @@ jobs:
       - name: Run app
         run: ./result/bin/AdventOfCode2022.App
 
-  check-format:
+  check-dotnet-format:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -59,6 +59,17 @@ jobs:
       - name: Run Fantomas
         run: ./hooks/pre-push
 
+  check-nix-format:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/checkout@v3
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
+      - name: Run Alejandra
+        run: nix develop --command "alejandra --check ."
+
   shellcheck:
     name: Shellcheck
     runs-on: ubuntu-latest
@@ -67,7 +78,7 @@ jobs:
       - name: Install Nix
         uses: cachix/install-nix-action@v17
       - name: Run ShellCheck
-        run: nix shell 'nixpkgs#shellcheck' -c shellcheck **/*.sh
+        run: nix shell 'nixpkgs#shellcheck' -c "find . -type f -name '*.sh' | xargs shellcheck"
 
   linkcheck:
     name: Check links
@@ -78,7 +89,7 @@ jobs:
         name: Run link checker
 
   all-required-checks-complete:
-    needs: [check-format, build, shellcheck, linkcheck, run-app]
+    needs: [check-dotnet-format, check-nix-format, build, shellcheck, linkcheck, run-app]
     runs-on: ubuntu-latest
     steps:
       - run: echo "All required checks complete."
