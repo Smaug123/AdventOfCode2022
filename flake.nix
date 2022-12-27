@@ -4,14 +4,11 @@
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
-    alejandra.url = "github:kamadorueda/alejandra/3.0.0";
-    alejandra.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     self,
     nixpkgs,
-    alejandra,
     flake-utils,
     ...
   }:
@@ -64,7 +61,7 @@
             ])
         ];
         packages = [
-          alejandra.defaultPackage.${system}
+          pkgs.alejandra
         ];
       };
     });
