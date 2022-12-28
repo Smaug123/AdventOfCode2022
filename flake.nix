@@ -20,9 +20,30 @@
       outputFiles = [""];
       arrayToShell = a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t")) a);
       dotnet-sdk = pkgs.dotnet-sdk_7;
+      dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
       version = "0.0.1";
+      dotnetTool = toolName: toolVersion: sha256:
+        pkgs.stdenvNoCC.mkDerivation rec {
+          name = toolName;
+          version = toolVersion;
+          nativeBuildInputs = [pkgs.makeWrapper];
+          src = pkgs.fetchNuGet {
+            pname = name;
+            version = version;
+            sha256 = sha256;
+            installPhase = ''mkdir -p $out/bin && cp -r tools/net6.0/any/* $out/bin'';
+          };
+          installPhase = ''
+            runHook preInstall
+            mkdir -p "$out/lib"
+            cp -r ./bin/* "$out/lib"
+            makeWrapper "${dotnet-runtime}/bin/dotnet" "$out/bin/${name}" --add-flags "$out/lib/${name}.dll"
+            runHook postInstall
+          '';
+        };
     in {
       packages = {
+        fantomas = dotnetTool "fantomas" "5.2.0-alpha-008" "sha256-1egphbWXTjs2I5aFaWibFDKgu3llP1o32o1X5vab6v4=";
         fetchDeps = let
           flags = [];
           runtimeIds = map (system: pkgs.dotnetCorePackages.systemToDotnetRid system) dotnet-sdk.meta.platforms;
@@ -48,8 +69,8 @@
           projectFile = projectFile;
           nugetDeps = ./deps.nix;
           doCheck = true;
-          dotnet-sdk = pkgs.dotnet-sdk_7;
-          dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
+          dotnet-sdk = dotnet-sdk;
+          dotnet-runtime = dotnet-runtime;
         };
       };
       devShell = pkgs.mkShell {
@@ -62,6 +83,8 @@
         ];
         packages = [
           pkgs.alejandra
+          pkgs.nodePackages.markdown-link-check
+          pkgs.shellcheck
         ];
       };
     });
