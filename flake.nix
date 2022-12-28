@@ -13,17 +13,16 @@
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = nixpkgs.legacyPackages.${system};
+      pkgs = (import nixpkgs { system = system; });
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
       testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
-      outputFiles = [""];
-      arrayToShell = a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t")) a);
       dotnet-sdk = pkgs.dotnet-sdk_7;
       dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
       version = "0.0.1";
       dotnetTool = toolName: toolVersion: sha256:
         pkgs.stdenvNoCC.mkDerivation rec {
+          __contentAddressed = true;
           name = toolName;
           version = toolVersion;
           nativeBuildInputs = [pkgs.makeWrapper];
@@ -71,9 +70,11 @@
           doCheck = true;
           dotnet-sdk = dotnet-sdk;
           dotnet-runtime = dotnet-runtime;
+          __contentAddressed = true;
         };
       };
       devShell = pkgs.mkShell {
+        __contentAddressed = true;
         buildInputs = with pkgs; [
           (with dotnetCorePackages;
             combinePackages [
