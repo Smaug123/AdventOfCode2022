@@ -44,7 +44,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Build
-        run: nix build --extra-experimental-features=ca_derivations
+        run: nix build --experimental-features ca_derivations
       - name: Run app
         run: ./result/bin/AdventOfCode2022.App
 
@@ -59,7 +59,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run Fantomas
-        run: nix run --extra-experimental-features=ca_derivations .#fantomas -- -r --check .
+        run: nix run --experimental-features ca_derivations .#fantomas -- -r --check .
 
   check-nix-format:
     runs-on: ubuntu-latest
@@ -72,7 +72,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run Alejandra
-        run: nix develop --extra-experimental-features=ca_derivations --command alejandra --check .
+        run: nix develop --experimental-features ca_derivations --command alejandra --check .
 
   shellcheck:
     name: Shellcheck
@@ -86,7 +86,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run ShellCheck
-        run: nix develop --extra-experimental-features=ca_derivations --command bash -c "find . -type f -name '*.sh' | xargs shellcheck"
+        run: nix develop --experimental-features ca_derivations --command bash -c "find . -type f -name '*.sh' | xargs shellcheck"
 
   linkcheck:
     name: Check links
@@ -99,7 +99,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run link checker
-        run: nix develop --extra-experimental-features=ca_derivations --command markdown-link-check README.md
+        run: nix develop --experimental-features ca_derivations --command markdown-link-check README.md
 
   all-required-checks-complete:
     needs: [check-dotnet-format, check-nix-format, build, shellcheck, linkcheck, run-app]
