@@ -13,7 +13,7 @@
     ...
   }:
     flake-utils.lib.eachDefaultSystem (system: let
-      pkgs = (import nixpkgs { system = system; });
+      pkgs = import nixpkgs {system = system;};
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
       testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
@@ -72,6 +72,10 @@
           dotnet-runtime = dotnet-runtime;
           __contentAddressed = true;
         };
+      };
+      apps.AdventOfCode2022 = {
+        type = "app";
+        program = "${self.packages.${system}.default}/bin/AdventOfCode2022.App";
       };
       devShell = pkgs.mkShell {
         __contentAddressed = true;
