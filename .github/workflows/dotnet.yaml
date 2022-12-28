@@ -53,14 +53,13 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Setup .NET SDK v7.0.x
-        uses: actions/setup-dotnet@v3
+      - name: Install Nix
+        uses: cachix/install-nix-action@v17
         with:
-          dotnet-version: 7.0.x
-      - name: Prepare .NET tools
-        run: dotnet tool restore
+          extra_nix_config: |
+            access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run Fantomas
-        run: ./hooks/pre-push
+        run: nix run .#fantomas -- -r --check .
 
   check-nix-format:
     runs-on: ubuntu-latest
@@ -87,7 +86,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run ShellCheck
-        run: nix shell 'nixpkgs#shellcheck' --command bash -c "find . -type f -name '*.sh' | xargs shellcheck"
+        run: nix develop --command bash -c "find . -type f -name '*.sh' | xargs shellcheck"
 
   linkcheck:
     name: Check links
@@ -100,7 +99,7 @@ jobs:
           extra_nix_config: |
             access-tokens = github.com=${{ secrets.GITHUB_TOKEN }}
       - name: Run link checker
-        run: nix shell 'nixpkgs#nodePackages.markdown-link-check' --command markdown-link-check README.md
+        run: nix develop --command markdown-link-check README.md
 
   all-required-checks-complete:
     needs: [check-dotnet-format, check-nix-format, build, shellcheck, linkcheck, run-app]
