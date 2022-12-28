@@ -49,7 +49,7 @@
           runtimeIds = map (system: pkgs.dotnetCorePackages.systemToDotnetRid system) dotnet-sdk.meta.platforms;
         in
           pkgs.writeShellScript "fetch-${pname}-deps" (builtins.readFile (pkgs.substituteAll {
-            src = ./fetchDeps.sh;
+            src = ./nix/fetchDeps.sh;
             pname = pname;
             binPath = pkgs.lib.makeBinPath [pkgs.coreutils dotnet-sdk (pkgs.nuget-to-nix.override {inherit dotnet-sdk;})];
             projectFiles = toString (pkgs.lib.toList projectFile);
@@ -67,7 +67,7 @@
           version = version;
           src = ./.;
           projectFile = projectFile;
-          nugetDeps = ./deps.nix;
+          nugetDeps = ./nix/deps.nix;
           doCheck = true;
           dotnet-sdk = dotnet-sdk;
           dotnet-runtime = dotnet-runtime;
