@@ -1,6 +1,8 @@
 {
   description = "Advent of Code 2022";
 
+  nixConfig = {extra-experimental-features = ["ca-derivations"];};
+
   inputs = {
     flake-utils.url = "github:numtide/flake-utils";
     nixpkgs.url = "nixpkgs/nixpkgs-unstable";
