@@ -23,6 +23,19 @@
       version = "0.0.1";
     in {
       packages = {
+        fantomas = pkgs.stdenvNoCC.mkDerivation rec {
+          name = "fantomas";
+          version = "5.2.0-alpha-008";
+          src = pkgs.fetchNuGet {
+            pname = name;
+            version = version;
+            sha256 = "sha256-1egphbWXTjs2I5aFaWibFDKgu3llP1o32o1X5vab6v4=";
+          };
+          phases = "buildPhase";
+          preInstall = ''pwd'';
+          installPhase = ''            mkdir -p $out/bin && pwd && ls -la .
+                       cp lib/dotnet/Fantomas $out/bin'';
+        };
         fetchDeps = let
           flags = [];
           runtimeIds = map (system: pkgs.dotnetCorePackages.systemToDotnetRid system) dotnet-sdk.meta.platforms;
