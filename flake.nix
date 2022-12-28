@@ -20,21 +20,27 @@
       outputFiles = [""];
       arrayToShell = a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t")) a);
       dotnet-sdk = pkgs.dotnet-sdk_7;
+      dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
       version = "0.0.1";
     in {
       packages = {
         fantomas = pkgs.stdenvNoCC.mkDerivation rec {
           name = "fantomas";
           version = "5.2.0-alpha-008";
+          nativeBuildInputs = [ pkgs.makeWrapper ];
           src = pkgs.fetchNuGet {
             pname = name;
             version = version;
             sha256 = "sha256-1egphbWXTjs2I5aFaWibFDKgu3llP1o32o1X5vab6v4=";
+            installPhase = ''mkdir -p $out/bin && cp -r tools/net6.0/any/* $out/bin'';
           };
-          phases = "buildPhase";
-          preInstall = ''pwd'';
-          installPhase = ''            mkdir -p $out/bin && pwd && ls -la .
-                       cp lib/dotnet/Fantomas $out/bin'';
+          installPhase = ''
+            runHook preInstall
+            mkdir -p "$out/lib"
+            cp -r ./bin/* "$out/lib"
+            makeWrapper "${dotnet-runtime}/bin/dotnet" "$out/bin/fantomas" --add-flags "$out/lib/fantomas.dll"
+            runHook postInstall
+          '';
         };
         fetchDeps = let
           flags = [];
@@ -61,8 +67,8 @@
           projectFile = projectFile;
           nugetDeps = ./deps.nix;
           doCheck = true;
-          dotnet-sdk = pkgs.dotnet-sdk_7;
-          dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
+          dotnet-sdk = dotnet-sdk;
+          dotnet-runtime = dotnet-runtime;
         };
       };
       devShell = pkgs.mkShell {
