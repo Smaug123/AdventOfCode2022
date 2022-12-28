@@ -17,8 +17,6 @@
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
       testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
-      outputFiles = [""];
-      arrayToShell = a: toString (map (pkgs.lib.escape (pkgs.lib.stringToCharacters "\\ ';$`()|<>\t")) a);
       dotnet-sdk = pkgs.dotnet-sdk_7;
       dotnet-runtime = pkgs.dotnetCorePackages.runtime_7_0;
       version = "0.0.1";
