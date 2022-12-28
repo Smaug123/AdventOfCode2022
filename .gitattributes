@@ -1,4 +1,4 @@
-* text=auto
-*.sh text=lf
-*.txt text=lf
-*.nix text=lf
+* eol=auto
+*.sh eol=lf
+*.txt eol=lf
+*.nix eol=lf
