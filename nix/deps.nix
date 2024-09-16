@@ -18,8 +18,8 @@
   })
   (fetchNuGet {
     pname = "DotNet.ReproducibleBuilds";
-    version = "1.2.4";
-    hash = "sha256-gViyltFyNeTKc2tEL6tXyIDPDX/2j7aQVlsCIjEPtbQ=";
+    version = "1.2.25";
+    hash = "sha256-Vl9RPq9vCO4bjulPZiOr3gDVKlr9vnuKIIX3KWlRxvw=";
   })
   (fetchNuGet {
     pname = "fantomas";
