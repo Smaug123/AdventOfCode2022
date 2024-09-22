@@ -47,7 +47,7 @@
           src = ./.;
           projectFile = projectFile;
           testProjectFile = testProjectFile;
-          nugetDeps = ./nix/deps.nix; # `nix build .#default.passthru.fetch-deps && ./result` and put the result here
+          nugetDeps = ./nix/deps.nix; # `nix build .#default.passthru.fetch-deps && ./result nix/deps.nix`
           doCheck = true;
           dotnet-sdk = dotnet-sdk;
           dotnet-runtime = dotnet-runtime;
