@@ -16,7 +16,7 @@
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
       testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
-      dotnet-sdk = pkgs.dotnet-sdk_8;
+      dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
       dotnet-runtime = pkgs.dotnetCorePackages.runtime_8_0;
       version = "0.0.1";
       dotnetTool = toolName: toolVersion: hash:
@@ -54,13 +54,7 @@
         };
       };
       devShell = pkgs.mkShell {
-        buildInputs = with pkgs; [
-          (with dotnetCorePackages;
-            combinePackages [
-              dotnet-sdk_8
-              dotnetPackages.Nuget
-            ])
-        ];
+        buildInputs = [ dotnet-sdk ];
         packages = [
           pkgs.alejandra
           pkgs.nodePackages.markdown-link-check
