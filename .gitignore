@@ -8,3 +8,4 @@ riderModule.iml
 .vs/
 *.log
 result
+.direnv/
