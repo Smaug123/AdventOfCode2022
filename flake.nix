@@ -54,7 +54,7 @@
         };
       };
       devShell = pkgs.mkShell {
-        buildInputs = [ dotnet-sdk ];
+        buildInputs = [dotnet-sdk];
         packages = [
           pkgs.alejandra
           pkgs.nodePackages.markdown-link-check
