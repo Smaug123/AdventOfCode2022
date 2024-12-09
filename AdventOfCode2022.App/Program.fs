@@ -107,9 +107,7 @@ module Program =
         match args with
         | [| "bench" |] ->
             let config =
-                ManualConfig
-                    .Create(DefaultConfig.Instance)
-                    .WithOptions ConfigOptions.DisableOptimizationsValidator
+                ManualConfig.Create(DefaultConfig.Instance).WithOptions ConfigOptions.DisableOptimizationsValidator
 
             let _summary = BenchmarkRunner.Run<Benchmarks.Benchmark1To5> config
             let _summary = BenchmarkRunner.Run<Benchmarks.Benchmark6To10> config
