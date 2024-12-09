@@ -23,8 +23,8 @@
   })
   (fetchNuGet {
     pname = "fantomas";
-    version = "5.2.0-alpha-008";
-    hash = "sha256-1egphbWXTjs2I5aFaWibFDKgu3llP1o32o1X5vab6v4=";
+    version = "6.3.16";
+    hash = "sha256-4tRdYf+/Q1iedx+DDuIKVGlIWQdr6erM51VdKzZkhCs=";
   })
   (fetchNuGet {
     pname = "FSharp.Collections.ParallelSeq";

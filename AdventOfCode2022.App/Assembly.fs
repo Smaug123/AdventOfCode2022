@@ -5,9 +5,7 @@ open System.Reflection
 
 [<RequireQualifiedAccess>]
 module Assembly =
-    type private Dummy =
-        class
-        end
+    type private Dummy = class end
 
     let readResource (name : string) : string =
         let asm = Assembly.GetAssembly typeof<Dummy>
