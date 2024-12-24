@@ -16,8 +16,8 @@
       projectFile = "./AdventOfCode2022.App/AdventOfCode2022.App.fsproj";
       testProjectFile = "./AdventOfCode2022.Test/AdventOfCode2022.Test.fsproj";
       pname = "AdventOfCode2022";
-      dotnet-sdk = pkgs.dotnetCorePackages.sdk_8_0;
-      dotnet-runtime = pkgs.dotnetCorePackages.runtime_8_0;
+      dotnet-sdk = pkgs.dotnetCorePackages.sdk_9_0;
+      dotnet-runtime = pkgs.dotnetCorePackages.runtime_9_0;
       version = "0.0.1";
       dotnetTool = toolName: toolVersion: hash:
         pkgs.stdenvNoCC.mkDerivation rec {
@@ -28,7 +28,7 @@
             pname = name;
             version = version;
             hash = hash;
-            installPhase = ''mkdir -p $out/bin && cp -r tools/net6.0/any/* $out/bin'';
+            installPhase = ''mkdir -p $out/bin && cp -r tools/*/any/* $out/bin'';
           };
           installPhase = ''
             runHook preInstall
@@ -39,15 +39,17 @@
           '';
         };
     in {
-      packages = {
-        fantomas = dotnetTool "fantomas" (builtins.fromJSON (builtins.readFile ./.config/dotnet-tools.json)).tools.fantomas.version (builtins.head (builtins.filter (elem: elem.pname == "fantomas") ((import ./nix/deps.nix) {fetchNuGet = x: x;}))).hash;
+      packages = let
+        deps = builtins.fromJSON (builtins.readFile ./nix/deps.json);
+      in {
+        fantomas = dotnetTool "fantomas" (builtins.fromJSON (builtins.readFile ./.config/dotnet-tools.json)).tools.fantomas.version (builtins.head (builtins.filter (elem: elem.pname == "fantomas") deps)).hash;
         default = pkgs.buildDotnetModule {
           pname = pname;
           version = version;
           src = ./.;
           projectFile = projectFile;
           testProjectFile = testProjectFile;
-          nugetDeps = ./nix/deps.nix; # `nix build .#default.passthru.fetch-deps && ./result nix/deps.nix`
+          nugetDeps = ./nix/deps.json; # `nix build .#default.fetch-deps && ./result nix/deps.json`
           doCheck = true;
           dotnet-sdk = dotnet-sdk;
           dotnet-runtime = dotnet-runtime;
