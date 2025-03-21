@@ -20,6 +20,11 @@
     "hash": "sha256-Vl9RPq9vCO4bjulPZiOr3gDVKlr9vnuKIIX3KWlRxvw="
   },
   {
+    "pname": "fantomas",
+    "version": "7.0.1",
+    "hash": "sha256-2aGD6Kjh83gmssRqqZ/Uihi7VbNqNUelX4otIfCuhTI="
+  },
+  {
     "pname": "FSharp.Collections.ParallelSeq",
     "version": "1.2.0",
     "hash": "sha256-2/3Bs9shlzkNGvR+m0R9Izb8UUb8VKO60dAlBDiIUls="
