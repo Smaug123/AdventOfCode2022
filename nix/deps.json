@@ -16,8 +16,8 @@
   },
   {
     "pname": "DotNet.ReproducibleBuilds",
-    "version": "1.2.25",
-    "hash": "sha256-Vl9RPq9vCO4bjulPZiOr3gDVKlr9vnuKIIX3KWlRxvw="
+    "version": "1.2.39",
+    "hash": "sha256-BagVC6HxQHrnHz7axr4fMPNDl78Xls46XC7uQJYdWoI="
   },
   {
     "pname": "fantomas",
